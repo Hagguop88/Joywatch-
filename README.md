@@ -48,24 +48,55 @@
 
 ```text
 joywatch/
+├── android/                 # Native Android Studio Gradle Project
+│   ├── app/src/main/
+│   │   ├── AndroidManifest.xml
+│   │   └── java/com/joywatch/app/MainActivity.java
+│   └── build.gradle
 ├── api/
 │   └── index.py             # Vercel Serverless Function entry point
 ├── public/
 │   ├── index.html           # Semantic HTML5 structure
 │   ├── style.css            # Dark luxury kinetic styling
-│   └── app.js               # Client controller & streaming dispatcher
+│   ├── app.js               # Client controller & streaming dispatcher
+│   ├── manifest.json        # PWA Web App Manifest
+│   ├── sw.js                # Service Worker for offline shell caching
+│   └── icons/               # PWA & Android app icons
 ├── scripts/
 │   ├── start.bat            # Windows interactive launcher
 │   ├── start-hidden.vbs     # Windows silent background runner
 │   └── create-shortcut.ps1  # Desktop shortcut creator
-├── design-system/           # Design specs and tokens
 ├── server.py                # Standalone native multi-threaded HTTP server
-├── start.bat                # Root quick-start launcher
+├── requirements.txt         # Vercel serverless runtime configuration
 ├── vercel.json              # Vercel deployment & routing configuration
 ├── agents.md                # Agent & architecture field guide
 ├── LICENSE                  # MIT License
 └── README.md                # Project documentation
 ```
+
+---
+
+## Mobile App (PWA & Android APK)
+
+Joywatch is packaged for mobile devices with three seamless options:
+
+### 1. Instant PWA (No App Store Needed • Recommended)
+- **Android (Chrome/Edge)**: Open your Vercel URL, tap the **⋮** menu, and select **"Install App"** (or **"Add to Home Screen"**).
+- **iOS (Safari)**: Open your Vercel URL, tap the **Share** button (box with arrow), and select **"Add to Home Screen"**.
+- Joywatch will launch in true full-screen standalone mode with no browser address bar, featuring the fluid bottom navigation bar and mobile touch gestures.
+
+### 2. 1-Click APK Generator (via PWABuilder)
+Because Joywatch has a complete PWA Manifest and Service Worker:
+1. Go to [**PWABuilder.com**](https://www.pwabuilder.com).
+2. Enter your live Vercel URL (e.g. `https://joywatch.vercel.app`) and click **Start**.
+3. Click **Package for Stores** -> **Android** -> **Generate APK**.
+4. Download the `.apk` directly to your phone and install!
+
+### 3. Open in Android Studio
+If you want to build or customize the native Java/Kotlin Android app:
+1. Open Android Studio -> **Open an Existing Project**.
+2. Select the `android/` folder inside this repository.
+3. Click **Run** (`Shift + F10`) or **Build > Build Bundle(s) / APK(s) > Build APK(s)**.
 
 ---
 

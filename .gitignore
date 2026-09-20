@@ -8,6 +8,15 @@ env/
 venv/
 ENV/
 
+# Android Build Artifacts & Gradle Cache
+.gradle/
+build/
+android/build/
+android/app/build/
+*.apk
+*.aab
+output/
+
 # Agent & Workspace Cache
 .agents/
 test_*.json

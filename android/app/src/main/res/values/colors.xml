@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="joy_background">#090A0E</color>
+    <color name="joy_surface">#12131A</color>
+    <color name="joy_text">#FFFFFF</color>
+    <color name="joy_accent">#3b82f6</color>
+</resources>

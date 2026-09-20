@@ -48,20 +48,30 @@
 
 ```text
 joywatch/
-├── android/                 # Native Android Studio Gradle Project
+├── android/                 # 100% Pure Native Android App (Kotlin + Compose + ExoPlayer)
 │   ├── app/src/main/
 │   │   ├── AndroidManifest.xml
-│   │   └── java/com/joywatch/app/MainActivity.java
+│   │   ├── java/com/joywatch/app/
+│   │   │   ├── JoywatchApp.kt           # Navigation root & bottom nav pill scaffold
+│   │   │   ├── MainActivity.kt          # Compose entrypoint activity
+│   │   │   ├── data/
+│   │   │   │   ├── model/Models.kt      # MediaItem, MetaDetails, StreamSource
+│   │   │   │   └── repository/          # Cinemeta API & JoyList persistent storage
+│   │   │   └── ui/
+│   │   │       ├── theme/               # Obsidian luxury design tokens
+│   │   │       ├── components/          # Billboard, MediaCard, Shelf, DetailBottomSheet
+│   │   │       └── screens/             # HomeScreen, SearchScreen, PlayerScreen (ExoPlayer)
+│   │   └── res/                         # Native launcher icons, strings, styles
 │   └── build.gradle
 ├── api/
 │   └── index.py             # Vercel Serverless Function entry point
 ├── public/
-│   ├── index.html           # Semantic HTML5 structure
+│   ├── index.html           # Web semantic structure
 │   ├── style.css            # Dark luxury kinetic styling
-│   ├── app.js               # Client controller & streaming dispatcher
+│   ├── app.js               # Web streaming controller
 │   ├── manifest.json        # PWA Web App Manifest
-│   ├── sw.js                # Service Worker for offline shell caching
-│   └── icons/               # PWA & Android app icons
+│   ├── sw.js                # Service Worker for offline caching
+│   └── icons/               # Mobile launcher icons
 ├── scripts/
 │   ├── start.bat            # Windows interactive launcher
 │   ├── start-hidden.vbs     # Windows silent background runner
@@ -76,27 +86,24 @@ joywatch/
 
 ---
 
-## Mobile App (PWA & Android APK)
+## Native Android App (Kotlin + Jetpack Compose + ExoPlayer)
 
-Joywatch is packaged for mobile devices with three seamless options:
+Joywatch includes a **100% pure native Android mobile app** built with modern Android standards (zero WebViews, zero web wrappers):
 
-### 1. Instant PWA (No App Store Needed • Recommended)
-- **Android (Chrome/Edge)**: Open your Vercel URL, tap the **⋮** menu, and select **"Install App"** (or **"Add to Home Screen"**).
-- **iOS (Safari)**: Open your Vercel URL, tap the **Share** button (box with arrow), and select **"Add to Home Screen"**.
-- Joywatch will launch in true full-screen standalone mode with no browser address bar, featuring the fluid bottom navigation bar and mobile touch gestures.
+### Key Native Highlights:
+- **Jetpack Compose 120fps UI**: Declarative native composables with fluid hardware rendering.
+- **AndroidX Media3 / ExoPlayer**: Native hardware-accelerated video playback engine with cinema controls (scrubber slider, 10s skip/rewind, time indicators).
+- **Multi-Server Failover Switcher**: Right-side server switching modal (`Server 1`, `Server 2`, `Server 3`, `Server 4`).
+- **Dynamic Orientation**: Auto-rotates into landscape mode during video playback and restores portrait when closing the player.
+- **Native Draggable BottomSheet**: Full movie/series detail modal with synopsis, genre tags, and season/episode picker.
+- **Reactive JoyList Bookmarks**: Persistent offline watchlist powered by Kotlin Coroutines StateFlow.
+- **Obsidian Dark Aesthetic**: Strict design rules preserved (Obsidian `#090A0E`, charcoal surfaces, round pill buttons, zero gradients, zero purple, zero emojis).
 
-### 2. 1-Click APK Generator (via PWABuilder)
-Because Joywatch has a complete PWA Manifest and Service Worker:
-1. Go to [**PWABuilder.com**](https://www.pwabuilder.com).
-2. Enter your live Vercel URL (e.g. `https://joywatch.vercel.app`) and click **Start**.
-3. Click **Package for Stores** -> **Android** -> **Generate APK**.
-4. Download the `.apk` directly to your phone and install!
-
-### 3. Open in Android Studio
-If you want to build or customize the native Java/Kotlin Android app:
-1. Open Android Studio -> **Open an Existing Project**.
-2. Select the `android/` folder inside this repository.
-3. Click **Run** (`Shift + F10`) or **Build > Build Bundle(s) / APK(s) > Build APK(s)**.
+### How to Build & Run:
+1. Open **Android Studio** (Hedgehog 2023.1 or newer).
+2. Click **Open** and select the `android/` directory inside this repository.
+3. Android Studio will automatically sync the Gradle project.
+4. Connect your Android device (or launch an Android Virtual Device emulator) and click **Run** (`Shift + F10`), or build the APK via **Build > Build Bundle(s) / APK(s) > Build APK(s)**.
 
 ---
 

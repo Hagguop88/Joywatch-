@@ -3,13 +3,16 @@ package com.joywatch.app
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,6 +27,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -39,7 +43,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.joywatch.app.data.model.MediaItem
 import com.joywatch.app.data.repository.JoyListManager
 import com.joywatch.app.data.repository.JoywatchRepository
 import com.joywatch.app.ui.screens.HomeScreen
@@ -49,7 +52,6 @@ import com.joywatch.app.ui.screens.SearchScreen
 import com.joywatch.app.ui.theme.JoyBackground
 import com.joywatch.app.ui.theme.JoyBorder
 import com.joywatch.app.ui.theme.JoySurfaceElevated
-import com.joywatch.app.ui.theme.JoyTextMuted
 import com.joywatch.app.ui.theme.JoyTextPrimary
 import com.joywatch.app.ui.theme.JoyTextSecondary
 
@@ -70,7 +72,7 @@ fun JoywatchApp(
     var activePlayer by remember { mutableStateOf<ActivePlayerParams?>(null) }
     val joyListItems by joyListManager.joyList.collectAsState()
 
-    // If video player is active, render fullscreen ExoPlayer surface
+    // Fullscreen Streaming Player
     activePlayer?.let { params ->
         PlayerScreen(
             type = params.type,
@@ -84,169 +86,198 @@ fun JoywatchApp(
         return
     }
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(JoyBackground)
     ) {
-        // Main Screen View
-        Column(modifier = Modifier.fillMaxSize()) {
-            // Header Bar (Small Joywatch Logo & Compact Navigation)
+        // Header Bar (Small Joywatch Logo & Search Button)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Joywatch Logo
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding()
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.clickable { activeTab = "discover" }
             ) {
-                // Joywatch Logo (Small icon & Small refined text)
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable { activeTab = "discover" }
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(24.dp)
-                            .background(Color(0xFF1E202B), CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.PlayArrow,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(12.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(6.dp))
-
-                    Text(
-                        text = "Joywatch",
-                        color = JoyTextPrimary,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = (-0.3).sp
-                    )
-                }
-
-                // Search Icon Button
                 Box(
                     modifier = Modifier
-                        .size(34.dp)
-                        .clip(CircleShape)
-                        .background(JoySurfaceElevated)
-                        .border(1.dp, JoyBorder, CircleShape)
-                        .clickable { activeTab = "search" },
+                        .size(24.dp)
+                        .background(Color(0xFF1E202B), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
-                        tint = JoyTextSecondary,
-                        modifier = Modifier.size(16.dp)
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(12.dp)
                     )
                 }
+
+                Spacer(modifier = Modifier.width(6.dp))
+
+                Text(
+                    text = "Joywatch",
+                    color = JoyTextPrimary,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = (-0.3).sp
+                )
             }
 
-            // Screen Content
-            Box(modifier = Modifier.weight(1f)) {
-                when (activeTab) {
-                    "discover" -> HomeScreen(
-                        category = "all",
-                        repository = repository,
-                        joyListManager = joyListManager,
-                        onPlay = { item, s, e ->
-                            activePlayer = ActivePlayerParams(item.type, item.id, item.name, s, e)
-                        }
-                    )
-                    "movies" -> HomeScreen(
-                        category = "movie",
-                        repository = repository,
-                        joyListManager = joyListManager,
-                        onPlay = { item, s, e ->
-                            activePlayer = ActivePlayerParams(item.type, item.id, item.name, s, e)
-                        }
-                    )
-                    "series" -> HomeScreen(
-                        category = "series",
-                        repository = repository,
-                        joyListManager = joyListManager,
-                        onPlay = { item, s, e ->
-                            activePlayer = ActivePlayerParams(item.type, item.id, item.name, s, e)
-                        }
-                    )
-                    "anime" -> HomeScreen(
-                        category = "anime",
-                        repository = repository,
-                        joyListManager = joyListManager,
-                        onPlay = { item, s, e ->
-                            activePlayer = ActivePlayerParams(item.type, item.id, item.name, s, e)
-                        }
-                    )
-                    "search" -> SearchScreen(
-                        repository = repository,
-                        joyListManager = joyListManager,
-                        onPlay = { item, s, e ->
-                            activePlayer = ActivePlayerParams(item.type, item.id, item.name, s, e)
-                        }
-                    )
-                    "joylist" -> JoyListScreen(
-                        repository = repository,
-                        joyListManager = joyListManager,
-                        onPlay = { item, s, e ->
-                            activePlayer = ActivePlayerParams(item.type, item.id, item.name, s, e)
-                        }
-                    )
-                }
+            // Search Icon Button
+            Box(
+                modifier = Modifier
+                    .size(34.dp)
+                    .clip(CircleShape)
+                    .background(JoySurfaceElevated)
+                    .border(1.dp, JoyBorder, CircleShape)
+                    .clickable { activeTab = "search" },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search",
+                    tint = JoyTextSecondary,
+                    modifier = Modifier.size(16.dp)
+                )
             }
         }
 
-        // Floating Minimalist Bottom Navigation Bar
+        // Screen Content (takes all remaining height so it scrolls independently without bottom bar interruption)
         Box(
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .navigationBarsPadding()
-                .padding(bottom = 12.dp)
+                .weight(1f)
+                .fillMaxWidth()
         ) {
+            when (activeTab) {
+                "discover" -> HomeScreen(
+                    category = "all",
+                    repository = repository,
+                    joyListManager = joyListManager,
+                    onPlay = { item, s, e ->
+                        activePlayer = ActivePlayerParams(item.type, item.id, item.name, s, e)
+                    }
+                )
+                "movies" -> HomeScreen(
+                    category = "movie",
+                    repository = repository,
+                    joyListManager = joyListManager,
+                    onPlay = { item, s, e ->
+                        activePlayer = ActivePlayerParams(item.type, item.id, item.name, s, e)
+                    }
+                )
+                "series" -> HomeScreen(
+                    category = "series",
+                    repository = repository,
+                    joyListManager = joyListManager,
+                    onPlay = { item, s, e ->
+                        activePlayer = ActivePlayerParams(item.type, item.id, item.name, s, e)
+                    }
+                )
+                "anime" -> HomeScreen(
+                    category = "anime",
+                    repository = repository,
+                    joyListManager = joyListManager,
+                    onPlay = { item, s, e ->
+                        activePlayer = ActivePlayerParams(item.type, item.id, item.name, s, e)
+                    }
+                )
+                "search" -> SearchScreen(
+                    repository = repository,
+                    joyListManager = joyListManager,
+                    onPlay = { item, s, e ->
+                        activePlayer = ActivePlayerParams(item.type, item.id, item.name, s, e)
+                    }
+                )
+                "joylist" -> JoyListScreen(
+                    repository = repository,
+                    joyListManager = joyListManager,
+                    onPlay = { item, s, e ->
+                        activePlayer = ActivePlayerParams(item.type, item.id, item.name, s, e)
+                    }
+                )
+            }
+        }
+
+        // Docked Bottom Navigation Bar (No chunky box or border, flush at the bottom)
+        JoyBottomNavBar(
+            activeTab = activeTab,
+            joyListCount = joyListItems.size,
+            onTabSelect = { activeTab = it }
+        )
+    }
+}
+
+@Composable
+fun JoyBottomNavBar(
+    activeTab: String,
+    joyListCount: Int,
+    onTabSelect: (String) -> Unit
+) {
+    Surface(
+        color = Color(0xFF0C0D14),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+        ) {
+            // Subtle 1px top divider hairline
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(Color(0xFF171822))
+            )
+
             Row(
                 modifier = Modifier
-                    .clip(CircleShape)
-                    .background(Color(0xF012131A))
-                    .border(1.dp, JoyBorder, CircleShape)
-                    .padding(horizontal = 8.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    .fillMaxWidth()
+                    .height(52.dp)
+                    .padding(horizontal = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                NavPillItem(
+                JoyNavItem(
                     label = "Discover",
                     icon = Icons.Default.PlayArrow,
                     isSelected = activeTab == "discover",
-                    onClick = { activeTab = "discover" }
+                    onClick = { onTabSelect("discover") },
+                    modifier = Modifier.weight(1f)
                 )
-                NavPillItem(
+                JoyNavItem(
                     label = "Movies",
                     icon = Icons.Default.Movie,
                     isSelected = activeTab == "movies",
-                    onClick = { activeTab = "movies" }
+                    onClick = { onTabSelect("movies") },
+                    modifier = Modifier.weight(1f)
                 )
-                NavPillItem(
+                JoyNavItem(
                     label = "Series",
                     icon = Icons.Default.Tv,
                     isSelected = activeTab == "series",
-                    onClick = { activeTab = "series" }
+                    onClick = { onTabSelect("series") },
+                    modifier = Modifier.weight(1f)
                 )
-                NavPillItem(
+                JoyNavItem(
                     label = "Anime",
                     icon = Icons.Default.LocalMovies,
                     isSelected = activeTab == "anime",
-                    onClick = { activeTab = "anime" }
+                    onClick = { onTabSelect("anime") },
+                    modifier = Modifier.weight(1f)
                 )
-                NavPillItem(
-                    label = if (joyListItems.isNotEmpty()) "JoyList (${joyListItems.size})" else "JoyList",
+                JoyNavItem(
+                    label = if (joyListCount > 0) "JoyList ($joyListCount)" else "JoyList",
                     icon = Icons.Default.Bookmark,
                     isSelected = activeTab == "joylist",
-                    onClick = { activeTab = "joylist" }
+                    onClick = { onTabSelect("joylist") },
+                    modifier = Modifier.weight(1f)
                 )
             }
         }
@@ -254,35 +285,36 @@ fun JoywatchApp(
 }
 
 @Composable
-private fun NavPillItem(
+private fun JoyNavItem(
     label: String,
     icon: ImageVector,
     isSelected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = Modifier
-            .clip(CircleShape)
-            .background(if (isSelected) Color.White else Color.Transparent)
-            .clickable { onClick() }
-            .padding(horizontal = 12.dp, vertical = 8.dp)
+    Column(
+        modifier = modifier
+            .fillMaxHeight()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onClick() },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = if (isSelected) Color.Black else JoyTextMuted,
-                modifier = Modifier.size(13.dp)
-            )
-            Text(
-                text = label,
-                color = if (isSelected) Color.Black else JoyTextSecondary,
-                fontSize = 11.sp,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-            )
-        }
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = if (isSelected) Color.White else Color(0xFF6B7280),
+            modifier = Modifier.size(19.dp)
+        )
+        Spacer(modifier = Modifier.height(3.dp))
+        Text(
+            text = label,
+            color = if (isSelected) Color.White else Color(0xFF6B7280),
+            fontSize = 10.sp,
+            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+            maxLines = 1
+        )
     }
 }

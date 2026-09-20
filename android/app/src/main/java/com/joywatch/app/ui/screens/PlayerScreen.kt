@@ -1,11 +1,21 @@
 package com.joywatch.app.ui.screens
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.ActivityInfo
-import android.net.Uri
+import android.graphics.Bitmap
+import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -16,29 +26,25 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Dns
-import androidx.compose.material.icons.filled.Forward10
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Replay10
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -51,15 +57,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.PlayerView
 import com.joywatch.app.data.model.StreamSource
 import com.joywatch.app.data.repository.JoywatchRepository
 import com.joywatch.app.ui.components.ServerSwitcherDialog
 import kotlinx.coroutines.delay
 
+@SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun PlayerScreen(
     type: String,
@@ -77,13 +80,10 @@ fun PlayerScreen(
     var currentSourceIndex by remember { mutableIntStateOf(0) }
     var isControlsVisible by remember { mutableStateOf(true) }
     var showServerSwitcher by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(true) }
+    var webViewInstance by remember { mutableStateOf<WebView?>(null) }
 
-    var isPlaying by remember { mutableStateOf(true) }
-    var currentPosition by remember { mutableLongStateOf(0L) }
-    var duration by remember { mutableLongStateOf(0L) }
-    var isBuffering by remember { mutableStateOf(true) }
-
-    // Lock to landscape during movie playback for cinematic experience
+    // Lock orientation to Landscape during video playback
     DisposableEffect(Unit) {
         val originalOrientation = activity?.requestedOrientation ?: ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
@@ -92,52 +92,14 @@ fun PlayerScreen(
         }
     }
 
-    // Initialize ExoPlayer
-    val exoPlayer = remember {
-        ExoPlayer.Builder(context).build().apply {
-            playWhenReady = true
-        }
-    }
-
+    // Load available servers
     LaunchedEffect(type, id, season, episode) {
         sources = repository.getStreamSources(type, id, title, season, episode)
-        if (sources.isNotEmpty()) {
-            val streamUrl = sources[0].url
-            exoPlayer.setMediaItem(MediaItem.fromUri(Uri.parse(streamUrl)))
-            exoPlayer.prepare()
-        }
     }
 
-    // Monitor ExoPlayer events
-    DisposableEffect(exoPlayer) {
-        val listener = object : Player.Listener {
-            override fun onPlaybackStateChanged(playbackState: Int) {
-                isBuffering = playbackState == Player.STATE_BUFFERING
-                duration = exoPlayer.duration.coerceAtLeast(0L)
-            }
-
-            override fun onIsPlayingChanged(playing: Boolean) {
-                isPlaying = playing
-            }
-        }
-        exoPlayer.addListener(listener)
-        onDispose {
-            exoPlayer.removeListener(listener)
-            exoPlayer.release()
-        }
-    }
-
-    // Auto update current position & auto-hide controls after 4 seconds
-    LaunchedEffect(isPlaying, isControlsVisible) {
-        while (true) {
-            currentPosition = exoPlayer.currentPosition.coerceAtLeast(0L)
-            duration = exoPlayer.duration.coerceAtLeast(0L)
-            delay(1000)
-        }
-    }
-
+    // Auto-hide controls after 4 seconds
     LaunchedEffect(isControlsVisible) {
-        if (isControlsVisible && isPlaying) {
+        if (isControlsVisible) {
             delay(4000)
             isControlsVisible = false
         }
@@ -158,202 +120,118 @@ fun PlayerScreen(
                 isControlsVisible = !isControlsVisible
             }
     ) {
-        // Native ExoPlayer Surface
-        AndroidView(
-            factory = { ctx ->
-                PlayerView(ctx).apply {
-                    player = exoPlayer
-                    useController = false
-                    layoutParams = FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
-                    )
-                }
-            },
-            modifier = Modifier.fillMaxSize()
-        )
+        // High-Performance Hardware-Accelerated Video WebView
+        if (sources.isNotEmpty()) {
+            val currentUrl = sources[currentSourceIndex].url
 
-        // Loading Spinner
-        if (isBuffering) {
-            CircularProgressIndicator(
-                color = Color.White,
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(48.dp)
+            AndroidView(
+                factory = { ctx ->
+                    WebView(ctx).apply {
+                        layoutParams = FrameLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT
+                        )
+                        setBackgroundColor(android.graphics.Color.BLACK)
+
+                        settings.apply {
+                            javaScriptEnabled = true
+                            domStorageEnabled = true
+                            databaseEnabled = true
+                            mediaPlaybackRequiresUserGesture = false
+                            allowFileAccess = true
+                            allowContentAccess = true
+                            loadWithOverviewMode = true
+                            useWideViewPort = true
+                            setSupportMultipleWindows(false)
+                            javaScriptCanOpenWindowsAutomatically = false
+                            mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                            userAgentString = "Mozilla/5.0 (Linux; Android 14; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36"
+                        }
+
+                        webViewClient = object : WebViewClient() {
+                            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                                super.onPageStarted(view, url, favicon)
+                                isLoading = true
+                            }
+
+                            override fun onPageFinished(view: WebView?, url: String?) {
+                                super.onPageFinished(view, url)
+                                isLoading = false
+                            }
+
+                            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                                val reqUrl = request?.url?.toString() ?: return false
+                                val host = request.url?.host?.lowercase() ?: ""
+                                val allowedKeywords = listOf(
+                                    "vidlink.pro",
+                                    "2embed.cc",
+                                    "autoembed.co",
+                                    "vidsrc.pm",
+                                    "vidsrc.to",
+                                    "vidsrc.cc",
+                                    "multiembed.mov",
+                                    "strem.io",
+                                    "stream",
+                                    "embed"
+                                )
+                                val isAllowed = allowedKeywords.any { host.contains(it) } ||
+                                        reqUrl.contains(".m3u8") ||
+                                        reqUrl.contains(".mp4")
+
+                                return if (isAllowed) {
+                                    false
+                                } else {
+                                    // Block popups and external spam ads
+                                    true
+                                }
+                            }
+                        }
+
+                        webChromeClient = object : WebChromeClient() {
+                            override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                                if (newProgress >= 70) {
+                                    isLoading = false
+                                }
+                            }
+                        }
+
+                        webViewInstance = this
+                        loadUrl(currentUrl)
+                    }
+                },
+                update = { wv ->
+                    if (wv.url != currentUrl) {
+                        isLoading = true
+                        wv.loadUrl(currentUrl)
+                    }
+                },
+                modifier = Modifier.fillMaxSize()
             )
         }
 
-        // Custom Minimalist Overlay Controls (Zero Gradients)
-        if (isControlsVisible) {
-            // Dark scrim
+        // Clean Loading Spinner Overlay
+        if (isLoading) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.5f))
-            )
-
-            // Top Bar
-            Row(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .background(Color.Black.copy(alpha = 0.65f)),
+                contentAlignment = Alignment.Center
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    IconButton(
-                        onClick = onClose,
-                        modifier = Modifier
-                            .background(Color(0x80090A0E), CircleShape)
-                            .size(38.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color.White,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Column {
-                        Text(
-                            text = title,
-                            color = Color.White,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        if (type == "series") {
-                            Text(
-                                text = "Season $season • Episode $episode",
-                                color = Color(0xFF9E9EA7),
-                                fontSize = 11.sp
-                            )
-                        }
-                    }
-                }
-
-                // Right-Side Server Switcher Button
-                Box(
-                    modifier = Modifier
-                        .background(Color(0xCC12131A), CircleShape)
-                        .clickable { showServerSwitcher = true }
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Dns,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(13.dp)
-                        )
-                        Spacer(modifier = Modifier.width(5.dp))
-                        Text(
-                            text = "Server ${currentSourceIndex + 1}",
-                            color = Color.White,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                }
-            }
-
-            // Center Playback Buttons (Play/Pause, Rewind, Fast Forward)
-            Row(
-                modifier = Modifier.align(Alignment.Center),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(36.dp)
-            ) {
-                IconButton(
-                    onClick = {
-                        val target = (exoPlayer.currentPosition - 10000L).coerceAtLeast(0L)
-                        exoPlayer.seekTo(target)
-                    },
-                    modifier = Modifier.size(44.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Replay10,
-                        contentDescription = "Rewind 10s",
-                        tint = Color.White,
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
-
-                IconButton(
-                    onClick = {
-                        if (exoPlayer.isPlaying) {
-                            exoPlayer.pause()
-                        } else {
-                            exoPlayer.play()
-                        }
-                    },
-                    modifier = Modifier
-                        .size(64.dp)
-                        .background(Color.White, CircleShape)
-                ) {
-                    Icon(
-                        imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = if (isPlaying) "Pause" else "Play",
-                        tint = Color.Black,
-                        modifier = Modifier.size(36.dp)
-                    )
-                }
-
-                IconButton(
-                    onClick = {
-                        val target = (exoPlayer.currentPosition + 10000L).coerceAtMost(duration)
-                        exoPlayer.seekTo(target)
-                    },
-                    modifier = Modifier.size(44.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Forward10,
-                        contentDescription = "Forward 10s",
-                        tint = Color.White,
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
-            }
-
-            // Bottom Timeline Scrubber
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 16.dp)
-            ) {
-                Slider(
-                    value = if (duration > 0) currentPosition.toFloat() / duration.toFloat() else 0f,
-                    onValueChange = { frac ->
-                        val target = (frac * duration).toLong()
-                        exoPlayer.seekTo(target)
-                    },
-                    colors = SliderDefaults.colors(
-                        thumbColor = Color.White,
-                        activeTrackColor = Color.White,
-                        inactiveTrackColor = Color.White.copy(alpha = 0.25f)
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = formatTime(currentPosition),
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator(
                         color = Color.White,
-                        fontSize = 11.sp
+                        modifier = Modifier.size(44.dp)
                     )
+                    Spacer(modifier = Modifier.height(14.dp))
                     Text(
-                        text = formatTime(duration),
+                        text = if (sources.isNotEmpty()) "Connecting to ${sources[currentSourceIndex].name}..." else "Loading stream...",
+                        color = Color.White,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Use the Servers button if this server is slow",
                         color = Color(0xFF9E9EA7),
                         fontSize = 11.sp
                     )
@@ -361,33 +239,149 @@ fun PlayerScreen(
             }
         }
 
-        // Server Switcher Dialog
+        // Minimalist Cinema Overlay Controls
+        AnimatedVisibility(
+            visible = isControlsVisible,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.35f))
+            ) {
+                // Top Bar
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .fillMaxWidth()
+                        .statusBarsPadding()
+                        .padding(horizontal = 20.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    // Back & Title
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        IconButton(
+                            onClick = onClose,
+                            modifier = Modifier
+                                .background(Color(0xCC090A0E), CircleShape)
+                                .size(38.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color.White,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(14.dp))
+
+                        Column {
+                            Text(
+                                text = title,
+                                color = Color.White,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            if (type == "series") {
+                                Text(
+                                    text = "Season $season • Episode $episode",
+                                    color = Color(0xFFB0B0B8),
+                                    fontSize = 11.sp
+                                )
+                            }
+                        }
+                    }
+
+                    // Action Buttons: Reload + Right-Side Server Switcher
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        // Reload current stream
+                        IconButton(
+                            onClick = {
+                                if (sources.isNotEmpty()) {
+                                    isLoading = true
+                                    webViewInstance?.reload()
+                                }
+                            },
+                            modifier = Modifier
+                                .background(Color(0xCC12131A), CircleShape)
+                                .size(36.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = "Reload",
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+
+                        // Server Switcher Button
+                        Box(
+                            modifier = Modifier
+                                .background(Color(0xCC12131A), CircleShape)
+                                .clickable { showServerSwitcher = true }
+                                .padding(horizontal = 14.dp, vertical = 8.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.Dns,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(13.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = if (sources.isNotEmpty()) "Server ${currentSourceIndex + 1}" else "Servers",
+                                    color = Color.White,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Server Switcher Modal
         if (showServerSwitcher) {
             ServerSwitcherDialog(
                 sources = sources,
                 selectedIndex = currentSourceIndex,
                 onSelect = { idx ->
                     currentSourceIndex = idx
+                    isLoading = true
                     if (idx < sources.size) {
-                        exoPlayer.setMediaItem(MediaItem.fromUri(Uri.parse(sources[idx].url)))
-                        exoPlayer.prepare()
-                        exoPlayer.play()
+                        webViewInstance?.loadUrl(sources[idx].url)
                     }
                 },
                 onDismiss = { showServerSwitcher = false }
             )
         }
     }
-}
 
-private fun formatTime(ms: Long): String {
-    val totalSeconds = (ms / 1000).coerceAtLeast(0)
-    val hours = totalSeconds / 3600
-    val minutes = (totalSeconds % 3600) / 60
-    val seconds = totalSeconds % 60
-    return if (hours > 0) {
-        String.format("%d:%02d:%02d", hours, minutes, seconds)
-    } else {
-        String.format("%02d:%02d", minutes, seconds)
+    // Clean up WebView when leaving screen
+    DisposableEffect(Unit) {
+        onDispose {
+            webViewInstance?.apply {
+                stopLoading()
+                loadUrl("about:blank")
+                clearHistory()
+                removeAllViews()
+                destroy()
+            }
+            webViewInstance = null
+        }
     }
 }

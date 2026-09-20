@@ -1,0 +1,2 @@
+# Joywatch Vercel Serverless Function Dependencies
+# Standard Library only - explicitly prompts Vercel to invoke the Python builder

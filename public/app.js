@@ -140,6 +140,120 @@ document.addEventListener('DOMContentLoaded', () => {
 
   updateJoylistCounter();
 
+  // Robust API Fetch with Direct Client Fallback (Zero downtime on Vercel or any static host)
+  async function safeFetchJson(url, fallbackFn = null) {
+    try {
+      const res = await fetch(url);
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) {
+        return await res.json();
+      }
+    } catch (e) {
+      console.warn(`Endpoint ${url} failed, using direct client-side fallback:`, e);
+    }
+    if (typeof fallbackFn === 'function') {
+      try {
+        return await fallbackFn();
+      } catch (e) {
+        console.warn(`Fallback execution failed for ${url}:`, e);
+      }
+    }
+    return null;
+  }
+
+  async function fetchCatalog(type, genre = null) {
+    const apiPath = `/api/catalog?type=${type}${genre ? '&genre=' + encodeURIComponent(genre) : ''}`;
+    const data = await safeFetchJson(apiPath, async () => {
+      const stremUrl = genre 
+        ? `https://v3-cinemeta.strem.io/catalog/${type}/top/genre=${encodeURIComponent(genre)}.json`
+        : `https://v3-cinemeta.strem.io/catalog/${type}/top.json`;
+      const res = await fetch(stremUrl);
+      const json = await res.json();
+      const items = (json.metas || []).slice(0, 30).map(m => ({
+        id: m.id,
+        name: m.name,
+        type: m.type,
+        year: String(m.year || m.releaseInfo || ''),
+        poster: m.poster,
+        background: m.background || m.poster,
+        description: m.description || '',
+        genres: m.genres || [],
+        imdbRating: m.imdbRating || '8.5'
+      }));
+      return { items };
+    });
+    return data || { items: [] };
+  }
+
+  async function fetchMeta(type, id) {
+    const apiPath = `/api/meta?type=${type}&id=${id}`;
+    const data = await safeFetchJson(apiPath, async () => {
+      const res = await fetch(`https://v3-cinemeta.strem.io/meta/${type}/${id}.json`);
+      const json = await res.json();
+      return { meta: json.meta || {} };
+    });
+    return data || { meta: {} };
+  }
+
+  async function fetchSearch(query) {
+    const apiPath = `/api/search?q=${encodeURIComponent(query)}`;
+    const data = await safeFetchJson(apiPath, async () => {
+      const encoded = encodeURIComponent(query);
+      const [mRes, sRes] = await Promise.all([
+        fetch(`https://v3-cinemeta.strem.io/catalog/movie/top/search=${encoded}.json`).then(r => r.json()).catch(() => ({ metas: [] })),
+        fetch(`https://v3-cinemeta.strem.io/catalog/series/top/search=${encoded}.json`).then(r => r.json()).catch(() => ({ metas: [] }))
+      ]);
+      const combined = [...(mRes.metas || []), ...(sRes.metas || [])];
+      const seen = new Set();
+      const items = [];
+      for (const m of combined) {
+        if (!seen.has(m.id)) {
+          seen.add(m.id);
+          items.push({
+            id: m.id,
+            name: m.name,
+            type: m.type,
+            year: String(m.year || m.releaseInfo || ''),
+            poster: m.poster,
+            background: m.background || m.poster,
+            description: m.description || '',
+            genres: m.genres || [],
+            imdbRating: m.imdbRating || '8.0'
+          });
+        }
+      }
+      return { items: items.slice(0, 40) };
+    });
+    return data || { items: [] };
+  }
+
+  async function fetchStreams(type, id, title, season = 1, episode = 1) {
+    const apiPath = `/api/streams?type=${type}&id=${id}&title=${encodeURIComponent(title)}&season=${season}&episode=${episode}`;
+    const data = await safeFetchJson(apiPath, async () => {
+      const cleanTitle = title || "Feature Film";
+      const s = parseInt(season) || 1;
+      const e = parseInt(episode) || 1;
+      const streams = [];
+      if (type === 'series') {
+        streams.push(
+          { name: "VidLink Fast Cloud", title: `VidLink 1080p Ultra HD (S${s}:E${e})`, quality: "1080p Ultra HD", url: `https://vidlink.pro/tv/${id}/${s}/${e}`, browser_url: `https://vidlink.pro/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
+          { name: "2Embed Multi-Server", title: `2Embed 1080p Full HD (S${s}:E${e})`, quality: "1080p Full HD", url: `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`, browser_url: `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`, direct_playable: true, is_embed: true },
+          { name: "AutoEmbed Cloud", title: `AutoEmbed High-Speed (S${s}:E${e})`, quality: "1080p HD", url: `https://autoembed.co/tv/imdb/${id}/${s}/${e}`, browser_url: `https://autoembed.co/tv/imdb/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
+          { name: "VidSrc Mirror", title: `VidSrc HD Mirror (S${s}:E${e})`, quality: "720p/1080p HD", url: `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`, browser_url: `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true }
+        );
+      } else {
+        streams.push(
+          { name: "VidLink Fast Cloud", title: `${cleanTitle} - 1080p Ultra HD (Instant Play)`, quality: "1080p Ultra HD", url: `https://vidlink.pro/movie/${id}`, browser_url: `https://vidlink.pro/movie/${id}`, direct_playable: true, is_embed: true },
+          { name: "2Embed Multi-Server", title: `${cleanTitle} - 1080p Full HD (Multi-Language)`, quality: "1080p Full HD", url: `https://www.2embed.cc/embed/${id}`, browser_url: `https://www.2embed.cc/embed/${id}`, direct_playable: true, is_embed: true },
+          { name: "AutoEmbed Cloud", title: `${cleanTitle} - 1080p High-Speed Stream`, quality: "1080p HD", url: `https://autoembed.co/movie/imdb/${id}`, browser_url: `https://autoembed.co/movie/imdb/${id}`, direct_playable: true, is_embed: true },
+          { name: "VidSrc Mirror", title: `${cleanTitle} - Fast HD Mirror`, quality: "720p/1080p HD", url: `https://vidsrc.pm/embed/movie/${id}`, browser_url: `https://vidsrc.pm/embed/movie/${id}`, direct_playable: true, is_embed: true }
+        );
+      }
+      return { streams };
+    });
+    return data || { streams: [] };
+  }
+
   // Navbar Scroll Transition
   window.addEventListener('scroll', () => {
     if (window.scrollY > 20) {
@@ -190,8 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-      const data = await res.json();
+      const data = await fetchSearch(query);
       const items = data.items || [];
 
       searchGrid.innerHTML = '';
@@ -456,8 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
     episodesSection.style.display = 'none';
 
     try {
-      const metaRes = await fetch(`/api/meta?type=${item.type || 'movie'}&id=${item.id}`);
-      const metaData = await metaRes.json();
+      const metaData = await fetchMeta(item.type || 'movie', item.id);
       const meta = metaData.meta || {};
 
       if (meta.description) modalSynopsis.textContent = meta.description;
@@ -491,9 +603,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadStreams(type, id, season = 1, episode = 1, autoPlay = false) {
     try {
       const itemTitle = activeModalItem ? (activeModalItem.name || '') : '';
-      const url = `/api/streams?type=${type}&id=${id}&title=${encodeURIComponent(itemTitle)}&season=${season}&episode=${episode}`;
-      const res = await fetch(url);
-      const data = await res.json();
+      const data = await fetchStreams(type, id, itemTitle, season, episode);
       const rawStreams = data.streams || [];
       const playableStreams = rawStreams.filter(s => s.direct_playable || s.is_embed || s.browser_url);
 
@@ -895,18 +1005,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const fetches = [];
 
       if (filter === 'all' || filter === 'movie') {
-        fetches.push(fetch('/api/catalog?type=movie').then(r => r.json()));
+        fetches.push(fetchCatalog('movie'));
       }
       if (filter === 'all' || filter === 'series') {
-        fetches.push(fetch('/api/catalog?type=series').then(r => r.json()));
+        fetches.push(fetchCatalog('series'));
       }
       if (filter === 'all' || filter === 'movie') {
-        fetches.push(fetch('/api/catalog?type=movie&genre=Action').then(r => r.json()));
+        fetches.push(fetchCatalog('movie', 'Action'));
       }
       if (filter === 'all' || filter === 'anime') {
-        fetches.push(fetch('/api/catalog?type=series&genre=Animation').then(r => r.json()));
+        fetches.push(fetchCatalog('series', 'Animation'));
       }
-      fetches.push(fetch('/api/history').then(r => r.json()).catch(() => ({ recent: [] })));
+      fetches.push(safeFetchJson('/api/history', () => ({ recent: [] })).then(r => r || { recent: [] }));
 
       const results = await Promise.all(fetches);
       rowsContainer.innerHTML = '';

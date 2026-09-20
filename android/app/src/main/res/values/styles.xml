@@ -1,5 +1,5 @@
 <resources>
-    <style name="Theme.Joywatch" parent="Theme.AppCompat.NoActionBar">
+    <style name="Theme.Joywatch" parent="android:Theme.Material.NoActionBar">
         <item name="android:windowBackground">@color/joy_background</item>
         <item name="android:statusBarColor">@color/joy_background</item>
         <item name="android:navigationBarColor">@color/joy_background</item>

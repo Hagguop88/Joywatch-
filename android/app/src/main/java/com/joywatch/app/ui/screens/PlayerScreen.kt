@@ -137,6 +137,62 @@ fun PlayerScreen(
     var hudText by remember { mutableStateOf("") }
     var hudIcon by remember { mutableStateOf<androidx.compose.ui.graphics.vector.ImageVector?>(null) }
     var showHud by remember { mutableStateOf(false) }
+    var loadedUrl by remember { mutableStateOf("") }
+
+    fun loadPlayerUrl(wv: WebView, targetUrl: String) {
+        if (targetUrl.contains("vidsrc.pm")) {
+            val iframeHtml = """
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+                    <style>
+                        * { margin:0; padding:0; box-sizing:border-box; }
+                        html, body { width:100%; height:100%; overflow:hidden; background:#000; }
+                        iframe { width:100%; height:100%; border:none; display:block; }
+                    </style>
+                </head>
+                <body>
+                    <iframe id="player-iframe" 
+                            src="$targetUrl" 
+                            allow="autoplay; fullscreen; picture-in-picture; encrypted-media" 
+                            allowfullscreen="true" 
+                            webkitallowfullscreen="true">
+                    </iframe>
+                </body>
+                </html>
+            """.trimIndent()
+            wv.loadDataWithBaseURL("https://vidsrc.pm/", iframeHtml, "text/html", "UTF-8", null)
+        } else if (targetUrl.contains("vidsrc")) {
+            val baseUrl = if (targetUrl.contains("vidsrc.su")) "https://vidsrc.su/" else "https://vidsrc.pm/"
+            val iframeHtml = """
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+                    <style>
+                        * { margin:0; padding:0; box-sizing:border-box; }
+                        html, body { width:100%; height:100%; overflow:hidden; background:#000; }
+                        iframe { width:100%; height:100%; border:none; display:block; }
+                    </style>
+                </head>
+                <body>
+                    <iframe id="player-iframe" 
+                            src="$targetUrl" 
+                            allow="autoplay; fullscreen; picture-in-picture; encrypted-media" 
+                            allowfullscreen="true" 
+                            webkitallowfullscreen="true">
+                    </iframe>
+                </body>
+                </html>
+            """.trimIndent()
+            wv.loadDataWithBaseURL(baseUrl, iframeHtml, "text/html", "UTF-8", null)
+        } else {
+            wv.loadUrl(targetUrl)
+        }
+    }
 
     fun triggerHud(text: String, icon: androidx.compose.ui.graphics.vector.ImageVector?) {
         hudText = text
@@ -594,6 +650,15 @@ fun PlayerScreen(
                                         try {
                                             localStorage.removeItem('vidLinkProgress');
                                         } catch(e) {}
+                                        try {
+                                            if (!window.frameElement) {
+                                                Object.defineProperty(window, 'frameElement', {
+                                                    value: { hasAttribute: function(a) { return false; } },
+                                                    configurable: true,
+                                                    writable: true
+                                                });
+                                            }
+                                        } catch(e) {}
                                     })();""".trimIndent(),
                                     null
                                 )
@@ -752,6 +817,17 @@ fun PlayerScreen(
                             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                                 val reqUrl = request?.url?.toString() ?: return false
                                 val host = request.url?.host?.lowercase() ?: ""
+
+                                // 1. Allow subframes, iframes, player CDNs, scripts, and Turnstile to load freely
+                                if (request != null && !request.isForMainFrame) {
+                                    return false
+                                }
+
+                                // 2. Block known anti-sandbox / error redirect screens so the player remains visible
+                                if (reqUrl.contains("asb.html") || reqUrl.contains("/blocked") || reqUrl.contains("playback blocked")) {
+                                    return true
+                                }
+
                                 val allowedHosts = listOf(
                                     "vidlink.pro",
                                     "codespecters.com",
@@ -761,8 +837,16 @@ fun PlayerScreen(
                                     "autoembed.to",
                                     "vidjoy.pro",
                                     "vidsrc.pm",
+                                    "vidsrc.su",
                                     "vidsrc.to",
                                     "vidsrc.cc",
+                                    "vidsrc.xyz",
+                                    "vidsrc.net",
+                                    "vidsrc.me",
+                                    "vidsrc",
+                                    "nextgencloudfabric.com",
+                                    "challenges.cloudflare.com",
+                                    "cloudflare.com",
                                     "anyembed.xyz",
                                     "multiembed.mov",
                                     "strem.io",
@@ -806,13 +890,15 @@ fun PlayerScreen(
                         }
 
                         webViewInstance = this
-                        loadUrl(currentUrl)
+                        loadedUrl = currentUrl
+                        loadPlayerUrl(this, currentUrl)
                     }
                 },
                 update = { wv ->
-                    if (wv.url != currentUrl) {
+                    if (loadedUrl != currentUrl) {
+                        loadedUrl = currentUrl
                         isLoading = true
-                        wv.loadUrl(currentUrl)
+                        loadPlayerUrl(wv, currentUrl)
                     }
                 },
                 modifier = Modifier
@@ -1227,7 +1313,9 @@ fun PlayerScreen(
                         currentSourceIndex = idx
                         isLoading = true
                         if (idx < sources.size) {
-                            webViewInstance?.loadUrl(sources[idx].url)
+                            val target = sources[idx].url
+                            loadedUrl = target
+                            webViewInstance?.let { loadPlayerUrl(it, target) }
                         }
                     },
                     onDismiss = { showServerSwitcher = false }

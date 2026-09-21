@@ -34,10 +34,13 @@ import com.joywatch.app.ui.theme.JoyTextMuted
 import com.joywatch.app.ui.theme.JoyTextPrimary
 import com.joywatch.app.ui.theme.JoyTextSecondary
 
+import com.joywatch.app.data.repository.WatchHistoryManager
+
 @Composable
 fun JoyListScreen(
     repository: JoywatchRepository,
     joyListManager: JoyListManager,
+    watchHistoryManager: WatchHistoryManager,
     onPlay: (MediaItem, Int, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -103,6 +106,7 @@ fun JoyListScreen(
                 item = item,
                 repository = repository,
                 joyListManager = joyListManager,
+                watchHistoryManager = watchHistoryManager,
                 onDismiss = { selectedItem = null },
                 onPlay = { media, s, e ->
                     selectedItem = null

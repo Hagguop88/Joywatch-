@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.joywatch.app.data.repository.JoyListManager
 import com.joywatch.app.data.repository.JoywatchRepository
+import com.joywatch.app.data.repository.WatchHistoryManager
 import com.joywatch.app.ui.screens.HomeScreen
 import com.joywatch.app.ui.screens.JoyListScreen
 import com.joywatch.app.ui.screens.PlayerScreen
@@ -66,7 +67,8 @@ data class ActivePlayerParams(
 @Composable
 fun JoywatchApp(
     repository: JoywatchRepository,
-    joyListManager: JoyListManager
+    joyListManager: JoyListManager,
+    watchHistoryManager: WatchHistoryManager
 ) {
     var activeTab by remember { mutableStateOf("discover") } // "discover", "movies", "series", "anime", "search", "joylist"
     var activePlayer by remember { mutableStateOf<ActivePlayerParams?>(null) }
@@ -160,7 +162,9 @@ fun JoywatchApp(
                     category = "all",
                     repository = repository,
                     joyListManager = joyListManager,
+                    watchHistoryManager = watchHistoryManager,
                     onPlay = { item, s, e ->
+                        watchHistoryManager.recordWatch(item, s, e)
                         activePlayer = ActivePlayerParams(item.type, item.id, item.name, s, e)
                     }
                 )
@@ -168,7 +172,9 @@ fun JoywatchApp(
                     category = "movie",
                     repository = repository,
                     joyListManager = joyListManager,
+                    watchHistoryManager = watchHistoryManager,
                     onPlay = { item, s, e ->
+                        watchHistoryManager.recordWatch(item, s, e)
                         activePlayer = ActivePlayerParams(item.type, item.id, item.name, s, e)
                     }
                 )
@@ -176,7 +182,9 @@ fun JoywatchApp(
                     category = "series",
                     repository = repository,
                     joyListManager = joyListManager,
+                    watchHistoryManager = watchHistoryManager,
                     onPlay = { item, s, e ->
+                        watchHistoryManager.recordWatch(item, s, e)
                         activePlayer = ActivePlayerParams(item.type, item.id, item.name, s, e)
                     }
                 )
@@ -184,21 +192,27 @@ fun JoywatchApp(
                     category = "anime",
                     repository = repository,
                     joyListManager = joyListManager,
+                    watchHistoryManager = watchHistoryManager,
                     onPlay = { item, s, e ->
+                        watchHistoryManager.recordWatch(item, s, e)
                         activePlayer = ActivePlayerParams(item.type, item.id, item.name, s, e)
                     }
                 )
                 "search" -> SearchScreen(
                     repository = repository,
                     joyListManager = joyListManager,
+                    watchHistoryManager = watchHistoryManager,
                     onPlay = { item, s, e ->
+                        watchHistoryManager.recordWatch(item, s, e)
                         activePlayer = ActivePlayerParams(item.type, item.id, item.name, s, e)
                     }
                 )
                 "joylist" -> JoyListScreen(
                     repository = repository,
                     joyListManager = joyListManager,
+                    watchHistoryManager = watchHistoryManager,
                     onPlay = { item, s, e ->
+                        watchHistoryManager.recordWatch(item, s, e)
                         activePlayer = ActivePlayerParams(item.type, item.id, item.name, s, e)
                     }
                 )

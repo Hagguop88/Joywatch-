@@ -52,10 +52,13 @@ import com.joywatch.app.ui.theme.JoyTextPrimary
 import com.joywatch.app.ui.theme.JoyTextSecondary
 import kotlinx.coroutines.delay
 
+import com.joywatch.app.data.repository.WatchHistoryManager
+
 @Composable
 fun SearchScreen(
     repository: JoywatchRepository,
     joyListManager: JoyListManager,
+    watchHistoryManager: WatchHistoryManager,
     onPlay: (MediaItem, Int, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -188,6 +191,7 @@ fun SearchScreen(
                 item = item,
                 repository = repository,
                 joyListManager = joyListManager,
+                watchHistoryManager = watchHistoryManager,
                 onDismiss = { selectedItem = null },
                 onPlay = { media, s, e ->
                     selectedItem = null

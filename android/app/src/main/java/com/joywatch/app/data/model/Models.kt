@@ -40,3 +40,16 @@ data class StreamSource(
     val url: String,
     val isDirectHls: Boolean = false
 )
+
+data class ContinueWatchingItem(
+    val id: String,
+    val name: String,
+    val type: String = "movie",
+    val year: String = "",
+    val poster: String? = null,
+    val background: String? = null,
+    val season: Int = 1,
+    val episode: Int = 1,
+    val episodeTitle: String? = null,
+    val lastWatchedTimestamp: Long = System.currentTimeMillis()
+)

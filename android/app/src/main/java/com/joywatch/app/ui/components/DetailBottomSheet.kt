@@ -66,19 +66,23 @@ import com.joywatch.app.ui.theme.JoyTextMuted
 import com.joywatch.app.ui.theme.JoyTextPrimary
 import com.joywatch.app.ui.theme.JoyTextSecondary
 
+import com.joywatch.app.data.repository.WatchHistoryManager
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailBottomSheet(
     item: MediaItem,
     repository: JoywatchRepository,
     joyListManager: JoyListManager,
+    watchHistoryManager: WatchHistoryManager,
     onDismiss: () -> Unit,
     onPlay: (MediaItem, Int, Int) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var details by remember { mutableStateOf<MetaDetails?>(null) }
     var isSaved by remember { mutableStateOf(joyListManager.isSaved(item.id)) }
-    var selectedSeason by remember { mutableIntStateOf(1) }
+    val continueEntry = remember(item.id) { watchHistoryManager.get(item.id) }
+    var selectedSeason by remember { mutableIntStateOf(continueEntry?.season ?: 1) }
 
     LaunchedEffect(item.id) {
         details = repository.getMeta(item.type, item.id)
@@ -204,8 +208,16 @@ fun DetailBottomSheet(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
+                    val playSeason = continueEntry?.season ?: selectedSeason
+                    val playEpisode = continueEntry?.episode ?: 1
+                    val playButtonText = when {
+                        continueEntry != null && item.type == "series" -> "Resume (S${continueEntry.season}:E${continueEntry.episode})"
+                        continueEntry != null -> "Resume Movie"
+                        else -> "Play"
+                    }
+
                     Button(
-                        onClick = { onPlay(item, selectedSeason, 1) },
+                        onClick = { onPlay(item, playSeason, playEpisode) },
                         shape = CircleShape,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.White,
@@ -222,7 +234,7 @@ fun DetailBottomSheet(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "Play",
+                            text = playButtonText,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
                         )

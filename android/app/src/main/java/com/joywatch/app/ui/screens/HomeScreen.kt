@@ -26,7 +26,9 @@ import androidx.compose.ui.unit.sp
 import com.joywatch.app.data.model.MediaItem
 import com.joywatch.app.data.repository.JoyListManager
 import com.joywatch.app.data.repository.JoywatchRepository
+import com.joywatch.app.data.repository.WatchHistoryManager
 import com.joywatch.app.ui.components.Billboard
+import com.joywatch.app.ui.components.ContinueWatchingShelf
 import com.joywatch.app.ui.components.DetailBottomSheet
 import com.joywatch.app.ui.components.MediaShelf
 import com.joywatch.app.ui.theme.JoyBackground
@@ -38,6 +40,7 @@ fun HomeScreen(
     category: String, // "all", "movie", "series", "anime"
     repository: JoywatchRepository,
     joyListManager: JoyListManager,
+    watchHistoryManager: WatchHistoryManager,
     onPlay: (MediaItem, Int, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -49,6 +52,7 @@ fun HomeScreen(
 
     var selectedDetailItem by remember { mutableStateOf<MediaItem?>(null) }
     val joyListItems by joyListManager.joyList.collectAsState()
+    val continueWatchingItems by watchHistoryManager.continueWatching.collectAsState()
 
     LaunchedEffect(category) {
         isLoading = true
@@ -112,6 +116,37 @@ fun HomeScreen(
                     onDetailsClick = { selectedDetailItem = it }
                 )
 
+                // Dedicated Continue Watching Shelf (Top Priority!)
+                if (continueWatchingItems.isNotEmpty()) {
+                    val filteredContinue = when (category) {
+                        "movie" -> continueWatchingItems.filter { it.type == "movie" }
+                        "series" -> continueWatchingItems.filter { it.type == "series" }
+                        else -> continueWatchingItems
+                    }
+                    if (filteredContinue.isNotEmpty()) {
+                        ContinueWatchingShelf(
+                            items = filteredContinue,
+                            onPlayClick = { item ->
+                                onPlay(
+                                    MediaItem(
+                                        id = item.id,
+                                        name = item.name,
+                                        type = item.type,
+                                        year = item.year,
+                                        poster = item.poster,
+                                        background = item.background
+                                    ),
+                                    item.season,
+                                    item.episode
+                                )
+                            },
+                            onRemoveClick = { item ->
+                                watchHistoryManager.remove(item.id)
+                            }
+                        )
+                    }
+                }
+
                 if (joyListItems.isNotEmpty() && category == "all") {
                     MediaShelf(
                         title = "Your JoyList",
@@ -161,6 +196,7 @@ fun HomeScreen(
                 item = item,
                 repository = repository,
                 joyListManager = joyListManager,
+                watchHistoryManager = watchHistoryManager,
                 onDismiss = { selectedDetailItem = null },
                 onPlay = { media, s, e ->
                     selectedDetailItem = null

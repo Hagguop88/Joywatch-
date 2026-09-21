@@ -43,6 +43,7 @@ import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -56,12 +57,14 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -71,12 +74,15 @@ import androidx.compose.ui.zIndex
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.joywatch.app.data.model.StreamSource
 import com.joywatch.app.data.repository.JoywatchRepository
 import com.joywatch.app.ui.components.ServerSwitcherDialog
 import com.joywatch.app.ui.theme.JoyBorder
 import com.joywatch.app.ui.theme.JoySurfaceElevated
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
@@ -92,6 +98,7 @@ fun PlayerScreen(
     val context = LocalContext.current
     val activity = context as? Activity
     val watchHistoryManager = remember { com.joywatch.app.data.repository.WatchHistoryManager(context) }
+    val coroutineScope = rememberCoroutineScope()
 
     var sources by remember { mutableStateOf<List<StreamSource>>(emptyList()) }
     var currentSourceIndex by remember { mutableIntStateOf(0) }
@@ -107,6 +114,109 @@ fun PlayerScreen(
     var aspectRatioMode by remember { mutableStateOf("contain") }
     var showAspectHud by remember { mutableStateOf(false) }
     var aspectHudText by remember { mutableStateOf("") }
+
+    var resumeTimestampSec by remember { mutableLongStateOf(0L) }
+    var currentLivePositionSec by remember { mutableLongStateOf(0L) }
+    var currentLiveDurationSec by remember { mutableLongStateOf(0L) }
+    var hasUserResumed by remember { mutableStateOf(false) }
+    var resolvedTmdbId by remember { mutableStateOf("") }
+
+    fun flushWatchProgress() {
+        val pos = when {
+            currentLivePositionSec > 1 -> currentLivePositionSec
+            resumeTimestampSec > 1 -> resumeTimestampSec
+            else -> 0L
+        }
+        if (pos > 1) {
+            watchHistoryManager.updateProgress(
+                id = id,
+                positionSec = pos,
+                durationSec = currentLiveDurationSec,
+                season = season,
+                episode = episode,
+                name = title,
+                type = type
+            )
+        }
+    }
+
+    fun formatTimestamp(totalSeconds: Long): String {
+        val hrs = totalSeconds / 3600
+        val mins = (totalSeconds % 3600) / 60
+        val secs = totalSeconds % 60
+        return if (hrs > 0) {
+            String.format("%d:%02d:%02d", hrs, mins, secs)
+        } else {
+            String.format("%d:%02d", mins, secs)
+        }
+    }
+
+    fun seekToSavedTimestamp(targetSec: Long) {
+        if (targetSec <= 0) return
+        val formatted = formatTimestamp(targetSec)
+        aspectHudText = "Resumed to $formatted"
+        showAspectHud = true
+        hasUserResumed = true
+        resumeTimestampSec = targetSec
+        currentLivePositionSec = targetSec
+
+        // 1. If currently on VidLink (Server 1), reload with ?startAt= to guarantee seek
+        val currentSource = sources.getOrNull(currentSourceIndex)
+        if (currentSource != null && currentSource.name.contains("VidLink", ignoreCase = true)) {
+            val baseVidlinkUrl = currentSource.url.replace(Regex("[?&]startAt=\\d+"), "")
+            val separator = if (baseVidlinkUrl.contains("?")) "&" else "?"
+            val newVidlinkUrl = "$baseVidlinkUrl${separator}startAt=$targetSec"
+            val tmdbKey = resolvedTmdbId.ifEmpty { id }
+            webViewInstance?.evaluateJavascript(
+                """(function() {
+                    try {
+                        var p = JSON.parse(localStorage.getItem('vidLinkProgress') || '{}');
+                        var entry = { id: '$tmdbKey', currentTime: $targetSec, watched_seconds: $targetSec, last_updated: Date.now() };
+                        p['$id'] = entry;
+                        p['$tmdbKey'] = entry;
+                        localStorage.setItem('vidLinkProgress', JSON.stringify(p));
+                    } catch(e) {}
+                })();""".trimIndent(),
+                null
+            )
+            webViewInstance?.loadUrl(newVidlinkUrl)
+        }
+
+        // 2. Direct HTML5 video element seek & postMessage seek
+        val js = """(function() {
+            var target = $targetSec;
+            var vs = document.querySelectorAll('video');
+            vs.forEach(function(v) {
+                if (v) {
+                    v.currentTime = target;
+                    try { v.play(); } catch(e) {}
+                }
+            });
+
+            try {
+                if (window.jwplayer) {
+                    var p = window.jwplayer();
+                    if (p && p.seek) p.seek(target);
+                }
+            } catch(e) {}
+
+            var iframes = document.querySelectorAll('iframe');
+            iframes.forEach(function(f) {
+                try {
+                    f.contentWindow.postMessage({ type: 'seek', time: target, currentTime: target }, '*');
+                    f.contentWindow.postMessage({ event: 'command', func: 'seekTo', args: [target, true] }, '*');
+                    f.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [target, true] }), '*');
+                } catch(e) {}
+            });
+        })();""".trimIndent()
+
+        webViewInstance?.evaluateJavascript(js, null)
+
+        coroutineScope.launch {
+            delay(800)
+            webViewInstance?.evaluateJavascript(js, null)
+        }
+    }
 
     fun toggleAspectRatio() {
         val newMode = if (aspectRatioMode == "cover") "contain" else "cover"
@@ -139,25 +249,24 @@ fun PlayerScreen(
         }
     }
 
-    var resumeTimestampSec by remember { mutableLongStateOf(0L) }
-
     // Periodic HTML5 and VidLink progress tracker (runs in background while player is open)
     LaunchedEffect(Unit) {
         while (true) {
-            delay(3000)
+            delay(1500)
+            val tmdbKey = resolvedTmdbId.ifEmpty { id }
             webViewInstance?.evaluateJavascript(
                 """(function() {
                     var v = document.querySelector('video');
-                    if (v && v.currentTime > 2 && window.JoywatchBridge) {
+                    if (v && v.currentTime > 1 && window.JoywatchBridge) {
                         window.JoywatchBridge.reportPlayback(v.currentTime, v.duration || 0);
                     }
                     try {
                         var p = JSON.parse(localStorage.getItem('vidLinkProgress') || '{}');
-                        var item = p['$id'] || Object.values(p)[0];
+                        var item = p['$id'] || (('$tmdbKey' !== '$id') ? p['$tmdbKey'] : null);
                         if (item) {
                             var cur = item.currentTime || item.watched_seconds || 0;
                             var dur = item.duration || 0;
-                            if (cur > 2 && window.JoywatchBridge) {
+                            if (cur > 1 && window.JoywatchBridge) {
                                 window.JoywatchBridge.reportPlayback(cur, dur);
                             }
                         }
@@ -199,11 +308,37 @@ fun PlayerScreen(
         }
     }
 
+    // Flush watch progress immediately when app goes to background / paused / stopped
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE || event == Lifecycle.Event.ON_STOP) {
+                flushWatchProgress()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     // Load available streaming servers with resume timestamp injected
     LaunchedEffect(type, id, season, episode) {
+        val tmdb = repository.resolveTmdbId(id, type)
+        resolvedTmdbId = tmdb
+
         val savedItem = watchHistoryManager.get(id)
-        val resumeSec = savedItem?.positionSeconds ?: 0L
+        val resumeSec = if (type == "series") {
+            if (savedItem != null && savedItem.season == season && savedItem.episode == episode) {
+                savedItem.positionSeconds
+            } else 0L
+        } else {
+            savedItem?.positionSeconds ?: 0L
+        }
         resumeTimestampSec = resumeSec
+        if (resumeSec > 1) {
+            currentLivePositionSec = resumeSec
+        }
         sources = repository.getStreamSources(type, id, title, season, episode, resumeSeconds = resumeSec)
     }
 
@@ -216,6 +351,7 @@ fun PlayerScreen(
     }
 
     BackHandler {
+        flushWatchProgress()
         if (customVideoView != null) {
             customViewCallback?.onCustomViewHidden()
             customVideoView = null
@@ -281,8 +417,23 @@ fun PlayerScreen(
                         addJavascriptInterface(object {
                             @JavascriptInterface
                             fun reportPlayback(currentSec: Double, durationSec: Double) {
-                                if (currentSec > 2) {
-                                    watchHistoryManager.updateProgress(id, currentSec.toLong(), durationSec.toLong())
+                                val curL = currentSec.toLong()
+                                val durL = durationSec.toLong()
+                                if (curL > 1) {
+                                    currentLivePositionSec = curL
+                                    if (durL > 0) currentLiveDurationSec = durL
+                                    watchHistoryManager.updateProgress(
+                                        id = id,
+                                        positionSec = curL,
+                                        durationSec = durL,
+                                        season = season,
+                                        episode = episode,
+                                        name = title,
+                                        type = type
+                                    )
+                                    if (hasUserResumed || resumeTimestampSec <= 1L) {
+                                        resumeTimestampSec = curL
+                                    }
                                 }
                             }
 
@@ -322,21 +473,35 @@ fun PlayerScreen(
                                     null
                                 )
 
-                                // 2. Listen to VidLink player's postMessage MEDIA_DATA events
+                                // 2. Listen to player postMessage MEDIA_DATA / timeupdate events
                                 view?.evaluateJavascript(
                                     """(function() {
                                         if (window._joywatchMsgListenerAttached) return;
                                         window._joywatchMsgListenerAttached = true;
                                         window.addEventListener('message', function(event) {
                                             try {
-                                                if (event.data) {
-                                                    var d = event.data;
-                                                    if ((d.type === 'MEDIA_DATA' || d.event === 'timeupdate') && d.data) {
-                                                        var cur = d.data.currentTime || d.data.watched_seconds || d.data.current_time || 0;
-                                                        var dur = d.data.duration || 0;
-                                                        if (cur > 2 && window.JoywatchBridge) {
-                                                            window.JoywatchBridge.reportPlayback(cur, dur);
-                                                        }
+                                                var d = event.data;
+                                                if (typeof d === 'string') {
+                                                    try { d = JSON.parse(d); } catch(e) {}
+                                                }
+                                                if (d && typeof d === 'object') {
+                                                    var cur = 0;
+                                                    var dur = 0;
+                                                    if (d.type === 'MEDIA_DATA' && d.data) {
+                                                        cur = d.data.currentTime || d.data.watched_seconds || d.data.current_time || 0;
+                                                        dur = d.data.duration || 0;
+                                                    } else if (d.currentTime !== undefined) {
+                                                        cur = d.currentTime;
+                                                        dur = d.duration || 0;
+                                                    } else if (d.watched_seconds !== undefined) {
+                                                        cur = d.watched_seconds;
+                                                        dur = d.duration || 0;
+                                                    } else if (d.data && (d.data.currentTime !== undefined || d.data.watched_seconds !== undefined)) {
+                                                        cur = d.data.currentTime || d.data.watched_seconds || 0;
+                                                        dur = d.data.duration || 0;
+                                                    }
+                                                    if (cur > 1 && window.JoywatchBridge) {
+                                                        window.JoywatchBridge.reportPlayback(cur, dur);
                                                     }
                                                 }
                                             } catch(e) {}
@@ -346,18 +511,21 @@ fun PlayerScreen(
                                 )
 
                                 // 3. Pre-seed VidLink localStorage and poll video seek if resuming
-                                if (resumeTimestampSec > 10) {
+                                if (resumeTimestampSec > 1) {
                                     val targetSec = resumeTimestampSec
+                                    val tmdbKey = resolvedTmdbId.ifEmpty { id }
                                     view?.evaluateJavascript(
                                         """(function() {
                                             try {
                                                 var p = JSON.parse(localStorage.getItem('vidLinkProgress') || '{}');
-                                                p['$id'] = {
-                                                    id: '$id',
+                                                var entry = {
+                                                    id: '$tmdbKey',
                                                     currentTime: $targetSec,
                                                     watched_seconds: $targetSec,
                                                     last_updated: Date.now()
                                                 };
+                                                p['$id'] = entry;
+                                                p['$tmdbKey'] = entry;
                                                 localStorage.setItem('vidLinkProgress', JSON.stringify(p));
                                             } catch(e) {}
 
@@ -498,6 +666,24 @@ fun PlayerScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                // Interactive Resume / Live Timestamp Tab
+                val displayTimestamp = if (hasUserResumed || resumeTimestampSec <= 1L) currentLivePositionSec else resumeTimestampSec
+                val effectiveSec = if (displayTimestamp > 1) displayTimestamp else resumeTimestampSec
+                if (effectiveSec > 1) {
+                    ResumeTimestampTab(
+                        timestampSec = effectiveSec,
+                        isLive = hasUserResumed,
+                        onClick = {
+                            if (!hasUserResumed) {
+                                seekToSavedTimestamp(effectiveSec)
+                            } else {
+                                aspectHudText = "Playing at ${formatTimestamp(effectiveSec)}"
+                                showAspectHud = true
+                            }
+                        }
+                    )
+                }
+
                 // Persistent Server Switcher Chip (Always accessible while movie is playing!)
                 Box(
                     modifier = Modifier
@@ -599,7 +785,10 @@ fun PlayerScreen(
                         modifier = Modifier.weight(1f)
                     ) {
                         IconButton(
-                            onClick = onClose,
+                            onClick = {
+                                flushWatchProgress()
+                                onClose()
+                            },
                             modifier = Modifier
                                 .background(Color(0xDD0C0D14), CircleShape)
                                 .border(1.dp, JoyBorder, CircleShape)
@@ -634,11 +823,29 @@ fun PlayerScreen(
                         }
                     }
 
-                    // Action Buttons: Server Switcher + Dedicated Full Screen + Reload
+                    // Action Buttons: Resume Tab + Server Switcher + Dedicated Full Screen + Reload
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+                        // Interactive Resume / Live Timestamp Tab
+                        val displayTimestamp = if (hasUserResumed || resumeTimestampSec <= 1L) currentLivePositionSec else resumeTimestampSec
+                        val effectiveSec = if (displayTimestamp > 1) displayTimestamp else resumeTimestampSec
+                        if (effectiveSec > 1) {
+                            ResumeTimestampTab(
+                                timestampSec = effectiveSec,
+                                isLive = hasUserResumed,
+                                onClick = {
+                                    if (!hasUserResumed) {
+                                        seekToSavedTimestamp(effectiveSec)
+                                    } else {
+                                        aspectHudText = "Playing at ${formatTimestamp(effectiveSec)}"
+                                        showAspectHud = true
+                                    }
+                                }
+                            )
+                        }
+
                         // Server Switcher Button
                         Box(
                             modifier = Modifier
@@ -756,6 +963,7 @@ fun PlayerScreen(
                     sources = sources,
                     selectedIndex = currentSourceIndex,
                     onSelect = { idx ->
+                        flushWatchProgress()
                         currentSourceIndex = idx
                         isLoading = true
                         if (idx < sources.size) {
@@ -771,6 +979,7 @@ fun PlayerScreen(
     // Clean up WebView when exiting player
     DisposableEffect(Unit) {
         onDispose {
+            flushWatchProgress()
             webViewInstance?.apply {
                 stopLoading()
                 loadUrl("about:blank")
@@ -782,3 +991,68 @@ fun PlayerScreen(
         }
     }
 }
+
+@Composable
+fun ResumeTimestampTab(
+    timestampSec: Long,
+    isLive: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (timestampSec <= 1) return
+    val hrs = timestampSec / 3600
+    val mins = (timestampSec % 3600) / 60
+    val secs = timestampSec % 60
+    val formatted = if (hrs > 0) {
+        String.format("%d:%02d:%02d", hrs, mins, secs)
+    } else {
+        String.format("%d:%02d", mins, secs)
+    }
+
+    Box(
+        modifier = modifier
+            .clip(CircleShape)
+            .background(if (isLive) Color(0xDD064E3B) else Color(0xE6062417))
+            .border(
+                1.dp,
+                if (isLive) Color(0xFF34D399) else Color(0xFF10B981).copy(alpha = 0.85f),
+                CircleShape
+            )
+            .clickable(onClick = onClick)
+            .padding(horizontal = 11.dp, vertical = 7.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            if (isLive) {
+                Box(
+                    modifier = Modifier
+                        .size(7.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF34D399))
+                )
+                Text(
+                    text = "⏱ $formatted",
+                    color = Color.White,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.History,
+                    contentDescription = "Resume timestamp",
+                    tint = Color(0xFF34D399),
+                    modifier = Modifier.size(13.dp)
+                )
+                Text(
+                    text = "Resume $formatted",
+                    color = Color.White,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+

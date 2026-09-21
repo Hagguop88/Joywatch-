@@ -33,8 +33,18 @@ class WatchHistoryManager(context: Context) {
         _continueWatching.value = list
     }
 
+    private fun matchesId(itemId: String, queryId: String): Boolean {
+        if (itemId.isBlank() || queryId.isBlank()) return false
+        if (itemId.equals(queryId, ignoreCase = true)) return true
+        val clean1 = itemId.removePrefix("tmdb:").removePrefix("imdb:").removePrefix("movie:").removePrefix("series:")
+        val clean2 = queryId.removePrefix("tmdb:").removePrefix("imdb:").removePrefix("movie:").removePrefix("series:")
+        if (clean1.equals(clean2, ignoreCase = true)) return true
+        if (clean1.equals(queryId, ignoreCase = true) || clean2.equals(itemId, ignoreCase = true)) return true
+        return false
+    }
+
     fun get(id: String): ContinueWatchingItem? {
-        return _continueWatching.value.firstOrNull { it.id == id }
+        return _continueWatching.value.firstOrNull { matchesId(it.id, id) }
     }
 
     fun recordWatch(
@@ -46,21 +56,33 @@ class WatchHistoryManager(context: Context) {
         durationSeconds: Long = 0
     ) {
         val current = _continueWatching.value.toMutableList()
-        val existing = current.firstOrNull { it.id == item.id }
-        current.removeAll { it.id == item.id }
+        val existing = current.firstOrNull { matchesId(it.id, item.id) }
+        current.removeAll { matchesId(it.id, item.id) }
         val entry = ContinueWatchingItem(
             id = item.id,
             name = item.name,
             type = item.type,
             year = item.year,
-            poster = item.poster,
-            background = item.background,
+            poster = item.poster ?: existing?.poster,
+            background = item.background ?: existing?.background,
             season = season,
             episode = episode,
-            episodeTitle = episodeTitle,
+            episodeTitle = episodeTitle ?: existing?.episodeTitle,
             lastWatchedTimestamp = System.currentTimeMillis(),
-            positionSeconds = if (positionSeconds > 0) positionSeconds else (existing?.positionSeconds ?: 0),
-            durationSeconds = if (durationSeconds > 0) durationSeconds else (existing?.durationSeconds ?: 0)
+            positionSeconds = if (positionSeconds > 0) {
+                positionSeconds
+            } else if (item.type == "series") {
+                if (existing?.season == season && existing?.episode == episode) existing.positionSeconds else 0L
+            } else {
+                existing?.positionSeconds ?: 0L
+            },
+            durationSeconds = if (durationSeconds > 0) {
+                durationSeconds
+            } else if (item.type == "series") {
+                if (existing?.season == season && existing?.episode == episode) existing.durationSeconds else 0L
+            } else {
+                existing?.durationSeconds ?: 0L
+            }
         )
         current.add(0, entry)
         // Keep up to 25 titles
@@ -68,24 +90,55 @@ class WatchHistoryManager(context: Context) {
         persistList(trimmed)
     }
 
-    fun updateProgress(id: String, positionSec: Long, durationSec: Long) {
+    fun updateProgress(
+        id: String,
+        positionSec: Long,
+        durationSec: Long,
+        season: Int = 1,
+        episode: Int = 1,
+        name: String = "",
+        type: String = "movie",
+        poster: String? = null,
+        background: String? = null
+    ) {
         if (positionSec <= 0) return
         val current = _continueWatching.value.toMutableList()
-        val index = current.indexOfFirst { it.id == id }
+        val index = current.indexOfFirst { matchesId(it.id, id) }
         if (index != -1) {
-            val item = current[index]
-            current[index] = item.copy(
+            val item = current.removeAt(index)
+            val updated = item.copy(
+                season = if (type == "series") season else item.season,
+                episode = if (type == "series") episode else item.episode,
                 positionSeconds = positionSec,
                 durationSeconds = if (durationSec > 0) durationSec else item.durationSeconds,
                 lastWatchedTimestamp = System.currentTimeMillis()
             )
+            current.add(0, updated)
             persistList(current)
+        } else {
+            val entry = ContinueWatchingItem(
+                id = id,
+                name = name.ifEmpty { "Media" },
+                type = type,
+                year = "",
+                poster = poster,
+                background = background,
+                season = season,
+                episode = episode,
+                episodeTitle = null,
+                lastWatchedTimestamp = System.currentTimeMillis(),
+                positionSeconds = positionSec,
+                durationSeconds = durationSec
+            )
+            current.add(0, entry)
+            val trimmed = if (current.size > 25) current.take(25) else current
+            persistList(trimmed)
         }
     }
 
     fun remove(id: String) {
         val current = _continueWatching.value.toMutableList()
-        current.removeAll { it.id == id }
+        current.removeAll { matchesId(it.id, id) }
         persistList(current)
     }
 

@@ -255,26 +255,50 @@ class JoywatchRepository {
         results
     }
 
-    fun getStreamSources(
+    private val tmdbIdCache = java.util.concurrent.ConcurrentHashMap<String, String>().apply {
+        put("tt35538033", "1423191") // Resident Evil (2026)
+        put("tt0120804", "9381")     // Resident Evil (2002)
+    }
+
+    suspend fun resolveTmdbId(id: String, type: String): String = withContext(Dispatchers.IO) {
+        if (!id.startsWith("tt")) {
+            return@withContext if (id.startsWith("tmdb:")) id.removePrefix("tmdb:") else id
+        }
+        tmdbIdCache[id]?.let { return@withContext it }
+
+        try {
+            val cinemetaType = if (type == "series") "series" else "movie"
+            val endpoint = "https://v3-cinemeta.strem.io/meta/$cinemetaType/$id.json"
+            val json = fetchJson(endpoint)
+            val meta = json?.getAsJsonObject("meta")
+            val moviedbId = meta?.get("moviedb_id")?.let { elem ->
+                if (elem.isJsonPrimitive) elem.asString else null
+            } ?: meta?.get("tmdb_id")?.let { elem ->
+                if (elem.isJsonPrimitive) elem.asString else null
+            }
+            if (!moviedbId.isNullOrBlank() && moviedbId != "0") {
+                tmdbIdCache[id] = moviedbId
+                return@withContext moviedbId
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        id
+    }
+
+    suspend fun getStreamSources(
         type: String,
         id: String,
         title: String,
         season: Int = 1,
         episode: Int = 1,
         resumeSeconds: Long = 0
-    ): List<StreamSource> {
+    ): List<StreamSource> = withContext(Dispatchers.IO) {
         val cleanTitle = title.ifBlank { "Movie" }
+        val vidlinkId = resolveTmdbId(id, type)
+        val vidlinkResumeParam = if (resumeSeconds > 1) "?startAt=$resumeSeconds&primaryColor=10B981" else "?primaryColor=10B981"
 
-        // Disambiguate TMDb ID for servers like VidLink that require numeric IDs
-        val vidlinkId = when (id) {
-            "tt35538033" -> "1423191" // Resident Evil (2026)
-            "tt0120804" -> "9381"    // Resident Evil (2002)
-            else -> if (id.startsWith("tmdb:")) id.removePrefix("tmdb:") else id
-        }
-
-        val vidlinkResumeParam = if (resumeSeconds > 10) "?startAt=$resumeSeconds" else ""
-
-        return if (type == "series") {
+        if (type == "series") {
             listOf(
                 StreamSource(
                     name = "VidLink Pro",

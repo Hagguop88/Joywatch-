@@ -38,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -81,7 +82,10 @@ fun DetailBottomSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var details by remember { mutableStateOf<MetaDetails?>(null) }
     var isSaved by remember { mutableStateOf(joyListManager.isSaved(item.id)) }
-    val continueEntry = remember(item.id) { watchHistoryManager.get(item.id) }
+    val continueWatchingList by watchHistoryManager.continueWatching.collectAsState()
+    val continueEntry = remember(item.id, details?.id, continueWatchingList) {
+        watchHistoryManager.get(item.id) ?: details?.id?.let { watchHistoryManager.get(it) }
+    }
     var selectedSeason by remember { mutableIntStateOf(continueEntry?.season ?: 1) }
 
     LaunchedEffect(item.id) {

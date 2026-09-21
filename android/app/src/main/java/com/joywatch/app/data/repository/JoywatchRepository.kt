@@ -295,12 +295,11 @@ class JoywatchRepository {
         id: String,
         title: String,
         season: Int = 1,
-        episode: Int = 1,
-        resumeSeconds: Long = 0
+        episode: Int = 1
     ): List<StreamSource> = withContext(Dispatchers.IO) {
         val cleanTitle = title.ifBlank { "Movie" }
         val vidlinkId = resolveTmdbId(id, type)
-        val vidlinkResumeParam = if (resumeSeconds > 1) "?startAt=$resumeSeconds&primaryColor=10B981" else "?primaryColor=10B981"
+        val vidlinkParams = "?primaryColor=10B981"
         val nexstreamId = if (vidlinkId.isNotBlank() && vidlinkId != "0") vidlinkId else id
 
         if (type == "series") {
@@ -309,7 +308,7 @@ class JoywatchRepository {
                     name = "VidLink Pro",
                     title = "Server 1 • VidLink 1080p Ultra HD (S$season:E$episode)",
                     quality = "1080p Ultra HD • Best Audio & Fast",
-                    url = "https://vidlink.pro/tv/$vidlinkId/$season/$episode$vidlinkResumeParam"
+                    url = "https://vidlink.pro/tv/$vidlinkId/$season/$episode$vidlinkParams"
                 ),
                 StreamSource(
                     name = "NexStream VIP",
@@ -360,7 +359,7 @@ class JoywatchRepository {
                     name = "VidLink Pro",
                     title = "Server 1 • $cleanTitle - 1080p Ultra HD",
                     quality = "1080p Ultra HD • Best Audio & Fast",
-                    url = "https://vidlink.pro/movie/$vidlinkId$vidlinkResumeParam"
+                    url = "https://vidlink.pro/movie/$vidlinkId$vidlinkParams"
                 ),
                 StreamSource(
                     name = "NexStream VIP",

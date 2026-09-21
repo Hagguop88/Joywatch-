@@ -217,7 +217,10 @@ fun DetailBottomSheet(
                     }
 
                     Button(
-                        onClick = { onPlay(item, playSeason, playEpisode) },
+                        onClick = {
+                            watchHistoryManager.recordWatch(item, playSeason, playEpisode)
+                            onPlay(item, playSeason, playEpisode)
+                        },
                         shape = CircleShape,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.White,
@@ -336,7 +339,10 @@ fun DetailBottomSheet(
                             Column(
                                 modifier = Modifier
                                     .width(160.dp)
-                                    .clickable { onPlay(item, ep.season, ep.episode) }
+                                    .clickable {
+                                        watchHistoryManager.recordWatch(item, ep.season, ep.episode, ep.title)
+                                        onPlay(item, ep.season, ep.episode)
+                                    }
                             ) {
                                 Box(
                                     modifier = Modifier

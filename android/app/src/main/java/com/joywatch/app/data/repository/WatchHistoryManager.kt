@@ -41,9 +41,12 @@ class WatchHistoryManager(context: Context) {
         item: MediaItem,
         season: Int = 1,
         episode: Int = 1,
-        episodeTitle: String? = null
+        episodeTitle: String? = null,
+        positionSeconds: Long = 0,
+        durationSeconds: Long = 0
     ) {
         val current = _continueWatching.value.toMutableList()
+        val existing = current.firstOrNull { it.id == item.id }
         current.removeAll { it.id == item.id }
         val entry = ContinueWatchingItem(
             id = item.id,
@@ -55,12 +58,29 @@ class WatchHistoryManager(context: Context) {
             season = season,
             episode = episode,
             episodeTitle = episodeTitle,
-            lastWatchedTimestamp = System.currentTimeMillis()
+            lastWatchedTimestamp = System.currentTimeMillis(),
+            positionSeconds = if (positionSeconds > 0) positionSeconds else (existing?.positionSeconds ?: 0),
+            durationSeconds = if (durationSeconds > 0) durationSeconds else (existing?.durationSeconds ?: 0)
         )
         current.add(0, entry)
         // Keep up to 25 titles
         val trimmed = if (current.size > 25) current.take(25) else current
         persistList(trimmed)
+    }
+
+    fun updateProgress(id: String, positionSec: Long, durationSec: Long) {
+        if (positionSec <= 0) return
+        val current = _continueWatching.value.toMutableList()
+        val index = current.indexOfFirst { it.id == id }
+        if (index != -1) {
+            val item = current[index]
+            current[index] = item.copy(
+                positionSeconds = positionSec,
+                durationSeconds = if (durationSec > 0) durationSec else item.durationSeconds,
+                lastWatchedTimestamp = System.currentTimeMillis()
+            )
+            persistList(current)
+        }
     }
 
     fun remove(id: String) {

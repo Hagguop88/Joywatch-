@@ -51,5 +51,7 @@ data class ContinueWatchingItem(
     val season: Int = 1,
     val episode: Int = 1,
     val episodeTitle: String? = null,
-    val lastWatchedTimestamp: Long = System.currentTimeMillis()
+    val lastWatchedTimestamp: Long = System.currentTimeMillis(),
+    val positionSeconds: Long = 0,
+    val durationSeconds: Long = 0
 )

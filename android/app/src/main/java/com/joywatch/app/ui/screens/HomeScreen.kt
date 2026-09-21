@@ -48,6 +48,12 @@ fun HomeScreen(
     var featuredSeries by remember { mutableStateOf<List<MediaItem>>(emptyList()) }
     var actionMovies by remember { mutableStateOf<List<MediaItem>>(emptyList()) }
     var animeList by remember { mutableStateOf<List<MediaItem>>(emptyList()) }
+    var tmdbTrending by remember { mutableStateOf<List<MediaItem>>(emptyList()) }
+    var netflixCatalog by remember { mutableStateOf<List<MediaItem>>(emptyList()) }
+    var disneyCatalog by remember { mutableStateOf<List<MediaItem>>(emptyList()) }
+    var hboCatalog by remember { mutableStateOf<List<MediaItem>>(emptyList()) }
+    var primeCatalog by remember { mutableStateOf<List<MediaItem>>(emptyList()) }
+    var appleCatalog by remember { mutableStateOf<List<MediaItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
     var selectedDetailItem by remember { mutableStateOf<MediaItem?>(null) }
@@ -56,6 +62,7 @@ fun HomeScreen(
 
     LaunchedEffect(category) {
         isLoading = true
+        val targetType = if (category == "series") "series" else "movie"
         when (category) {
             "movie" -> {
                 trendingMovies = repository.getCatalog("movie")
@@ -75,13 +82,26 @@ fun HomeScreen(
                 animeList = repository.getCatalog("series", "Animation")
             }
         }
+
+        // Load CyberFlix streaming platform catalogs & TMDb trending
+        try {
+            tmdbTrending = repository.getTmdbCatalog("tmdb.trending", targetType)
+            netflixCatalog = repository.getStreamingPlatformCatalog("nfx", targetType)
+            disneyCatalog = repository.getStreamingPlatformCatalog("dnp", targetType)
+            hboCatalog = repository.getStreamingPlatformCatalog("hbm", targetType)
+            primeCatalog = repository.getStreamingPlatformCatalog("amp", targetType)
+            appleCatalog = repository.getStreamingPlatformCatalog("atp", targetType)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         isLoading = false
     }
 
     val billboardItem = when (category) {
-        "series" -> featuredSeries.firstOrNull()
+        "series" -> featuredSeries.firstOrNull() ?: tmdbTrending.firstOrNull()
         "anime" -> animeList.firstOrNull()
-        else -> trendingMovies.firstOrNull()
+        else -> tmdbTrending.firstOrNull() ?: trendingMovies.firstOrNull()
     }
 
     Box(
@@ -155,10 +175,34 @@ fun HomeScreen(
                     )
                 }
 
+                if (tmdbTrending.isNotEmpty()) {
+                    MediaShelf(
+                        title = "Trending Today • TMDb",
+                        items = tmdbTrending,
+                        onItemClick = { selectedDetailItem = it }
+                    )
+                }
+
+                if (netflixCatalog.isNotEmpty()) {
+                    MediaShelf(
+                        title = "Popular on Netflix",
+                        items = netflixCatalog,
+                        onItemClick = { selectedDetailItem = it }
+                    )
+                }
+
                 if (trendingMovies.isNotEmpty()) {
                     MediaShelf(
-                        title = "Trending Today",
+                        title = "Top Box Office Movies",
                         items = trendingMovies,
+                        onItemClick = { selectedDetailItem = it }
+                    )
+                }
+
+                if (disneyCatalog.isNotEmpty()) {
+                    MediaShelf(
+                        title = "Trending on Disney+",
+                        items = disneyCatalog,
                         onItemClick = { selectedDetailItem = it }
                     )
                 }
@@ -167,6 +211,30 @@ fun HomeScreen(
                     MediaShelf(
                         title = "Featured Series",
                         items = featuredSeries,
+                        onItemClick = { selectedDetailItem = it }
+                    )
+                }
+
+                if (hboCatalog.isNotEmpty()) {
+                    MediaShelf(
+                        title = "HBO Max Exclusives",
+                        items = hboCatalog,
+                        onItemClick = { selectedDetailItem = it }
+                    )
+                }
+
+                if (primeCatalog.isNotEmpty()) {
+                    MediaShelf(
+                        title = "Amazon Prime Video",
+                        items = primeCatalog,
+                        onItemClick = { selectedDetailItem = it }
+                    )
+                }
+
+                if (appleCatalog.isNotEmpty()) {
+                    MediaShelf(
+                        title = "Apple TV+ Originals",
+                        items = appleCatalog,
                         onItemClick = { selectedDetailItem = it }
                     )
                 }

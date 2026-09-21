@@ -8,6 +8,8 @@ import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.webkit.CookieManager
+import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
@@ -37,6 +39,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
@@ -87,6 +90,7 @@ fun PlayerScreen(
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
+    val watchHistoryManager = remember { com.joywatch.app.data.repository.WatchHistoryManager(context) }
 
     var sources by remember { mutableStateOf<List<StreamSource>>(emptyList()) }
     var currentSourceIndex by remember { mutableIntStateOf(0) }
@@ -97,6 +101,58 @@ fun PlayerScreen(
     var webViewInstance by remember { mutableStateOf<WebView?>(null) }
     var customVideoView by remember { mutableStateOf<View?>(null) }
     var customViewCallback by remember { mutableStateOf<WebChromeClient.CustomViewCallback?>(null) }
+
+    // Aspect ratio state (Fit vs. Fill / Zoom to Screen)
+    var aspectRatioMode by remember { mutableStateOf("contain") }
+    var showAspectHud by remember { mutableStateOf(false) }
+    var aspectHudText by remember { mutableStateOf("") }
+
+    fun toggleAspectRatio() {
+        val newMode = if (aspectRatioMode == "cover") "contain" else "cover"
+        aspectRatioMode = newMode
+        aspectHudText = if (newMode == "cover") "Aspect: Zoom to Fill (16:9 / 21:9)" else "Aspect: Fit to Screen (Original)"
+        showAspectHud = true
+        webViewInstance?.evaluateJavascript(
+            """(function() {
+                var vs = document.querySelectorAll('video');
+                vs.forEach(function(v) {
+                    v.style.objectFit = '$newMode';
+                    v.style.width = '100%';
+                    v.style.height = '100%';
+                });
+                var fs = document.querySelectorAll('iframe');
+                fs.forEach(function(f) {
+                    f.style.transform = '${if (newMode == "cover") "scale(1.15)" else "scale(1.0)"}';
+                    f.style.transformOrigin = 'center center';
+                });
+            })();""".trimIndent(),
+            null
+        )
+    }
+
+    // Auto-hide HUD pill after 1.8s
+    LaunchedEffect(showAspectHud) {
+        if (showAspectHud) {
+            delay(1800)
+            showAspectHud = false
+        }
+    }
+
+    // Periodic HTML5 progress tracker (runs in background while player is open)
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(3000)
+            webViewInstance?.evaluateJavascript(
+                """(function() {
+                    var v = document.querySelector('video');
+                    if (v && v.currentTime > 2 && window.JoywatchBridge) {
+                        window.JoywatchBridge.reportPlayback(v.currentTime, v.duration || 0);
+                    }
+                })();""".trimIndent(),
+                null
+            )
+        }
+    }
 
     // Helper to control system bars and display cutout
     fun applyImmersiveFullscreen(enable: Boolean) {
@@ -129,9 +185,11 @@ fun PlayerScreen(
         }
     }
 
-    // Load available streaming servers
+    // Load available streaming servers with resume timestamp injected
     LaunchedEffect(type, id, season, episode) {
-        sources = repository.getStreamSources(type, id, title, season, episode)
+        val savedItem = watchHistoryManager.get(id)
+        val resumeSec = savedItem?.positionSeconds ?: 0L
+        sources = repository.getStreamSources(type, id, title, season, episode, resumeSeconds = resumeSec)
     }
 
     // Auto-hide full controls after 5 seconds
@@ -177,6 +235,11 @@ fun PlayerScreen(
                         )
                         setBackgroundColor(android.graphics.Color.BLACK)
 
+                        // Enable 3rd party cookies for iframe CDN streaming session persistence
+                        val cookieManager = CookieManager.getInstance()
+                        cookieManager.setAcceptCookie(true)
+                        cookieManager.setAcceptThirdPartyCookies(this, true)
+
                         settings.apply {
                             javaScriptEnabled = true
                             domStorageEnabled = true
@@ -190,7 +253,28 @@ fun PlayerScreen(
                             javaScriptCanOpenWindowsAutomatically = false
                             mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                             userAgentString = "Mozilla/5.0 (Linux; Android 14; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36"
+                            // Disable destructive native zoom gestures that cause black screen
+                            setSupportZoom(false)
+                            builtInZoomControls = false
+                            displayZoomControls = false
                         }
+
+                        // Attach Javascript bridge to receive video progress & double-tap triggers
+                        addJavascriptInterface(object {
+                            @JavascriptInterface
+                            fun reportPlayback(currentSec: Double, durationSec: Double) {
+                                if (currentSec > 2) {
+                                    watchHistoryManager.updateProgress(id, currentSec.toLong(), durationSec.toLong())
+                                }
+                            }
+
+                            @JavascriptInterface
+                            fun onDoubleTap() {
+                                activity?.runOnUiThread {
+                                    toggleAspectRatio()
+                                }
+                            }
+                        }, "JoywatchBridge")
 
                         webViewClient = object : WebViewClient() {
                             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
@@ -201,6 +285,23 @@ fun PlayerScreen(
                             override fun onPageFinished(view: WebView?, url: String?) {
                                 super.onPageFinished(view, url)
                                 isLoading = false
+                                // Inject double-tap touch listener to cleanly toggle aspect ratio
+                                view?.evaluateJavascript(
+                                    """(function() {
+                                        var lastTap = 0;
+                                        document.addEventListener('touchend', function(e) {
+                                            var now = new Date().getTime();
+                                            var diff = now - lastTap;
+                                            if (diff > 40 && diff < 380) {
+                                                if (window.JoywatchBridge) {
+                                                    window.JoywatchBridge.onDoubleTap();
+                                                }
+                                            }
+                                            lastTap = now;
+                                        }, { passive: true });
+                                    })();""".trimIndent(),
+                                    null
+                                )
                             }
 
                             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
@@ -509,6 +610,22 @@ fun PlayerScreen(
                             )
                         }
 
+                        // Dedicated Aspect Ratio Toggle Button
+                        IconButton(
+                            onClick = { toggleAspectRatio() },
+                            modifier = Modifier
+                                .background(Color(0xDD0C0D14), CircleShape)
+                                .border(1.dp, JoyBorder, CircleShape)
+                                .size(38.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AspectRatio,
+                                contentDescription = "Aspect Ratio",
+                                tint = if (aspectRatioMode == "cover") Color(0xFF38BDF8) else Color.White,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+
                         // Reload Button
                         IconButton(
                             onClick = {
@@ -531,6 +648,26 @@ fun PlayerScreen(
                         }
                     }
                 }
+            }
+        }
+
+        // Aspect Ratio HUD Indicator (Centered Toast)
+        if (showAspectHud) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(Color(0xEE090A0E))
+                    .border(1.dp, JoyBorder, RoundedCornerShape(24.dp))
+                    .padding(horizontal = 20.dp, vertical = 10.dp)
+                    .zIndex(70f)
+            ) {
+                Text(
+                    text = aspectHudText,
+                    color = Color.White,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
 

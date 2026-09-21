@@ -80,11 +80,80 @@ class JoywatchRepository {
         }
     }
 
+    suspend fun getStreamingPlatformCatalog(platformKey: String, type: String = "movie"): List<MediaItem> = withContext(Dispatchers.IO) {
+        val endpoint = "https://7a82163c306e-stremio-netflix-catalog-addon.baby-beamup.club/catalog/$type/$platformKey.json"
+        val json = fetchJson(endpoint) ?: return@withContext emptyList()
+        val metasArray = json.getAsJsonArray("metas") ?: return@withContext emptyList()
+
+        metasArray.take(25).mapNotNull { element ->
+            val obj = element.asJsonObject
+            val id = obj.get("id")?.asString ?: obj.get("imdb_id")?.asString ?: return@mapNotNull null
+            val name = obj.get("name")?.asString ?: return@mapNotNull null
+            val year = obj.get("year")?.asString ?: obj.get("releaseInfo")?.asString ?: ""
+            val poster = obj.get("poster")?.asString
+            val background = obj.get("background")?.asString ?: poster
+            val description = obj.get("description")?.asString ?: ""
+            val imdbRating = obj.get("imdbRating")?.asString ?: "8.2"
+
+            val genresList = mutableListOf<String>()
+            obj.getAsJsonArray("genres")?.forEach { g -> genresList.add(g.asString) }
+
+            MediaItem(
+                id = id,
+                name = name,
+                type = type,
+                year = year,
+                poster = poster,
+                background = background,
+                description = description,
+                genres = genresList,
+                imdbRating = imdbRating
+            )
+        }
+    }
+
+    suspend fun getTmdbCatalog(catalogId: String = "tmdb.trending", type: String = "movie"): List<MediaItem> = withContext(Dispatchers.IO) {
+        val endpoint = "https://94c8cb9f702d-tmdb-addon.baby-beamup.club/catalog/$type/$catalogId.json"
+        val json = fetchJson(endpoint) ?: return@withContext emptyList()
+        val metasArray = json.getAsJsonArray("metas") ?: return@withContext emptyList()
+
+        metasArray.take(25).mapNotNull { element ->
+            val obj = element.asJsonObject
+            val id = obj.get("imdb_id")?.asString ?: obj.get("id")?.asString ?: return@mapNotNull null
+            val name = obj.get("name")?.asString ?: return@mapNotNull null
+            val year = obj.get("year")?.asString ?: obj.get("releaseInfo")?.asString ?: ""
+            val poster = obj.get("poster")?.asString
+            val background = obj.get("background")?.asString ?: poster
+            val description = obj.get("description")?.asString ?: ""
+            val imdbRating = obj.get("imdbRating")?.asString ?: "8.5"
+
+            val genresList = mutableListOf<String>()
+            obj.getAsJsonArray("genres")?.forEach { g -> genresList.add(g.asString) }
+
+            MediaItem(
+                id = id,
+                name = name,
+                type = type,
+                year = year,
+                poster = poster,
+                background = background,
+                description = description,
+                genres = genresList,
+                imdbRating = imdbRating
+            )
+        }
+    }
+
     suspend fun getMeta(type: String, id: String): MetaDetails? = withContext(Dispatchers.IO) {
-        val endpoint = "https://v3-cinemeta.strem.io/meta/$type/$id.json"
+        val endpoint = if (id.startsWith("tmdb:")) {
+            "https://94c8cb9f702d-tmdb-addon.baby-beamup.club/meta/$type/$id.json"
+        } else {
+            "https://v3-cinemeta.strem.io/meta/$type/$id.json"
+        }
         val json = fetchJson(endpoint) ?: return@withContext null
         val metaObj = json.getAsJsonObject("meta") ?: return@withContext null
 
+        val resolvedId = metaObj.get("imdb_id")?.asString ?: id
         val name = metaObj.get("name")?.asString ?: "Title"
         val year = metaObj.get("year")?.asString ?: metaObj.get("releaseInfo")?.asString ?: ""
         val poster = metaObj.get("poster")?.asString
@@ -117,7 +186,7 @@ class JoywatchRepository {
         }
 
         MetaDetails(
-            id = id,
+            id = resolvedId,
             name = name,
             type = type,
             year = year,
@@ -182,15 +251,24 @@ class JoywatchRepository {
         results
     }
 
-    fun getStreamSources(type: String, id: String, title: String, season: Int = 1, episode: Int = 1): List<StreamSource> {
+    fun getStreamSources(
+        type: String,
+        id: String,
+        title: String,
+        season: Int = 1,
+        episode: Int = 1,
+        resumeSeconds: Long = 0
+    ): List<StreamSource> {
         val cleanTitle = title.ifBlank { "Movie" }
+        val resumeParam = if (resumeSeconds > 10) "?t=$resumeSeconds" else ""
+
         return if (type == "series") {
             listOf(
                 StreamSource(
                     name = "VidLink Pro",
                     title = "Server 1 • VidLink 1080p Ultra HD (S$season:E$episode)",
                     quality = "1080p Ultra HD • Fast",
-                    url = "https://vidlink.pro/tv/$id/$season/$episode"
+                    url = "https://vidlink.pro/tv/$id/$season/$episode$resumeParam"
                 ),
                 StreamSource(
                     name = "2Embed Multi",
@@ -259,7 +337,7 @@ class JoywatchRepository {
                     name = "VidLink Pro",
                     title = "Server 1 • $cleanTitle - 1080p Ultra HD",
                     quality = "1080p Ultra HD • Fast",
-                    url = "https://vidlink.pro/movie/$id"
+                    url = "https://vidlink.pro/movie/$id$resumeParam"
                 ),
                 StreamSource(
                     name = "2Embed Multi",

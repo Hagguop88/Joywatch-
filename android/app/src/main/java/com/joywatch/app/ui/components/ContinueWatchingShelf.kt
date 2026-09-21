@@ -203,19 +203,24 @@ fun ContinueWatchingCard(
                 )
             }
 
-            // Bottom Red Accent Progress Bar
+            // Bottom Progress Bar
+            val progressFraction = if (item.durationSeconds > 0 && item.positionSeconds > 0) {
+                (item.positionSeconds.toFloat() / item.durationSeconds.toFloat()).coerceIn(0.05f, 1f)
+            } else {
+                0.35f
+            }
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .height(3.dp)
-                    .background(Color(0xFF374151))
+                    .background(Color(0xFF2E303E))
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth(0.65f)
+                        .fillMaxWidth(progressFraction)
                         .height(3.dp)
-                        .background(Color(0xFFE50914))
+                        .background(Color.White)
                 )
             }
         }

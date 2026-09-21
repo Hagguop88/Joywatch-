@@ -31,6 +31,9 @@ import com.joywatch.app.ui.components.Billboard
 import com.joywatch.app.ui.components.ContinueWatchingShelf
 import com.joywatch.app.ui.components.DetailBottomSheet
 import com.joywatch.app.ui.components.MediaShelf
+import com.joywatch.app.ui.components.ProviderCatalogSheet
+import com.joywatch.app.ui.components.ProviderShelf
+import com.joywatch.app.ui.components.StreamingProvider
 import com.joywatch.app.ui.theme.JoyBackground
 import com.joywatch.app.ui.theme.JoyTextMuted
 import com.joywatch.app.ui.theme.JoyTextPrimary
@@ -57,6 +60,7 @@ fun HomeScreen(
     var isLoading by remember { mutableStateOf(true) }
 
     var selectedDetailItem by remember { mutableStateOf<MediaItem?>(null) }
+    var selectedProvider by remember { mutableStateOf<StreamingProvider?>(null) }
     val joyListItems by joyListManager.joyList.collectAsState()
     val continueWatchingItems by watchHistoryManager.continueWatching.collectAsState()
 
@@ -98,10 +102,10 @@ fun HomeScreen(
         isLoading = false
     }
 
-    val billboardItem = when (category) {
-        "series" -> featuredSeries.firstOrNull() ?: tmdbTrending.firstOrNull()
-        "anime" -> animeList.firstOrNull()
-        else -> tmdbTrending.firstOrNull() ?: trendingMovies.firstOrNull()
+    val billboardItems = when (category) {
+        "series" -> featuredSeries.ifEmpty { tmdbTrending }
+        "anime" -> animeList.ifEmpty { featuredSeries }
+        else -> tmdbTrending.ifEmpty { trendingMovies }
     }
 
     Box(
@@ -130,8 +134,9 @@ fun HomeScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
+                // Dynamic Auto-Rotating Hero Billboard
                 Billboard(
-                    item = billboardItem,
+                    items = billboardItems,
                     onPlayClick = { onPlay(it, 1, 1) },
                     onDetailsClick = { selectedDetailItem = it }
                 )
@@ -163,6 +168,30 @@ fun HomeScreen(
                             onRemoveClick = { item ->
                                 watchHistoryManager.remove(item.id)
                             }
+                        )
+                    }
+                }
+
+                // CineJoy-style "Browse by Provider" (Netflix, Prime Video, Disney+, Apple TV+, HBO Max, etc.)
+                ProviderShelf(
+                    onProviderClick = { provider ->
+                        selectedProvider = provider
+                    }
+                )
+
+                // CineJoy-style "Because you watched [Title]" recommendation shelf
+                continueWatchingItems.firstOrNull()?.let { lastWatched ->
+                    val recommendedItems = remember(lastWatched.id, category, tmdbTrending, netflixCatalog, trendingMovies, featuredSeries) {
+                        when (lastWatched.type) {
+                            "series" -> (featuredSeries + netflixCatalog).filter { it.id != lastWatched.id }.take(15)
+                            else -> (tmdbTrending + trendingMovies).filter { it.id != lastWatched.id }.take(15)
+                        }
+                    }
+                    if (recommendedItems.isNotEmpty()) {
+                        MediaShelf(
+                            title = "Because you watched ${lastWatched.name}",
+                            items = recommendedItems,
+                            onItemClick = { selectedDetailItem = it }
                         )
                     }
                 }
@@ -257,6 +286,17 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
             }
+        }
+
+        selectedProvider?.let { provider ->
+            ProviderCatalogSheet(
+                provider = provider,
+                repository = repository,
+                onItemClick = { item ->
+                    selectedDetailItem = item
+                },
+                onDismiss = { selectedProvider = null }
+            )
         }
 
         selectedDetailItem?.let { item ->

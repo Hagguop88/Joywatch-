@@ -42,12 +42,16 @@ fun MediaCard(
     item: MediaItem,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    cardWidth: androidx.compose.ui.unit.Dp = 130.dp
+    cardWidth: androidx.compose.ui.unit.Dp? = 130.dp
 ) {
+    val columnModifier = if (cardWidth != null) {
+        modifier.width(cardWidth).clickable { onClick() }
+    } else {
+        modifier.clickable { onClick() }
+    }
+
     Column(
-        modifier = modifier
-            .width(cardWidth)
-            .clickable { onClick() }
+        modifier = columnModifier
     ) {
         Box(
             modifier = Modifier

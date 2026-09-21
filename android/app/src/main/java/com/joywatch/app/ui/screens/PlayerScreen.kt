@@ -240,6 +240,8 @@ fun PlayerScreen(
                         cookieManager.setAcceptCookie(true)
                         cookieManager.setAcceptThirdPartyCookies(this, true)
 
+                        setLayerType(View.LAYER_TYPE_HARDWARE, null)
+
                         settings.apply {
                             javaScriptEnabled = true
                             domStorageEnabled = true
@@ -252,7 +254,8 @@ fun PlayerScreen(
                             setSupportMultipleWindows(false)
                             javaScriptCanOpenWindowsAutomatically = false
                             mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                            userAgentString = "Mozilla/5.0 (Linux; Android 14; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36"
+                            // High-definition Desktop profile unlocks full 1080p bitrate ladder
+                            userAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
                             // Disable destructive native zoom gestures that cause black screen
                             setSupportZoom(false)
                             builtInZoomControls = false

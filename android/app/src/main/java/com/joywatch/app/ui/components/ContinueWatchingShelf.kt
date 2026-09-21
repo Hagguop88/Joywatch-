@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -237,13 +238,33 @@ fun ContinueWatchingCard(
             overflow = TextOverflow.Ellipsis
         )
 
-        // Subline
-        Text(
-            text = if (item.type == "series") "Season ${item.season} • Episode ${item.episode}" else "Feature Film",
-            color = JoyTextSecondary,
-            fontSize = 11.sp,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        // Subline with CineJoy-style time remaining
+        val remainingText = if (item.durationSeconds > 0 && item.positionSeconds > 0) {
+            val remainingSec = (item.durationSeconds - item.positionSeconds).coerceAtLeast(0)
+            val hours = remainingSec / 3600
+            val mins = (remainingSec % 3600) / 60
+            if (hours > 0) "${hours}hr ${mins}m left" else "${mins}m left"
+        } else if (item.type == "series") {
+            "Season ${item.season} • Episode ${item.episode}"
+        } else {
+            "Feature Film"
+        }
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Default.Schedule,
+                contentDescription = null,
+                tint = JoyTextMuted,
+                modifier = Modifier.size(11.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = remainingText,
+                color = JoyTextSecondary,
+                fontSize = 11.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }

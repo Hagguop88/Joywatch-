@@ -16,3 +16,10 @@ val JoyAccent = Color(0xFF3B82F6)
 val JoyRatingAmber = Color(0xFFF59E0B)
 val JoyPillActive = Color(0xFFFFFFFF)
 val JoyPillInactive = Color(0xFF1C1E29)
+
+// Glassmorphic Frost Tokens
+val JoyGlassSurface = Color(0x331E202B)
+val JoyGlassSurfaceLuminous = Color(0x4D2A2D3D)
+val JoyGlassBorder = Color(0x33FFFFFF)
+val JoyGlassBorderSubtle = Color(0x1AFFFFFF)
+val JoyGlassHighlight = Color(0x66FFFFFF)

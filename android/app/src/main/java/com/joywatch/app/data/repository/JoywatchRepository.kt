@@ -262,31 +262,38 @@ class JoywatchRepository {
         val cleanTitle = title.ifBlank { "Movie" }
         val resumeParam = if (resumeSeconds > 10) "?t=$resumeSeconds" else ""
 
+        // Disambiguate TMDb ID for servers like VidLink that require numeric IDs
+        val vidlinkId = when (id) {
+            "tt35538033" -> "1423191" // Resident Evil (2026)
+            "tt0120804" -> "9381"    // Resident Evil (2002)
+            else -> if (id.startsWith("tmdb:")) id.removePrefix("tmdb:") else id
+        }
+
         return if (type == "series") {
             listOf(
                 StreamSource(
-                    name = "VidLink Pro",
-                    title = "Server 1 • VidLink 1080p Ultra HD (S$season:E$episode)",
-                    quality = "1080p Ultra HD • Fast",
-                    url = "https://vidlink.pro/tv/$id/$season/$episode$resumeParam"
-                ),
-                StreamSource(
                     name = "2Embed Multi",
-                    title = "Server 2 • 2Embed 1080p Full HD (S$season:E$episode)",
-                    quality = "1080p Full HD • Multi-Lang",
+                    title = "Server 1 • 2Embed 1080p Full HD (S$season:E$episode)",
+                    quality = "1080p Full HD • Interactive Resume",
                     url = "https://www.2embed.cc/embedtv/$id&s=$season&e=$episode"
                 ),
                 StreamSource(
                     name = "AutoEmbed Cloud",
-                    title = "Server 3 • AutoEmbed High-Speed (S$season:E$episode)",
+                    title = "Server 2 • AutoEmbed High-Speed (S$season:E$episode)",
                     quality = "1080p HD • Cloud CDN",
                     url = "https://autoembed.co/tv/imdb/$id/$season/$episode"
                 ),
                 StreamSource(
-                    name = "AutoEmbed Global",
-                    title = "Server 4 • AutoEmbed Global (S$season:E$episode)",
-                    quality = "1080p HD • Edge CDN",
-                    url = "https://autoembed.to/tv/imdb/$id/$season/$episode"
+                    name = "VidSrc PM",
+                    title = "Server 3 • VidSrc Dedicated (S$season:E$episode)",
+                    quality = "1080p HD • Dedicated",
+                    url = "https://vidsrc.pm/embed/tv/$id/$season/$episode"
+                ),
+                StreamSource(
+                    name = "VidLink Pro",
+                    title = "Server 4 • VidLink 1080p Ultra HD (S$season:E$episode)",
+                    quality = "1080p Ultra HD • Fast",
+                    url = "https://vidlink.pro/tv/$vidlinkId/$season/$episode$resumeParam"
                 ),
                 StreamSource(
                     name = "VidJoy Cinema",
@@ -295,10 +302,10 @@ class JoywatchRepository {
                     url = "https://vidjoy.pro/embed/tv/$id/$season/$episode"
                 ),
                 StreamSource(
-                    name = "VidSrc PM",
-                    title = "Server 6 • VidSrc Dedicated (S$season:E$episode)",
-                    quality = "1080p HD • Dedicated",
-                    url = "https://vidsrc.pm/embed/tv/$id/$season/$episode"
+                    name = "AutoEmbed Global",
+                    title = "Server 6 • AutoEmbed Global (S$season:E$episode)",
+                    quality = "1080p HD • Edge CDN",
+                    url = "https://autoembed.to/tv/imdb/$id/$season/$episode"
                 ),
                 StreamSource(
                     name = "AnyEmbed Cluster",
@@ -334,28 +341,28 @@ class JoywatchRepository {
         } else {
             listOf(
                 StreamSource(
-                    name = "VidLink Pro",
-                    title = "Server 1 • $cleanTitle - 1080p Ultra HD",
-                    quality = "1080p Ultra HD • Fast",
-                    url = "https://vidlink.pro/movie/$id$resumeParam"
-                ),
-                StreamSource(
                     name = "2Embed Multi",
-                    title = "Server 2 • $cleanTitle - 1080p Full HD",
-                    quality = "1080p Full HD • Multi-Lang",
+                    title = "Server 1 • $cleanTitle - 1080p Full HD",
+                    quality = "1080p Full HD • Interactive Resume",
                     url = "https://www.2embed.cc/embed/$id"
                 ),
                 StreamSource(
                     name = "AutoEmbed Cloud",
-                    title = "Server 3 • $cleanTitle - 1080p High-Speed",
+                    title = "Server 2 • $cleanTitle - 1080p High-Speed",
                     quality = "1080p HD • Cloud CDN",
                     url = "https://autoembed.co/movie/imdb/$id"
                 ),
                 StreamSource(
-                    name = "AutoEmbed Global",
-                    title = "Server 4 • $cleanTitle - 1080p Global CDN",
-                    quality = "1080p HD • Edge CDN",
-                    url = "https://autoembed.to/movie/imdb/$id"
+                    name = "VidSrc PM",
+                    title = "Server 3 • $cleanTitle - Dedicated Mirror",
+                    quality = "1080p HD • Dedicated",
+                    url = "https://vidsrc.pm/embed/movie/$id"
+                ),
+                StreamSource(
+                    name = "VidLink Pro",
+                    title = "Server 4 • $cleanTitle - 1080p Ultra HD",
+                    quality = "1080p Ultra HD • Fast",
+                    url = "https://vidlink.pro/movie/$vidlinkId$resumeParam"
                 ),
                 StreamSource(
                     name = "VidJoy Cinema",
@@ -364,10 +371,10 @@ class JoywatchRepository {
                     url = "https://vidjoy.pro/embed/movie/$id"
                 ),
                 StreamSource(
-                    name = "VidSrc PM",
-                    title = "Server 6 • $cleanTitle - Dedicated Mirror",
-                    quality = "1080p HD • Dedicated",
-                    url = "https://vidsrc.pm/embed/movie/$id"
+                    name = "AutoEmbed Global",
+                    title = "Server 6 • $cleanTitle - 1080p Global CDN",
+                    quality = "1080p HD • Edge CDN",
+                    url = "https://autoembed.to/movie/imdb/$id"
                 ),
                 StreamSource(
                     name = "AnyEmbed Cluster",

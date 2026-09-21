@@ -261,6 +261,18 @@ fun PlayerScreen(
                         window.JoywatchBridge.reportPlayback(v.currentTime, v.duration || 0);
                     }
                     try {
+                        var iframes = document.querySelectorAll('iframe');
+                        for (var i = 0; i < iframes.length; i++) {
+                            try {
+                                var iv = iframes[i].contentDocument.querySelector('video');
+                                if (iv && iv.currentTime > 1 && window.JoywatchBridge) {
+                                    window.JoywatchBridge.reportPlayback(iv.currentTime, iv.duration || 0);
+                                    break;
+                                }
+                            } catch(e) {}
+                        }
+                    } catch(e) {}
+                    try {
                         var p = JSON.parse(localStorage.getItem('vidLinkProgress') || '{}');
                         var item = p['$id'] || (('$tmdbKey' !== '$id') ? p['$tmdbKey'] : null);
                         if (item) {
@@ -510,7 +522,22 @@ fun PlayerScreen(
                                     null
                                 )
 
-                                // 3. Pre-seed VidLink localStorage and poll video seek if resuming
+                                // 3. Remove NexStream / CodeSpecter watermarks and overlay
+                                view?.evaluateJavascript(
+                                    """(function() {
+                                        try {
+                                            var wm1 = document.getElementById('wm-left'); if (wm1) wm1.style.display = 'none';
+                                            var wm2 = document.getElementById('wm-right'); if (wm2) wm2.style.display = 'none';
+                                            var apiOv = document.getElementById('api-overlay'); if (apiOv) apiOv.style.display = 'none';
+                                            var nexStyle = document.createElement('style');
+                                            nexStyle.innerHTML = '#wm-left, #wm-right, #api-overlay, .watermark, a[href*="codespecters"] { display: none !important; opacity: 0 !important; pointer-events: none !important; }';
+                                            document.head.appendChild(nexStyle);
+                                        } catch(e) {}
+                                    })();""".trimIndent(),
+                                    null
+                                )
+
+                                // 4. Pre-seed VidLink localStorage and poll video seek if resuming
                                 if (resumeTimestampSec > 1) {
                                     val targetSec = resumeTimestampSec
                                     val tmdbKey = resolvedTmdbId.ifEmpty { id }
@@ -555,7 +582,9 @@ fun PlayerScreen(
                                 val host = request.url?.host?.lowercase() ?: ""
                                 val allowedHosts = listOf(
                                     "vidlink.pro",
-                                    "2embed.cc",
+                                    "codespecters.com",
+                                    "embedmaster.link",
+                                    "nexstream",
                                     "autoembed.co",
                                     "autoembed.to",
                                     "vidjoy.pro",
@@ -564,9 +593,6 @@ fun PlayerScreen(
                                     "vidsrc.cc",
                                     "anyembed.xyz",
                                     "multiembed.mov",
-                                    "blackvid.space",
-                                    "databasegdriveplayer.co",
-                                    "frembed.live",
                                     "strem.io",
                                     "stream",
                                     "embed",

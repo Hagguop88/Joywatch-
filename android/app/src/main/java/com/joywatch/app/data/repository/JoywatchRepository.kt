@@ -286,6 +286,10 @@ class JoywatchRepository {
         id
     }
 
+    companion object {
+        private const val NEXSTREAM_API_KEY = "nx_7247f0dac882d0590776fb442d30a667"
+    }
+
     suspend fun getStreamSources(
         type: String,
         id: String,
@@ -297,6 +301,7 @@ class JoywatchRepository {
         val cleanTitle = title.ifBlank { "Movie" }
         val vidlinkId = resolveTmdbId(id, type)
         val vidlinkResumeParam = if (resumeSeconds > 1) "?startAt=$resumeSeconds&primaryColor=10B981" else "?primaryColor=10B981"
+        val nexstreamId = if (vidlinkId.isNotBlank() && vidlinkId != "0") vidlinkId else id
 
         if (type == "series") {
             listOf(
@@ -307,34 +312,34 @@ class JoywatchRepository {
                     url = "https://vidlink.pro/tv/$vidlinkId/$season/$episode$vidlinkResumeParam"
                 ),
                 StreamSource(
+                    name = "NexStream VIP",
+                    title = "Server 2 • NexStream VIP 1080p (S$season:E$episode)",
+                    quality = "1080p Ultra HD • Auto-Fallback & Fast",
+                    url = "https://api.codespecters.com/embed/tv/$nexstreamId/$season/$episode?apikey=$NEXSTREAM_API_KEY"
+                ),
+                StreamSource(
                     name = "AutoEmbed Cloud",
-                    title = "Server 2 • AutoEmbed High-Speed (S$season:E$episode)",
+                    title = "Server 3 • AutoEmbed High-Speed (S$season:E$episode)",
                     quality = "1080p HD • Cloud CDN",
                     url = "https://autoembed.co/tv/imdb/$id/$season/$episode"
                 ),
                 StreamSource(
                     name = "VidSrc PM",
-                    title = "Server 3 • VidSrc Dedicated (S$season:E$episode)",
+                    title = "Server 4 • VidSrc Dedicated (S$season:E$episode)",
                     quality = "1080p HD • Dedicated",
                     url = "https://vidsrc.pm/embed/tv/$id/$season/$episode"
                 ),
                 StreamSource(
                     name = "VidJoy Cinema",
-                    title = "Server 4 • VidJoy Cinema (S$season:E$episode)",
+                    title = "Server 5 • VidJoy Cinema (S$season:E$episode)",
                     quality = "1080p HD • Direct Stream",
                     url = "https://vidjoy.pro/embed/tv/$id/$season/$episode"
                 ),
                 StreamSource(
                     name = "AutoEmbed Global",
-                    title = "Server 5 • AutoEmbed Global (S$season:E$episode)",
+                    title = "Server 6 • AutoEmbed Global (S$season:E$episode)",
                     quality = "1080p HD • Edge CDN",
                     url = "https://autoembed.to/tv/imdb/$id/$season/$episode"
-                ),
-                StreamSource(
-                    name = "AnyEmbed Cluster",
-                    title = "Server 6 • AnyEmbed Cluster (S$season:E$episode)",
-                    quality = "1080p HD • High Stability",
-                    url = "https://anyembed.xyz/embed/imdb-tv-$id-$season-$episode"
                 ),
                 StreamSource(
                     name = "MultiEmbed VIP",
@@ -343,28 +348,10 @@ class JoywatchRepository {
                     url = "https://multiembed.mov/?video_id=$id&s=$season&e=$episode"
                 ),
                 StreamSource(
-                    name = "BlackVid Ultra",
-                    title = "Server 8 • BlackVid Ultra (S$season:E$episode)",
-                    quality = "1080p Ultra HD",
-                    url = "https://blackvid.space/embed?imdb=$id&season=$season&episode=$episode"
-                ),
-                StreamSource(
-                    name = "GDrive Cloud",
-                    title = "Server 9 • GDrive Cloud (S$season:E$episode)",
-                    quality = "1080p HD • High Speed",
-                    url = "https://databasegdriveplayer.co/player.php?imdb=$id&season=$season&episode=$episode"
-                ),
-                StreamSource(
-                    name = "2Embed Multi",
-                    title = "Server 10 • 2Embed Multi-Server (S$season:E$episode)",
-                    quality = "1080p Full HD • Interactive Resume",
-                    url = "https://www.2embed.cc/embedtv/$id&s=$season&e=$episode"
-                ),
-                StreamSource(
-                    name = "FrEmbed Hub",
-                    title = "Server 11 • FrEmbed Cinema (S$season:E$episode)",
-                    quality = "1080p HD • Multi-Lang",
-                    url = "https://frembed.live/api/serie.php?id=$id&sa=$season&epi=$episode"
+                    name = "AnyEmbed Cluster",
+                    title = "Server 8 • AnyEmbed Cluster (S$season:E$episode)",
+                    quality = "1080p HD • High Stability",
+                    url = "https://anyembed.xyz/embed/imdb-tv-$id-$season-$episode"
                 )
             )
         } else {
@@ -376,34 +363,34 @@ class JoywatchRepository {
                     url = "https://vidlink.pro/movie/$vidlinkId$vidlinkResumeParam"
                 ),
                 StreamSource(
+                    name = "NexStream VIP",
+                    title = "Server 2 • $cleanTitle - NexStream VIP",
+                    quality = "1080p Ultra HD • Auto-Fallback & Fast",
+                    url = "https://api.codespecters.com/embed/movie/$nexstreamId?apikey=$NEXSTREAM_API_KEY"
+                ),
+                StreamSource(
                     name = "AutoEmbed Cloud",
-                    title = "Server 2 • $cleanTitle - 1080p High-Speed",
+                    title = "Server 3 • $cleanTitle - 1080p High-Speed",
                     quality = "1080p HD • Cloud CDN",
                     url = "https://autoembed.co/movie/imdb/$id"
                 ),
                 StreamSource(
                     name = "VidSrc PM",
-                    title = "Server 3 • $cleanTitle - Dedicated Mirror",
+                    title = "Server 4 • $cleanTitle - Dedicated Mirror",
                     quality = "1080p HD • Dedicated",
                     url = "https://vidsrc.pm/embed/movie/$id"
                 ),
                 StreamSource(
                     name = "VidJoy Cinema",
-                    title = "Server 4 • $cleanTitle - VidJoy HD",
+                    title = "Server 5 • $cleanTitle - VidJoy HD",
                     quality = "1080p HD • Direct Stream",
                     url = "https://vidjoy.pro/embed/movie/$id"
                 ),
                 StreamSource(
                     name = "AutoEmbed Global",
-                    title = "Server 5 • $cleanTitle - 1080p Global CDN",
+                    title = "Server 6 • $cleanTitle - 1080p Global CDN",
                     quality = "1080p HD • Edge CDN",
                     url = "https://autoembed.to/movie/imdb/$id"
-                ),
-                StreamSource(
-                    name = "AnyEmbed Cluster",
-                    title = "Server 6 • $cleanTitle - AnyEmbed HD",
-                    quality = "1080p HD • High Stability",
-                    url = "https://anyembed.xyz/embed/imdb-movie-$id"
                 ),
                 StreamSource(
                     name = "MultiEmbed VIP",
@@ -412,28 +399,10 @@ class JoywatchRepository {
                     url = "https://multiembed.mov/?video_id=$id"
                 ),
                 StreamSource(
-                    name = "BlackVid Ultra",
-                    title = "Server 8 • $cleanTitle - BlackVid Ultra",
-                    quality = "1080p Ultra HD",
-                    url = "https://blackvid.space/embed?imdb=$id"
-                ),
-                StreamSource(
-                    name = "GDrive Cloud",
-                    title = "Server 9 • $cleanTitle - GDrive Cloud",
-                    quality = "1080p HD • High Speed",
-                    url = "https://databasegdriveplayer.co/player.php?imdb=$id"
-                ),
-                StreamSource(
-                    name = "2Embed Multi",
-                    title = "Server 10 • $cleanTitle - 1080p Full HD",
-                    quality = "1080p Full HD • Interactive Resume",
-                    url = "https://www.2embed.cc/embed/$id"
-                ),
-                StreamSource(
-                    name = "FrEmbed Hub",
-                    title = "Server 11 • $cleanTitle - FrEmbed Cinema",
-                    quality = "1080p HD • Multi-Lang",
-                    url = "https://frembed.live/api/film.php?id=$id"
+                    name = "AnyEmbed Cluster",
+                    title = "Server 8 • $cleanTitle - AnyEmbed HD",
+                    quality = "1080p HD • High Stability",
+                    url = "https://anyembed.xyz/embed/imdb-movie-$id"
                 )
             )
         }

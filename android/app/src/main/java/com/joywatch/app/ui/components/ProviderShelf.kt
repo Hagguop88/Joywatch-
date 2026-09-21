@@ -91,7 +91,7 @@ val defaultStreamingProviders = listOf(
         brandGradient = listOf(Color(0xFF002255), Color(0xFF004499)),
         accentColor = Color(0xFF38BDF8),
         logoText = "Paramount+",
-        catalogKey = "amp"
+        catalogKey = "pmp"
     ),
     StreamingProvider(
         id = "hulu",
@@ -99,7 +99,7 @@ val defaultStreamingProviders = listOf(
         brandGradient = listOf(Color(0xFF0B2118), Color(0xFF11382A)),
         accentColor = Color(0xFF1CE783),
         logoText = "hulu",
-        catalogKey = "dnp"
+        catalogKey = "hlu"
     ),
     StreamingProvider(
         id = "peacock",
@@ -107,7 +107,7 @@ val defaultStreamingProviders = listOf(
         brandGradient = listOf(Color(0xFF161622), Color(0xFF222238)),
         accentColor = Color(0xFFFBBF24),
         logoText = "peacock",
-        catalogKey = "amp"
+        catalogKey = "pcp"
     ),
     StreamingProvider(
         id = "crunchyroll",
@@ -115,7 +115,7 @@ val defaultStreamingProviders = listOf(
         brandGradient = listOf(Color(0xFF331600), Color(0xFF552500)),
         accentColor = Color(0xFFFF640A),
         logoText = "CR",
-        catalogKey = "nfx"
+        catalogKey = "cru"
     )
 )
 

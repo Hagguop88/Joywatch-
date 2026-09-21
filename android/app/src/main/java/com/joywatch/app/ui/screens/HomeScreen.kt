@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.joywatch.app.data.model.MediaItem
+import com.joywatch.app.data.model.isExplicitContent
 import com.joywatch.app.data.repository.JoyListManager
 import com.joywatch.app.data.repository.JoywatchRepository
 import com.joywatch.app.data.repository.WatchHistoryManager
@@ -89,15 +90,20 @@ fun HomeScreen(
 
         // Load CyberFlix streaming platform catalogs & TMDb trending
         try {
-            tmdbTrending = repository.getTmdbCatalog("tmdb.trending", targetType)
-            netflixCatalog = repository.getStreamingPlatformCatalog("nfx", targetType)
-            disneyCatalog = repository.getStreamingPlatformCatalog("dnp", targetType)
-            hboCatalog = repository.getStreamingPlatformCatalog("hbm", targetType)
-            primeCatalog = repository.getStreamingPlatformCatalog("amp", targetType)
-            appleCatalog = repository.getStreamingPlatformCatalog("atp", targetType)
+            tmdbTrending = repository.getTmdbCatalog("tmdb.trending", targetType).filterNot { it.isExplicitContent() }
+            netflixCatalog = repository.getStreamingPlatformCatalog("nfx", targetType).filterNot { it.isExplicitContent() }
+            disneyCatalog = repository.getStreamingPlatformCatalog("dnp", targetType).filterNot { it.isExplicitContent() }
+            hboCatalog = repository.getStreamingPlatformCatalog("hbm", targetType).filterNot { it.isExplicitContent() }
+            primeCatalog = repository.getStreamingPlatformCatalog("amp", targetType).filterNot { it.isExplicitContent() }
+            appleCatalog = repository.getStreamingPlatformCatalog("atp", targetType).filterNot { it.isExplicitContent() }
         } catch (e: Exception) {
             e.printStackTrace()
         }
+
+        trendingMovies = trendingMovies.filterNot { it.isExplicitContent() }
+        actionMovies = actionMovies.filterNot { it.isExplicitContent() }
+        featuredSeries = featuredSeries.filterNot { it.isExplicitContent() }
+        animeList = animeList.filterNot { it.isExplicitContent() }
 
         isLoading = false
     }
@@ -106,7 +112,7 @@ fun HomeScreen(
         "series" -> featuredSeries.ifEmpty { tmdbTrending }
         "anime" -> animeList.ifEmpty { featuredSeries }
         else -> tmdbTrending.ifEmpty { trendingMovies }
-    }
+    }.filterNot { it.isExplicitContent() }
 
     Box(
         modifier = modifier
@@ -183,8 +189,8 @@ fun HomeScreen(
                 continueWatchingItems.firstOrNull()?.let { lastWatched ->
                     val recommendedItems = remember(lastWatched.id, category, tmdbTrending, netflixCatalog, trendingMovies, featuredSeries) {
                         when (lastWatched.type) {
-                            "series" -> (featuredSeries + netflixCatalog).filter { it.id != lastWatched.id }.take(15)
-                            else -> (tmdbTrending + trendingMovies).filter { it.id != lastWatched.id }.take(15)
+                            "series" -> (featuredSeries + netflixCatalog).filter { it.id != lastWatched.id && !it.isExplicitContent() }.take(15)
+                            else -> (tmdbTrending + trendingMovies).filter { it.id != lastWatched.id && !it.isExplicitContent() }.take(15)
                         }
                     }
                     if (recommendedItems.isNotEmpty()) {
@@ -199,7 +205,7 @@ fun HomeScreen(
                 if (joyListItems.isNotEmpty() && category == "all") {
                     MediaShelf(
                         title = "Your JoyList",
-                        items = joyListItems,
+                        items = joyListItems.filterNot { it.isExplicitContent() },
                         onItemClick = { selectedDetailItem = it }
                     )
                 }

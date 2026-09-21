@@ -23,6 +23,7 @@ output/
 .agents/
 test_*.json
 *.log
+*.png
 
 # Vercel Cache
 .vercel/

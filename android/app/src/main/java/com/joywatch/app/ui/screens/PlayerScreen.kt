@@ -53,6 +53,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -138,7 +139,9 @@ fun PlayerScreen(
         }
     }
 
-    // Periodic HTML5 progress tracker (runs in background while player is open)
+    var resumeTimestampSec by remember { mutableLongStateOf(0L) }
+
+    // Periodic HTML5 and VidLink progress tracker (runs in background while player is open)
     LaunchedEffect(Unit) {
         while (true) {
             delay(3000)
@@ -148,6 +151,17 @@ fun PlayerScreen(
                     if (v && v.currentTime > 2 && window.JoywatchBridge) {
                         window.JoywatchBridge.reportPlayback(v.currentTime, v.duration || 0);
                     }
+                    try {
+                        var p = JSON.parse(localStorage.getItem('vidLinkProgress') || '{}');
+                        var item = p['$id'] || Object.values(p)[0];
+                        if (item) {
+                            var cur = item.currentTime || item.watched_seconds || 0;
+                            var dur = item.duration || 0;
+                            if (cur > 2 && window.JoywatchBridge) {
+                                window.JoywatchBridge.reportPlayback(cur, dur);
+                            }
+                        }
+                    } catch(e) {}
                 })();""".trimIndent(),
                 null
             )
@@ -189,6 +203,7 @@ fun PlayerScreen(
     LaunchedEffect(type, id, season, episode) {
         val savedItem = watchHistoryManager.get(id)
         val resumeSec = savedItem?.positionSeconds ?: 0L
+        resumeTimestampSec = resumeSec
         sources = repository.getStreamSources(type, id, title, season, episode, resumeSeconds = resumeSec)
     }
 
@@ -288,7 +303,8 @@ fun PlayerScreen(
                             override fun onPageFinished(view: WebView?, url: String?) {
                                 super.onPageFinished(view, url)
                                 isLoading = false
-                                // Inject double-tap touch listener to cleanly toggle aspect ratio
+
+                                // 1. Inject double-tap touch listener to cleanly toggle aspect ratio
                                 view?.evaluateJavascript(
                                     """(function() {
                                         var lastTap = 0;
@@ -305,6 +321,65 @@ fun PlayerScreen(
                                     })();""".trimIndent(),
                                     null
                                 )
+
+                                // 2. Listen to VidLink player's postMessage MEDIA_DATA events
+                                view?.evaluateJavascript(
+                                    """(function() {
+                                        if (window._joywatchMsgListenerAttached) return;
+                                        window._joywatchMsgListenerAttached = true;
+                                        window.addEventListener('message', function(event) {
+                                            try {
+                                                if (event.data) {
+                                                    var d = event.data;
+                                                    if ((d.type === 'MEDIA_DATA' || d.event === 'timeupdate') && d.data) {
+                                                        var cur = d.data.currentTime || d.data.watched_seconds || d.data.current_time || 0;
+                                                        var dur = d.data.duration || 0;
+                                                        if (cur > 2 && window.JoywatchBridge) {
+                                                            window.JoywatchBridge.reportPlayback(cur, dur);
+                                                        }
+                                                    }
+                                                }
+                                            } catch(e) {}
+                                        }, false);
+                                    })();""".trimIndent(),
+                                    null
+                                )
+
+                                // 3. Pre-seed VidLink localStorage and poll video seek if resuming
+                                if (resumeTimestampSec > 10) {
+                                    val targetSec = resumeTimestampSec
+                                    view?.evaluateJavascript(
+                                        """(function() {
+                                            try {
+                                                var p = JSON.parse(localStorage.getItem('vidLinkProgress') || '{}');
+                                                p['$id'] = {
+                                                    id: '$id',
+                                                    currentTime: $targetSec,
+                                                    watched_seconds: $targetSec,
+                                                    last_updated: Date.now()
+                                                };
+                                                localStorage.setItem('vidLinkProgress', JSON.stringify(p));
+                                            } catch(e) {}
+
+                                            var attempts = 0;
+                                            var seekInterval = setInterval(function() {
+                                                attempts++;
+                                                var vs = document.querySelectorAll('video');
+                                                var done = false;
+                                                vs.forEach(function(v) {
+                                                    if (v && v.duration > 0 && Math.abs(v.currentTime - $targetSec) > 5) {
+                                                        v.currentTime = $targetSec;
+                                                        done = true;
+                                                    }
+                                                });
+                                                if (done || attempts > 25) {
+                                                    clearInterval(seekInterval);
+                                                }
+                                            }, 500);
+                                        })();""".trimIndent(),
+                                        null
+                                    )
+                                }
                             }
 
                             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {

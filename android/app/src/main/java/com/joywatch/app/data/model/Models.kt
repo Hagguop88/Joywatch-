@@ -55,3 +55,37 @@ data class ContinueWatchingItem(
     val positionSeconds: Long = 0,
     val durationSeconds: Long = 0
 )
+
+fun MediaItem.isExplicitContent(): Boolean {
+    val explicitWords = setOf(
+        "sex", "erotic", "erotica", "porn", "porno", "xxx", "adult", "nude", "nudity",
+        "sensual", "lust", "nsfw", "hentai", "kamasutra", "fetish", "orgasm",
+        "hardcore", "softcore", "blowjob", "stripper", "sexuality", "seduction", "whore", "slut"
+    )
+
+    val lowerName = name.lowercase().trim()
+    val explicitKnownTitles = setOf(
+        "perfect blue", "fifty shades", "365 days", "nymphomaniac", "basic instinct",
+        "wild things", "eyes wide shut", "blue is the warmest color", "the dreamers",
+        "teenage sex and death at camp miasma", "the deuce"
+    )
+    if (explicitKnownTitles.any { lowerName.contains(it) }) return true
+
+    // Check whole words in title
+    val titleTokens = lowerName.split(Regex("[^a-zA-Z0-9]+")).filter { it.isNotBlank() }
+    if (titleTokens.any { it in explicitWords }) return true
+
+    // Check genres
+    if (genres.any { g ->
+        val gl = g.lowercase()
+        gl.contains("erotic") || gl.contains("adult") || gl.contains("sex") || gl == "erotica"
+    }) return true
+
+    // Check description for explicit triggers
+    val descTokens = description.lowercase().split(Regex("[^a-zA-Z0-9]+")).filter { it.isNotBlank() }
+    val explicitDescWords = setOf("erotic", "porn", "xxx", "nudity", "nude", "hardcore", "softcore", "hentai", "kamasutra", "fetish", "stripper")
+    if (descTokens.any { it in explicitDescWords }) return true
+
+    return false
+}
+

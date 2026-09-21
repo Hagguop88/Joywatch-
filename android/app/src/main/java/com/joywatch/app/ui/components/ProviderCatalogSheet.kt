@@ -17,8 +17,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -32,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +48,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.joywatch.app.data.model.MediaItem
+import com.joywatch.app.data.model.isExplicitContent
 import com.joywatch.app.data.repository.JoywatchRepository
 import com.joywatch.app.ui.theme.JoyBackground
 import com.joywatch.app.ui.theme.JoyBorder
@@ -67,11 +71,54 @@ fun ProviderCatalogSheet(
     var selectedTab by remember { mutableStateOf("series") } // default to shows as user noted
     var catalogItems by remember { mutableStateOf<List<MediaItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    var isPaginationLoading by remember { mutableStateOf(false) }
+    var canLoadMore by remember { mutableStateOf(true) }
+    val gridState = rememberLazyGridState()
 
     LaunchedEffect(provider.catalogKey, selectedTab) {
         isLoading = true
-        catalogItems = repository.getStreamingPlatformCatalog(provider.catalogKey, selectedTab)
+        canLoadMore = true
+        val initial = repository.getStreamingPlatformCatalog(provider.catalogKey, selectedTab, skip = 0)
+            .filterNot { it.isExplicitContent() }
+        catalogItems = initial
         isLoading = false
+    }
+
+    val shouldLoadMore by remember {
+        derivedStateOf {
+            val totalItems = gridState.layoutInfo.totalItemsCount
+            val lastVisibleItem = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            totalItems > 0 && lastVisibleItem >= totalItems - 9
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore, isPaginationLoading, canLoadMore) {
+        if (shouldLoadMore && !isPaginationLoading && !isLoading && canLoadMore && catalogItems.isNotEmpty()) {
+            isPaginationLoading = true
+            try {
+                val nextBatch = repository.getStreamingPlatformCatalog(
+                    provider.catalogKey,
+                    selectedTab,
+                    skip = catalogItems.size
+                ).filterNot { it.isExplicitContent() }
+
+                if (nextBatch.isEmpty()) {
+                    canLoadMore = false
+                } else {
+                    val existingIds = catalogItems.map { it.id }.toSet()
+                    val uniqueNew = nextBatch.filter { it.id !in existingIds }
+                    if (uniqueNew.isEmpty()) {
+                        canLoadMore = false
+                    } else {
+                        catalogItems = catalogItems + uniqueNew
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                isPaginationLoading = false
+            }
+        }
     }
 
     ModalBottomSheet(
@@ -135,7 +182,13 @@ fun ProviderCatalogSheet(
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = if (isLoading) "Loading streaming library..." else "${catalogItems.size} titles available to stream",
+                                text = if (isLoading) {
+                                    "Loading streaming library..."
+                                } else if (isPaginationLoading) {
+                                    "Loading more... (${catalogItems.size} loaded)"
+                                } else {
+                                    "${catalogItems.size} titles available to stream"
+                                },
                                 color = JoyTextMuted,
                                 fontSize = 11.sp
                             )
@@ -146,37 +199,47 @@ fun ProviderCatalogSheet(
                     IconButton(
                         onClick = onDismiss,
                         modifier = Modifier
-                            .size(32.dp)
-                            .background(Color(0x66000000), CircleShape)
+                            .size(36.dp)
+                            .background(JoySurfaceElevated, CircleShape)
                             .border(1.dp, JoyBorder, CircleShape)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Close",
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
+                            tint = JoyTextPrimary,
+                            modifier = Modifier.size(18.dp)
                         )
                     }
                 }
             }
 
-            // Segmented Tab Selector: "TV Shows" vs "Movies"
+            // Tabs Switcher (TV Shows vs Movies)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(JoyGlassSurface)
+                    .border(1.dp, JoyGlassBorderSubtle, RoundedCornerShape(14.dp))
+                    .padding(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                listOf("series" to "TV Shows", "movie" to "Movies").forEach { (tabKey, label) ->
+                listOf(
+                    "series" to "TV Shows",
+                    "movie" to "Movies"
+                ).forEach { (tabKey, label) ->
                     val isSelected = selectedTab == tabKey
                     Box(
                         modifier = Modifier
                             .weight(1f)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(if (isSelected) Color.White.copy(alpha = 0.15f) else JoySurfaceElevated)
+                            .background(
+                                if (isSelected) provider.brandGradient.first().copy(alpha = 0.9f)
+                                else Color.Transparent
+                            )
                             .border(
-                                1.dp,
-                                if (isSelected) Color.White else JoyBorder,
+                                width = if (isSelected) 1.dp else 0.dp,
+                                color = if (isSelected) provider.accentColor.copy(alpha = 0.5f) else Color.Transparent,
                                 RoundedCornerShape(12.dp)
                             )
                             .clickable { selectedTab = tabKey }
@@ -221,6 +284,7 @@ fun ProviderCatalogSheet(
                 }
             } else {
                 LazyVerticalGrid(
+                    state = gridState,
                     columns = GridCells.Fixed(3),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -234,6 +298,23 @@ fun ProviderCatalogSheet(
                             modifier = Modifier.fillMaxWidth(),
                             cardWidth = null
                         )
+                    }
+
+                    if (isPaginationLoading) {
+                        item(span = { GridItemSpan(3) }) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    color = provider.accentColor,
+                                    modifier = Modifier.size(28.dp),
+                                    strokeWidth = 2.5.dp
+                                )
+                            }
+                        }
                     }
                 }
             }

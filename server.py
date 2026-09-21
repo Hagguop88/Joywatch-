@@ -372,28 +372,29 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
             # A. High-Speed Direct In-Browser Web Video Streams (No fake cartoons)
             if imdb_id:
                 clean_title = title or "Feature Film"
+                NEXSTREAM_API_KEY = "nx_7247f0dac882d0590776fb442d30a667"
                 if media_type == "series":
                     streams.append({
-                        "name": "VidLink Fast Cloud",
-                        "title": f"VidLink 1080p Ultra HD (S{s_num}:E{e_num})",
+                        "name": "VidLink Pro",
+                        "title": f"Server 1 • VidLink 1080p Ultra HD (S{s_num}:E{e_num})",
                         "quality": "1080p Ultra HD",
-                        "url": f"https://vidlink.pro/tv/{imdb_id}/{s_num}/{e_num}",
-                        "browser_url": f"https://vidlink.pro/tv/{imdb_id}/{s_num}/{e_num}",
+                        "url": f"https://vidlink.pro/tv/{imdb_id}/{s_num}/{e_num}?primaryColor=10B981",
+                        "browser_url": f"https://vidlink.pro/tv/{imdb_id}/{s_num}/{e_num}?primaryColor=10B981",
                         "direct_playable": True,
                         "is_embed": True,
                     })
                     streams.append({
-                        "name": "2Embed Multi-Server",
-                        "title": f"2Embed 1080p Full HD (S{s_num}:E{e_num})",
-                        "quality": "1080p Full HD",
-                        "url": f"https://www.2embed.cc/embedtv/{imdb_id}&s={s_num}&e={e_num}",
-                        "browser_url": f"https://www.2embed.cc/embedtv/{imdb_id}&s={s_num}&e={e_num}",
+                        "name": "NexStream VIP",
+                        "title": f"Server 2 • NexStream VIP 1080p (S{s_num}:E{e_num})",
+                        "quality": "1080p Ultra HD",
+                        "url": f"https://api.codespecters.com/embed/tv/{imdb_id}/{s_num}/{e_num}?apikey={NEXSTREAM_API_KEY}",
+                        "browser_url": f"https://api.codespecters.com/embed/tv/{imdb_id}/{s_num}/{e_num}?apikey={NEXSTREAM_API_KEY}",
                         "direct_playable": True,
                         "is_embed": True,
                     })
                     streams.append({
                         "name": "AutoEmbed Cloud",
-                        "title": f"AutoEmbed High-Speed (S{s_num}:E{e_num})",
+                        "title": f"Server 3 • AutoEmbed High-Speed (S{s_num}:E{e_num})",
                         "quality": "1080p HD",
                         "url": f"https://autoembed.co/tv/imdb/{imdb_id}/{s_num}/{e_num}",
                         "browser_url": f"https://autoembed.co/tv/imdb/{imdb_id}/{s_num}/{e_num}",
@@ -401,36 +402,63 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
                         "is_embed": True,
                     })
                     streams.append({
-                        "name": "VidSrc Mirror",
-                        "title": f"VidSrc HD Mirror (S{s_num}:E{e_num})",
-                        "quality": "720p/1080p HD",
+                        "name": "VidSrc PM",
+                        "title": f"Server 4 • VidSrc Dedicated (S{s_num}:E{e_num})",
+                        "quality": "1080p HD",
                         "url": f"https://vidsrc.pm/embed/tv/{imdb_id}/{s_num}/{e_num}",
                         "browser_url": f"https://vidsrc.pm/embed/tv/{imdb_id}/{s_num}/{e_num}",
                         "direct_playable": True,
                         "is_embed": True,
                     })
-                else:
                     streams.append({
-                        "name": "VidLink Fast Cloud",
-                        "title": f"{clean_title} - 1080p Ultra HD (Instant Play)",
-                        "quality": "1080p Ultra HD",
-                        "url": f"https://vidlink.pro/movie/{imdb_id}",
-                        "browser_url": f"https://vidlink.pro/movie/{imdb_id}",
+                        "name": "VidSrc SU",
+                        "title": f"Server 5 • VidSrc High-Speed (S{s_num}:E{e_num})",
+                        "quality": "1080p HD",
+                        "url": f"https://vidsrc.su/embed/tv/{imdb_id}/{s_num}/{e_num}",
+                        "browser_url": f"https://vidsrc.su/embed/tv/{imdb_id}/{s_num}/{e_num}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    streams.append({
+                        "name": "VidJoy Cinema",
+                        "title": f"Server 6 • VidJoy Cinema (S{s_num}:E{e_num})",
+                        "quality": "1080p HD",
+                        "url": f"https://vidjoy.pro/embed/tv/{imdb_id}/{s_num}/{e_num}",
+                        "browser_url": f"https://vidjoy.pro/embed/tv/{imdb_id}/{s_num}/{e_num}",
                         "direct_playable": True,
                         "is_embed": True,
                     })
                     streams.append({
                         "name": "2Embed Multi-Server",
-                        "title": f"{clean_title} - 1080p Full HD (Multi-Language)",
+                        "title": f"Server 7 • 2Embed 1080p Full HD (S{s_num}:E{e_num})",
                         "quality": "1080p Full HD",
-                        "url": f"https://www.2embed.cc/embed/{imdb_id}",
-                        "browser_url": f"https://www.2embed.cc/embed/{imdb_id}",
+                        "url": f"https://www.2embed.cc/embedtv/{imdb_id}&s={s_num}&e={e_num}",
+                        "browser_url": f"https://www.2embed.cc/embedtv/{imdb_id}&s={s_num}&e={e_num}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                else:
+                    streams.append({
+                        "name": "VidLink Pro",
+                        "title": f"Server 1 • {clean_title} - 1080p Ultra HD",
+                        "quality": "1080p Ultra HD",
+                        "url": f"https://vidlink.pro/movie/{imdb_id}?primaryColor=10B981",
+                        "browser_url": f"https://vidlink.pro/movie/{imdb_id}?primaryColor=10B981",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    streams.append({
+                        "name": "NexStream VIP",
+                        "title": f"Server 2 • {clean_title} - NexStream VIP 1080p",
+                        "quality": "1080p Ultra HD",
+                        "url": f"https://api.codespecters.com/embed/movie/{imdb_id}?apikey={NEXSTREAM_API_KEY}",
+                        "browser_url": f"https://api.codespecters.com/embed/movie/{imdb_id}?apikey={NEXSTREAM_API_KEY}",
                         "direct_playable": True,
                         "is_embed": True,
                     })
                     streams.append({
                         "name": "AutoEmbed Cloud",
-                        "title": f"{clean_title} - 1080p High-Speed Stream",
+                        "title": f"Server 3 • {clean_title} - 1080p High-Speed",
                         "quality": "1080p HD",
                         "url": f"https://autoembed.co/movie/imdb/{imdb_id}",
                         "browser_url": f"https://autoembed.co/movie/imdb/{imdb_id}",
@@ -438,11 +466,38 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
                         "is_embed": True,
                     })
                     streams.append({
-                        "name": "VidSrc Mirror",
-                        "title": f"{clean_title} - Fast HD Mirror",
-                        "quality": "720p/1080p HD",
+                        "name": "VidSrc PM",
+                        "title": f"Server 4 • {clean_title} - VidSrc Dedicated",
+                        "quality": "1080p HD",
                         "url": f"https://vidsrc.pm/embed/movie/{imdb_id}",
                         "browser_url": f"https://vidsrc.pm/embed/movie/{imdb_id}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    streams.append({
+                        "name": "VidSrc SU",
+                        "title": f"Server 5 • {clean_title} - VidSrc High-Speed",
+                        "quality": "1080p HD",
+                        "url": f"https://vidsrc.su/embed/movie/{imdb_id}",
+                        "browser_url": f"https://vidsrc.su/embed/movie/{imdb_id}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    streams.append({
+                        "name": "VidJoy Cinema",
+                        "title": f"Server 6 • {clean_title} - VidJoy HD",
+                        "quality": "1080p HD",
+                        "url": f"https://vidjoy.pro/embed/movie/{imdb_id}",
+                        "browser_url": f"https://vidjoy.pro/embed/movie/{imdb_id}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    streams.append({
+                        "name": "2Embed Multi-Server",
+                        "title": f"Server 7 • {clean_title} - 1080p Full HD",
+                        "quality": "1080p Full HD",
+                        "url": f"https://www.2embed.cc/embed/{imdb_id}",
+                        "browser_url": f"https://www.2embed.cc/embed/{imdb_id}",
                         "direct_playable": True,
                         "is_embed": True,
                     })

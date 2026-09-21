@@ -210,13 +210,21 @@ fun PlayerScreen(
                                     "vidlink.pro",
                                     "2embed.cc",
                                     "autoembed.co",
+                                    "autoembed.to",
+                                    "vidjoy.pro",
                                     "vidsrc.pm",
                                     "vidsrc.to",
                                     "vidsrc.cc",
+                                    "anyembed.xyz",
                                     "multiembed.mov",
+                                    "blackvid.space",
+                                    "databasegdriveplayer.co",
+                                    "frembed.live",
                                     "strem.io",
                                     "stream",
-                                    "embed"
+                                    "embed",
+                                    "player",
+                                    "cloud"
                                 )
                                 val isAllowed = allowedHosts.any { host.contains(it) } ||
                                         reqUrl.contains(".m3u8") ||

@@ -187,55 +187,139 @@ class JoywatchRepository {
         return if (type == "series") {
             listOf(
                 StreamSource(
-                    name = "VidLink Fast Cloud",
+                    name = "VidLink Pro",
                     title = "Server 1 • VidLink 1080p Ultra HD (S$season:E$episode)",
-                    quality = "1080p Ultra HD",
+                    quality = "1080p Ultra HD • Fast",
                     url = "https://vidlink.pro/tv/$id/$season/$episode"
                 ),
                 StreamSource(
-                    name = "2Embed Multi-Server",
+                    name = "2Embed Multi",
                     title = "Server 2 • 2Embed 1080p Full HD (S$season:E$episode)",
-                    quality = "1080p Full HD",
+                    quality = "1080p Full HD • Multi-Lang",
                     url = "https://www.2embed.cc/embedtv/$id&s=$season&e=$episode"
                 ),
                 StreamSource(
                     name = "AutoEmbed Cloud",
                     title = "Server 3 • AutoEmbed High-Speed (S$season:E$episode)",
-                    quality = "1080p HD",
+                    quality = "1080p HD • Cloud CDN",
                     url = "https://autoembed.co/tv/imdb/$id/$season/$episode"
                 ),
                 StreamSource(
-                    name = "VidSrc Mirror",
-                    title = "Server 4 • VidSrc Fast Mirror (S$season:E$episode)",
-                    quality = "720p/1080p HD",
+                    name = "AutoEmbed Global",
+                    title = "Server 4 • AutoEmbed Global (S$season:E$episode)",
+                    quality = "1080p HD • Edge CDN",
+                    url = "https://autoembed.to/tv/imdb/$id/$season/$episode"
+                ),
+                StreamSource(
+                    name = "VidJoy Cinema",
+                    title = "Server 5 • VidJoy Cinema (S$season:E$episode)",
+                    quality = "1080p HD • Direct Stream",
+                    url = "https://vidjoy.pro/embed/tv/$id/$season/$episode"
+                ),
+                StreamSource(
+                    name = "VidSrc PM",
+                    title = "Server 6 • VidSrc Dedicated (S$season:E$episode)",
+                    quality = "1080p HD • Dedicated",
                     url = "https://vidsrc.pm/embed/tv/$id/$season/$episode"
+                ),
+                StreamSource(
+                    name = "AnyEmbed Cluster",
+                    title = "Server 7 • AnyEmbed Cluster (S$season:E$episode)",
+                    quality = "1080p HD • High Stability",
+                    url = "https://anyembed.xyz/embed/imdb-tv-$id-$season-$episode"
+                ),
+                StreamSource(
+                    name = "MultiEmbed VIP",
+                    title = "Server 8 • MultiEmbed VIP (S$season:E$episode)",
+                    quality = "1080p HD • Multi-Source",
+                    url = "https://multiembed.mov/?video_id=$id&s=$season&e=$episode"
+                ),
+                StreamSource(
+                    name = "BlackVid Ultra",
+                    title = "Server 9 • BlackVid Ultra (S$season:E$episode)",
+                    quality = "1080p Ultra HD",
+                    url = "https://blackvid.space/embed?imdb=$id&season=$season&episode=$episode"
+                ),
+                StreamSource(
+                    name = "GDrive Cloud",
+                    title = "Server 10 • GDrive Cloud (S$season:E$episode)",
+                    quality = "1080p HD • High Speed",
+                    url = "https://databasegdriveplayer.co/player.php?imdb=$id&season=$season&episode=$episode"
+                ),
+                StreamSource(
+                    name = "FrEmbed Hub",
+                    title = "Server 11 • FrEmbed Cinema (S$season:E$episode)",
+                    quality = "1080p HD • Multi-Lang",
+                    url = "https://frembed.live/api/serie.php?id=$id&sa=$season&epi=$episode"
                 )
             )
         } else {
             listOf(
                 StreamSource(
-                    name = "VidLink Fast Cloud",
+                    name = "VidLink Pro",
                     title = "Server 1 • $cleanTitle - 1080p Ultra HD",
-                    quality = "1080p Ultra HD",
+                    quality = "1080p Ultra HD • Fast",
                     url = "https://vidlink.pro/movie/$id"
                 ),
                 StreamSource(
-                    name = "2Embed Multi-Server",
+                    name = "2Embed Multi",
                     title = "Server 2 • $cleanTitle - 1080p Full HD",
-                    quality = "1080p Full HD",
+                    quality = "1080p Full HD • Multi-Lang",
                     url = "https://www.2embed.cc/embed/$id"
                 ),
                 StreamSource(
                     name = "AutoEmbed Cloud",
-                    title = "Server 3 • $cleanTitle - 1080p High-Speed Stream",
-                    quality = "1080p HD",
+                    title = "Server 3 • $cleanTitle - 1080p High-Speed",
+                    quality = "1080p HD • Cloud CDN",
                     url = "https://autoembed.co/movie/imdb/$id"
                 ),
                 StreamSource(
-                    name = "VidSrc Mirror",
-                    title = "Server 4 • $cleanTitle - Fast HD Mirror",
-                    quality = "720p/1080p HD",
+                    name = "AutoEmbed Global",
+                    title = "Server 4 • $cleanTitle - 1080p Global CDN",
+                    quality = "1080p HD • Edge CDN",
+                    url = "https://autoembed.to/movie/imdb/$id"
+                ),
+                StreamSource(
+                    name = "VidJoy Cinema",
+                    title = "Server 5 • $cleanTitle - VidJoy HD",
+                    quality = "1080p HD • Direct Stream",
+                    url = "https://vidjoy.pro/embed/movie/$id"
+                ),
+                StreamSource(
+                    name = "VidSrc PM",
+                    title = "Server 6 • $cleanTitle - Dedicated Mirror",
+                    quality = "1080p HD • Dedicated",
                     url = "https://vidsrc.pm/embed/movie/$id"
+                ),
+                StreamSource(
+                    name = "AnyEmbed Cluster",
+                    title = "Server 7 • $cleanTitle - AnyEmbed HD",
+                    quality = "1080p HD • High Stability",
+                    url = "https://anyembed.xyz/embed/imdb-movie-$id"
+                ),
+                StreamSource(
+                    name = "MultiEmbed VIP",
+                    title = "Server 8 • $cleanTitle - MultiEmbed VIP",
+                    quality = "1080p HD • Multi-Source",
+                    url = "https://multiembed.mov/?video_id=$id"
+                ),
+                StreamSource(
+                    name = "BlackVid Ultra",
+                    title = "Server 9 • $cleanTitle - BlackVid Ultra",
+                    quality = "1080p Ultra HD",
+                    url = "https://blackvid.space/embed?imdb=$id"
+                ),
+                StreamSource(
+                    name = "GDrive Cloud",
+                    title = "Server 10 • $cleanTitle - GDrive Cloud",
+                    quality = "1080p HD • High Speed",
+                    url = "https://databasegdriveplayer.co/player.php?imdb=$id"
+                ),
+                StreamSource(
+                    name = "FrEmbed Hub",
+                    title = "Server 11 • $cleanTitle - FrEmbed Cinema",
+                    quality = "1080p HD • Multi-Lang",
+                    url = "https://frembed.live/api/film.php?id=$id"
                 )
             )
         }

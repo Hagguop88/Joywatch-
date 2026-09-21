@@ -8,17 +8,23 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -47,71 +53,112 @@ fun ServerSwitcherDialog(
     Dialog(onDismissRequest = onDismiss) {
         Box(
             modifier = Modifier
-                .width(320.dp)
+                .width(360.dp)
+                .fillMaxHeight(0.88f)
                 .clip(RoundedCornerShape(16.dp))
                 .background(JoyBackground)
                 .border(1.dp, JoyBorder, RoundedCornerShape(16.dp))
-                .padding(18.dp)
+                .padding(horizontal = 16.dp, vertical = 14.dp)
         ) {
-            Column {
+            Column(modifier = Modifier.fillMaxSize()) {
+                // Header
                 Row(
+                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Dns,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Text(
-                        text = "Streaming Servers",
-                        color = JoyTextPrimary,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                sources.forEachIndexed { index, source ->
-                    val isSelected = index == selectedIndex
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
-                            .clip(CircleShape)
-                            .background(if (isSelected) Color.White.copy(alpha = 0.12f) else JoySurfaceElevated)
-                            .border(1.dp, if (isSelected) Color.White else JoyBorder, CircleShape)
-                            .clickable {
-                                onSelect(index)
-                                onDismiss()
-                            }
-                            .padding(horizontal = 14.dp, vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+                        Icon(
+                            imageVector = Icons.Default.Dns,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
                         Column {
                             Text(
-                                text = "Server ${index + 1} (${source.name})",
-                                color = if (isSelected) Color.White else JoyTextSecondary,
-                                fontSize = 13.sp,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                text = "Streaming Servers (${sources.size})",
+                                color = JoyTextPrimary,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = source.quality,
+                                text = "Switch server if current is slow or buffering",
                                 color = JoyTextMuted,
                                 fontSize = 10.sp
                             )
                         }
+                    }
 
-                        if (isSelected) {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(14.dp)
-                            )
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier
+                            .size(28.dp)
+                            .background(Color(0x66000000), CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Close",
+                            tint = Color.White,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Scrollable list of all servers
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    itemsIndexed(sources) { index, source ->
+                        val isSelected = index == selectedIndex
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(if (isSelected) Color.White.copy(alpha = 0.12f) else JoySurfaceElevated)
+                                .border(1.dp, if (isSelected) Color.White else JoyBorder, RoundedCornerShape(8.dp))
+                                .clickable {
+                                    onSelect(index)
+                                    onDismiss()
+                                }
+                                .padding(horizontal = 14.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Server ${index + 1} • ${source.name}",
+                                    color = if (isSelected) Color.White else JoyTextSecondary,
+                                    fontSize = 12.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                )
+                                Text(
+                                    text = source.quality,
+                                    color = if (isSelected) Color(0xFF34D399) else JoyTextMuted,
+                                    fontSize = 10.sp
+                                )
+                            }
+
+                            if (isSelected) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .background(Color.White, CircleShape),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = null,
+                                        tint = Color.Black,
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 }

@@ -2,9 +2,13 @@ package com.joywatch.app.ui.screens
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
+import android.media.AudioManager
 import android.os.Build
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -21,6 +25,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -40,11 +46,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.VolumeMute
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.AspectRatio
+import androidx.compose.material.icons.filled.BrightnessMedium
 import androidx.compose.material.icons.filled.Dns
+import androidx.compose.material.icons.filled.FastForward
+import androidx.compose.material.icons.filled.FastRewind
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,6 +66,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -98,6 +112,9 @@ fun PlayerScreen(
     val activity = context as? Activity
     val watchHistoryManager = remember { com.joywatch.app.data.repository.WatchHistoryManager(context) }
 
+    var currentSeason by remember(season) { mutableIntStateOf(season) }
+    var currentEpisode by remember(episode) { mutableIntStateOf(episode) }
+
     var sources by remember { mutableStateOf<List<StreamSource>>(emptyList()) }
     var currentSourceIndex by remember { mutableIntStateOf(0) }
     var isControlsVisible by remember { mutableStateOf(true) }
@@ -110,38 +127,142 @@ fun PlayerScreen(
 
     // Aspect ratio state (Fit vs. Fill / Zoom to Screen)
     var aspectRatioMode by remember { mutableStateOf("contain") }
-    var showAspectHud by remember { mutableStateOf(false) }
-    var aspectHudText by remember { mutableStateOf("") }
 
-    var resumeTimestampSec by remember { mutableLongStateOf(0L) }
-    var currentLivePositionSec by remember { mutableLongStateOf(0L) }
-    var currentLiveDurationSec by remember { mutableLongStateOf(0L) }
-    var resolvedTmdbId by remember { mutableStateOf("") }
+    // Playback Speed state (0.75x to 2.0x cycle like CineJoy)
+    val speedOptions = remember { listOf(1.0f, 1.25f, 1.5f, 2.0f, 0.75f) }
+    var currentSpeedIndex by remember { mutableIntStateOf(0) }
+    val currentSpeed = speedOptions[currentSpeedIndex]
 
-    fun flushWatchProgress() {
-        val pos = when {
-            currentLivePositionSec > 1 -> currentLivePositionSec
-            resumeTimestampSec > 1 -> resumeTimestampSec
-            else -> 0L
+    // Universal CineJoy Glassmorphic Floating HUD
+    var hudText by remember { mutableStateOf("") }
+    var hudIcon by remember { mutableStateOf<androidx.compose.ui.graphics.vector.ImageVector?>(null) }
+    var showHud by remember { mutableStateOf(false) }
+
+    fun triggerHud(text: String, icon: androidx.compose.ui.graphics.vector.ImageVector?) {
+        hudText = text
+        hudIcon = icon
+        showHud = true
+    }
+
+    LaunchedEffect(showHud, hudText) {
+        if (showHud) {
+            delay(1400)
+            showHud = false
         }
-        if (pos > 1) {
-            watchHistoryManager.updateProgress(
-                id = id,
-                positionSec = pos,
-                durationSec = currentLiveDurationSec,
-                season = season,
-                episode = episode,
-                name = title,
-                type = type
-            )
+    }
+
+    // Audio & Brightness Managers
+    val audioManager = remember { context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager }
+    val maxVolume = remember { audioManager?.getStreamMaxVolume(AudioManager.STREAM_MUSIC) ?: 15 }
+    var currentVolumeAccumulator by remember { mutableFloatStateOf(-1f) }
+
+    fun adjustBrightness(delta: Float) {
+        val window = activity?.window ?: return
+        val lp = window.attributes
+        val current = if (lp.screenBrightness < 0f) {
+            try {
+                android.provider.Settings.System.getInt(
+                    context.contentResolver,
+                    android.provider.Settings.System.SCREEN_BRIGHTNESS
+                ) / 255f
+            } catch (e: Exception) {
+                0.5f
+            }
+        } else {
+            lp.screenBrightness
         }
+        val newBrightness = (current + delta * 1.5f).coerceIn(0.05f, 1.0f)
+        lp.screenBrightness = newBrightness
+        window.attributes = lp
+
+        val percent = (newBrightness * 100).toInt()
+        triggerHud(
+            text = "Brightness: $percent%",
+            icon = Icons.Default.BrightnessMedium
+        )
+    }
+
+    fun adjustVolume(delta: Float) {
+        val am = audioManager ?: return
+        if (currentVolumeAccumulator < 0f) {
+            currentVolumeAccumulator = am.getStreamVolume(AudioManager.STREAM_MUSIC).toFloat()
+        }
+        val step = delta * maxVolume * 1.5f
+        currentVolumeAccumulator = (currentVolumeAccumulator + step).coerceIn(0f, maxVolume.toFloat())
+        val targetVol = currentVolumeAccumulator.toInt()
+        am.setStreamVolume(AudioManager.STREAM_MUSIC, targetVol, 0)
+
+        val percent = ((targetVol.toFloat() / maxVolume.toFloat()) * 100).toInt()
+        triggerHud(
+            text = "Volume: $percent%",
+            icon = if (percent == 0) Icons.AutoMirrored.Filled.VolumeMute else Icons.AutoMirrored.Filled.VolumeUp
+        )
+    }
+
+    fun seekRelative(seconds: Int) {
+        val delta = seconds.toDouble()
+        webViewInstance?.evaluateJavascript(
+            """(function() {
+                function seekInDoc(doc) {
+                    var vs = doc.querySelectorAll('video');
+                    for (var i = 0; i < vs.length; i++) {
+                        var v = vs[i];
+                        if (!isNaN(v.duration) && v.duration > 0) {
+                            v.currentTime = Math.max(0, Math.min(v.duration, v.currentTime + ($delta)));
+                        } else {
+                            v.currentTime = Math.max(0, v.currentTime + ($delta));
+                        }
+                    }
+                }
+                try { seekInDoc(document); } catch(e) {}
+                try {
+                    var iframes = document.querySelectorAll('iframe');
+                    for (var i = 0; i < iframes.length; i++) {
+                        try { seekInDoc(iframes[i].contentDocument); } catch(e) {}
+                    }
+                } catch(e) {}
+            })();""".trimIndent(),
+            null
+        )
+        val prefix = if (seconds > 0) "+" else ""
+        triggerHud(
+            text = "$prefix${seconds}s",
+            icon = if (seconds > 0) Icons.Default.FastForward else Icons.Default.FastRewind
+        )
+    }
+
+    fun cyclePlaybackSpeed() {
+        currentSpeedIndex = (currentSpeedIndex + 1) % speedOptions.size
+        val nextSpeed = speedOptions[currentSpeedIndex]
+        webViewInstance?.evaluateJavascript(
+            """(function() {
+                function setRateInDoc(doc) {
+                    var vs = doc.querySelectorAll('video');
+                    for (var i = 0; i < vs.length; i++) {
+                        vs[i].playbackRate = $nextSpeed;
+                    }
+                }
+                try { setRateInDoc(document); } catch(e) {}
+                try {
+                    var iframes = document.querySelectorAll('iframe');
+                    for (var i = 0; i < iframes.length; i++) {
+                        try { setRateInDoc(iframes[i].contentDocument); } catch(e) {}
+                    }
+                } catch(e) {}
+            })();""".trimIndent(),
+            null
+        )
+        triggerHud(
+            text = "Speed: ${nextSpeed}x",
+            icon = Icons.Default.Speed
+        )
     }
 
     fun toggleAspectRatio() {
         val newMode = if (aspectRatioMode == "cover") "contain" else "cover"
         aspectRatioMode = newMode
-        aspectHudText = if (newMode == "cover") "Aspect: Zoom to Fill (16:9 / 21:9)" else "Aspect: Fit to Screen (Original)"
-        showAspectHud = true
+        val text = if (newMode == "cover") "Aspect: Zoom to Fill (16:9 / 21:9)" else "Aspect: Fit to Screen (Original)"
+        triggerHud(text = text, icon = Icons.Default.AspectRatio)
         webViewInstance?.evaluateJavascript(
             """(function() {
                 var vs = document.querySelectorAll('video');
@@ -160,11 +281,45 @@ fun PlayerScreen(
         )
     }
 
-    // Auto-hide HUD pill after 1.8s
-    LaunchedEffect(showAspectHud) {
-        if (showAspectHud) {
-            delay(1800)
-            showAspectHud = false
+    fun handleDoubleTapZone(fractionX: Double) {
+        when {
+            fractionX < 0.35 -> seekRelative(-10)
+            fractionX > 0.65 -> seekRelative(10)
+            else -> toggleAspectRatio()
+        }
+    }
+
+    fun playNextEpisode() {
+        currentEpisode += 1
+        sources = emptyList()
+        isLoading = true
+        triggerHud(
+            text = "Playing S$currentSeason:E$currentEpisode",
+            icon = Icons.Default.SkipNext
+        )
+    }
+
+    var resumeTimestampSec by remember { mutableLongStateOf(0L) }
+    var currentLivePositionSec by remember { mutableLongStateOf(0L) }
+    var currentLiveDurationSec by remember { mutableLongStateOf(0L) }
+    var resolvedTmdbId by remember { mutableStateOf("") }
+
+    fun flushWatchProgress() {
+        val pos = when {
+            currentLivePositionSec > 1 -> currentLivePositionSec
+            resumeTimestampSec > 1 -> resumeTimestampSec
+            else -> 0L
+        }
+        if (pos > 1) {
+            watchHistoryManager.updateProgress(
+                id = id,
+                positionSec = pos,
+                durationSec = currentLiveDurationSec,
+                season = currentSeason,
+                episode = currentEpisode,
+                name = title,
+                type = type
+            )
         }
     }
 
@@ -223,6 +378,11 @@ fun PlayerScreen(
         onDispose {
             activity?.requestedOrientation = originalOrientation
             activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            val lp = activity?.window?.attributes
+            if (lp != null) {
+                lp.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+                activity.window.attributes = lp
+            }
             applyImmersiveFullscreen(false)
         }
     }
@@ -241,14 +401,14 @@ fun PlayerScreen(
         }
     }
 
-    // Load available streaming servers with resume timestamp injected
-    LaunchedEffect(type, id, season, episode) {
+    // Load available streaming servers
+    LaunchedEffect(type, id, currentSeason, currentEpisode) {
         val tmdb = repository.resolveTmdbId(id, type)
         resolvedTmdbId = tmdb
 
         val savedItem = watchHistoryManager.get(id)
         val resumeSec = if (type == "series") {
-            if (savedItem != null && savedItem.season == season && savedItem.episode == episode) {
+            if (savedItem != null && savedItem.season == currentSeason && savedItem.episode == currentEpisode) {
                 savedItem.positionSeconds
             } else 0L
         } else {
@@ -258,7 +418,7 @@ fun PlayerScreen(
         if (resumeSec > 1) {
             currentLivePositionSec = resumeSec
         }
-        sources = repository.getStreamSources(type, id, title, season, episode)
+        sources = repository.getStreamSources(type, id, title, currentSeason, currentEpisode)
     }
 
     // Auto-hide full controls after 5 seconds
@@ -277,6 +437,39 @@ fun PlayerScreen(
         } else {
             onClose()
         }
+    }
+
+    // Gesture detector for brightness/volume swipe and triple-zone double-tap
+    val gestureDetector = remember {
+        GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+                if (e1 != null && Math.abs(distanceY) > Math.abs(distanceX) * 1.1f && Math.abs(distanceY) > 8f) {
+                    val screenWidth = activity?.window?.decorView?.width?.toFloat() ?: 1920f
+                    val screenHeight = activity?.window?.decorView?.height?.toFloat() ?: 1080f
+                    val fractionX = e1.x / screenWidth
+                    val deltaFraction = distanceY / screenHeight
+                    if (fractionX < 0.5f) {
+                        adjustBrightness(deltaFraction)
+                    } else {
+                        adjustVolume(deltaFraction)
+                    }
+                    return true
+                }
+                return false
+            }
+
+            override fun onDoubleTap(e: MotionEvent): Boolean {
+                val screenWidth = activity?.window?.decorView?.width?.toFloat() ?: 1920f
+                val fractionX = (e.x / screenWidth).toDouble()
+                handleDoubleTapZone(fractionX)
+                return true
+            }
+
+            override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                isControlsVisible = !isControlsVisible
+                return false
+            }
+        })
     }
 
     Box(
@@ -336,7 +529,13 @@ fun PlayerScreen(
                             displayZoomControls = false
                         }
 
-                        // Attach Javascript bridge to receive video progress & double-tap triggers
+                        // Attach dual gesture detector directly to WebView
+                        setOnTouchListener { _, event ->
+                            gestureDetector.onTouchEvent(event)
+                            false
+                        }
+
+                        // Attach Javascript bridge to receive video progress, double-tap, and swipe triggers
                         addJavascriptInterface(object {
                             @JavascriptInterface
                             fun reportPlayback(currentSec: Double, durationSec: Double) {
@@ -349,8 +548,8 @@ fun PlayerScreen(
                                         id = id,
                                         positionSec = curL,
                                         durationSec = durL,
-                                        season = season,
-                                        episode = episode,
+                                        season = currentSeason,
+                                        episode = currentEpisode,
                                         name = title,
                                         type = type
                                     )
@@ -361,9 +560,27 @@ fun PlayerScreen(
                             }
 
                             @JavascriptInterface
-                            fun onDoubleTap() {
+                            fun onDoubleTapZone(fractionX: Double) {
                                 activity?.runOnUiThread {
-                                    toggleAspectRatio()
+                                    handleDoubleTapZone(fractionX)
+                                }
+                            }
+
+                            @JavascriptInterface
+                            fun onVerticalSwipe(fractionX: Double, deltaFraction: Double) {
+                                activity?.runOnUiThread {
+                                    if (fractionX < 0.5) {
+                                        adjustBrightness(deltaFraction.toFloat())
+                                    } else {
+                                        adjustVolume(deltaFraction.toFloat())
+                                    }
+                                }
+                            }
+
+                            @JavascriptInterface
+                            fun onSingleTap() {
+                                activity?.runOnUiThread {
+                                    isControlsVisible = !isControlsVisible
                                 }
                             }
                         }, "JoywatchBridge")
@@ -386,19 +603,73 @@ fun PlayerScreen(
                                 super.onPageFinished(view, url)
                                 isLoading = false
 
-                                // 1. Inject double-tap touch listener to cleanly toggle aspect ratio
+                                // 1. Inject CineJoy-style swipe gestures and triple-zone double tap
                                 view?.evaluateJavascript(
                                     """(function() {
+                                        if (window._joywatchGestureAttached) return;
+                                        window._joywatchGestureAttached = true;
+                                        var startX = 0;
+                                        var startY = 0;
+                                        var isDragging = false;
                                         var lastTap = 0;
+                                        var singleTapTimeout = null;
+
+                                        document.addEventListener('touchstart', function(e) {
+                                            if (!e.touches || e.touches.length === 0) return;
+                                            var t = e.touches[0];
+                                            startX = t.clientX;
+                                            startY = t.clientY;
+                                            isDragging = false;
+                                        }, { passive: true });
+
+                                        document.addEventListener('touchmove', function(e) {
+                                            if (!e.touches || e.touches.length === 0) return;
+                                            var t = e.touches[0];
+                                            var dx = t.clientX - startX;
+                                            var dy = startY - t.clientY;
+                                            var absDx = Math.abs(dx);
+                                            var absDy = Math.abs(dy);
+
+                                            if (absDy > 14 && absDy > absDx * 1.1) {
+                                                isDragging = true;
+                                                var fractionX = startX / (window.innerWidth || 1);
+                                                var deltaFraction = dy / (window.innerHeight || 1);
+                                                if (window.JoywatchBridge && window.JoywatchBridge.onVerticalSwipe) {
+                                                    window.JoywatchBridge.onVerticalSwipe(fractionX, deltaFraction);
+                                                }
+                                                startY = t.clientY;
+                                            }
+                                        }, { passive: true });
+
                                         document.addEventListener('touchend', function(e) {
+                                            if (isDragging) {
+                                                isDragging = false;
+                                                return;
+                                            }
                                             var now = new Date().getTime();
                                             var diff = now - lastTap;
+                                            var clientX = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientX : startX;
+                                            var fractionX = clientX / (window.innerWidth || 1);
+
                                             if (diff > 40 && diff < 380) {
-                                                if (window.JoywatchBridge) {
-                                                    window.JoywatchBridge.onDoubleTap();
+                                                if (singleTapTimeout) {
+                                                    clearTimeout(singleTapTimeout);
+                                                    singleTapTimeout = null;
                                                 }
+                                                if (window.JoywatchBridge && window.JoywatchBridge.onDoubleTapZone) {
+                                                    window.JoywatchBridge.onDoubleTapZone(fractionX);
+                                                }
+                                                lastTap = 0;
+                                            } else {
+                                                lastTap = now;
+                                                if (singleTapTimeout) clearTimeout(singleTapTimeout);
+                                                singleTapTimeout = setTimeout(function() {
+                                                    if (window.JoywatchBridge && window.JoywatchBridge.onSingleTap) {
+                                                        window.JoywatchBridge.onSingleTap();
+                                                    }
+                                                    singleTapTimeout = null;
+                                                }, 350);
                                             }
-                                            lastTap = now;
                                         }, { passive: true });
                                     })();""".trimIndent(),
                                     null
@@ -441,7 +712,7 @@ fun PlayerScreen(
                                     null
                                 )
 
-                                // 3. Remove NexStream / CodeSpecter watermarks and overlay
+                                // 3. CSS for locked viewport & watermark removal
                                 view?.evaluateJavascript(
                                     """(function() {
                                         try {
@@ -449,14 +720,25 @@ fun PlayerScreen(
                                             var wm2 = document.getElementById('wm-right'); if (wm2) wm2.style.display = 'none';
                                             var apiOv = document.getElementById('api-overlay'); if (apiOv) apiOv.style.display = 'none';
                                             var nexStyle = document.createElement('style');
-                                            nexStyle.innerHTML = '#wm-left, #wm-right, #api-overlay, .watermark, a[href*="codespecters"] { display: none !important; opacity: 0 !important; pointer-events: none !important; }';
+                                            nexStyle.innerHTML = 'html, body { overflow: hidden !important; touch-action: none !important; user-select: none !important; } #wm-left, #wm-right, #api-overlay, .watermark, a[href*="codespecters"] { display: none !important; opacity: 0 !important; pointer-events: none !important; }';
                                             document.head.appendChild(nexStyle);
                                         } catch(e) {}
                                     })();""".trimIndent(),
                                     null
                                 )
 
-                                // 4. Remove any corrupted vidLinkProgress so Server 1 loads cleanly without exception
+                                // 4. If custom playback speed is selected, maintain it on new pages
+                                if (currentSpeed != 1.0f) {
+                                    view?.evaluateJavascript(
+                                        """(function() {
+                                            var vs = document.querySelectorAll('video');
+                                            vs.forEach(function(v) { v.playbackRate = $currentSpeed; });
+                                        })();""".trimIndent(),
+                                        null
+                                    )
+                                }
+
+                                // 5. Remove any corrupted vidLinkProgress so Server 1 loads cleanly without exception
                                 view?.evaluateJavascript(
                                     """(function() {
                                         try {
@@ -572,7 +854,7 @@ fun PlayerScreen(
 
         // PERSISTENT QUICK-ACTION STRIP (Always reachable on top of video, zIndex 30f)
         // When controls are hidden during playback, this compact translucent chip stays in the top-right
-        // so the user can ALWAYS change server or toggle fullscreen at ANY second while the movie is playing!
+        // so the user can ALWAYS change server, playback speed, or toggle fullscreen at ANY second!
         if (!isControlsVisible) {
             Row(
                 modifier = Modifier
@@ -582,7 +864,7 @@ fun PlayerScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Persistent Server Switcher Chip (Always accessible while movie is playing!)
+                // Persistent Server Switcher Chip
                 Box(
                     modifier = Modifier
                         .clip(CircleShape)
@@ -608,6 +890,32 @@ fun PlayerScreen(
                     }
                 }
 
+                // Persistent Playback Speed Chip
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(Color(0xCC0C0D14))
+                        .border(1.dp, JoyBorder, CircleShape)
+                        .clickable { cyclePlaybackSpeed() }
+                        .padding(horizontal = 10.dp, vertical = 7.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Speed,
+                            contentDescription = "Speed",
+                            tint = if (currentSpeed != 1.0f) Color(0xFF38BDF8) else Color.White,
+                            modifier = Modifier.size(13.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "${currentSpeed}x",
+                            color = if (currentSpeed != 1.0f) Color(0xFF38BDF8) else Color.White,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
                 // Dedicated Full Screen Button
                 Box(
                     modifier = Modifier
@@ -618,7 +926,6 @@ fun PlayerScreen(
                         .clickable {
                             isImmersiveFullscreen = !isImmersiveFullscreen
                             applyImmersiveFullscreen(isImmersiveFullscreen)
-                            // Request HTML5 video element fullscreen
                             webViewInstance?.evaluateJavascript(
                                 "(function(){var v=document.querySelector('video');if(v&&v.requestFullscreen){v.requestFullscreen();}else if(document.documentElement.requestFullscreen){document.documentElement.requestFullscreen();}})();",
                                 null
@@ -713,7 +1020,7 @@ fun PlayerScreen(
                             )
                             if (type == "series") {
                                 Text(
-                                    text = "Season $season • Episode $episode",
+                                    text = "Season $currentSeason • Episode $currentEpisode",
                                     color = Color(0xFFB0B0B8),
                                     fontSize = 11.sp
                                 )
@@ -721,11 +1028,65 @@ fun PlayerScreen(
                         }
                     }
 
-                    // Action Buttons: Server Switcher + Dedicated Full Screen + Reload
+                    // Action Buttons: Next Ep + Speed + Server Switcher + Fullscreen + Aspect + Reload
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+                        // Next Episode Button (Series only)
+                        if (type == "series") {
+                            Box(
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(Color(0xDD0C0D14))
+                                    .border(1.dp, JoyBorder, CircleShape)
+                                    .clickable { playNextEpisode() }
+                                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.SkipNext,
+                                        contentDescription = "Next Episode",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = "Next Ep (E${currentEpisode + 1})",
+                                        color = Color.White,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+
+                        // Speed Chip Button
+                        Box(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .background(Color(0xDD0C0D14))
+                                .border(1.dp, JoyBorder, CircleShape)
+                                .clickable { cyclePlaybackSpeed() }
+                                .padding(horizontal = 12.dp, vertical = 8.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.Speed,
+                                    contentDescription = "Speed",
+                                    tint = if (currentSpeed != 1.0f) Color(0xFF38BDF8) else Color.White,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "${currentSpeed}x",
+                                    color = if (currentSpeed != 1.0f) Color(0xFF38BDF8) else Color.White,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+
                         // Server Switcher Button
                         Box(
                             modifier = Modifier
@@ -816,23 +1177,42 @@ fun PlayerScreen(
             }
         }
 
-        // Aspect Ratio HUD Indicator (Centered Toast)
-        if (showAspectHud) {
+        // CineJoy Floating Glassmorphic HUD Pill (Centered with smooth scale & fade animation)
+        AnimatedVisibility(
+            visible = showHud,
+            enter = fadeIn() + scaleIn(initialScale = 0.85f),
+            exit = fadeOut() + scaleOut(targetScale = 0.85f),
+            modifier = Modifier
+                .align(Alignment.Center)
+                .zIndex(70f)
+        ) {
             Box(
                 modifier = Modifier
-                    .align(Alignment.Center)
                     .clip(RoundedCornerShape(24.dp))
-                    .background(Color(0xEE090A0E))
+                    .background(Color(0xE614151E))
                     .border(1.dp, JoyBorder, RoundedCornerShape(24.dp))
-                    .padding(horizontal = 20.dp, vertical = 10.dp)
-                    .zIndex(70f)
+                    .padding(horizontal = 24.dp, vertical = 14.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = aspectHudText,
-                    color = Color.White,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    hudIcon?.let { icon ->
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            tint = Color(0xFF38BDF8),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    Text(
+                        text = hudText,
+                        color = Color.White,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
 
@@ -871,4 +1251,3 @@ fun PlayerScreen(
         }
     }
 }
-

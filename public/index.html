@@ -3,39 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-  <meta name="theme-color" content="#090A0E">
+  <meta name="theme-color" content="#050505">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Joywatch • Cinematic Streaming & Discovery</title>
+  <title>Joywatch • Ambient Cinema Streaming & Discovery</title>
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="joywatch-body">
 
-  <!-- Floating Minimal Header -->
+  <!-- Sticky Cinematic Navigation Bar (Subtle Glassmorphism, Zero Purple) -->
   <header class="joy-navbar" id="navbar">
     <div class="nav-container">
       <div class="nav-left">
-        <!-- Joywatch Logo (Small icon & Small refined text) -->
+        <!-- Joywatch Logo (Refined wordmark, small geometric lime play icon) -->
         <a href="#" class="joy-brand" id="logo-link" title="Joywatch Home">
           <div class="joy-gem">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <polygon points="6 3 20 12 6 21 6 3" fill="#FFFFFF"/>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+              <polygon points="6 3 20 12 6 21 6 3" fill="#050505"/>
             </svg>
           </div>
-          <span class="joy-wordmark">Joywatch</span>
+          <span class="joy-wordmark">JOYWATCH</span>
         </a>
 
-        <!-- Desktop Navigation Pills (Small text & Small icons) -->
+        <!-- Desktop Navigation Items (Home, Movies, TV Shows, My List) -->
         <nav class="joy-nav-pills" aria-label="Main Navigation">
           <button class="nav-pill active" data-filter="all">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-            <span>Discover</span>
+            <span>Home</span>
           </button>
           <button class="nav-pill" data-filter="movie">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
@@ -43,25 +43,21 @@
           </button>
           <button class="nav-pill" data-filter="series">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
-            <span>Series</span>
-          </button>
-          <button class="nav-pill" data-filter="anime">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="12 8 8 12 12 16 16 12 12 8"></polygon></svg>
-            <span>Anime</span>
+            <span>TV Shows</span>
           </button>
           <button class="nav-pill" data-filter="mylist">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-            <span>JoyList</span>
+            <span>My List</span>
             <span class="joylist-counter" id="joylist-counter">0</span>
           </button>
         </nav>
       </div>
 
       <div class="nav-right">
-        <!-- Enlarged Modern Search Box (No gradients, round corners) -->
+        <!-- Spacious Search Trigger Container (Pill radius, keyboard shortcut) -->
         <div class="joy-search-wrapper" id="search-box">
-          <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" id="search-input" placeholder="Search movies, series, anime..." autocomplete="off">
+          <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="search-input" placeholder="Search movies, shows, genres..." autocomplete="off">
           <span class="search-shortcut-hint">/</span>
           <button class="search-clear-btn" id="clear-search-btn" title="Clear search" aria-label="Clear search">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -73,41 +69,63 @@
 
   <!-- Main Content Canvas -->
   <main class="joy-main" id="main-content">
-    <!-- Hero Showcase Canvas -->
+    <!-- Featured Hero Section (Cinematic Cropping, Strong Dark Fade into #050505) -->
     <section class="hero-canvas" id="billboard">
       <div class="hero-backdrop" id="billboard-bg"></div>
-      <div class="hero-overlay-solid"></div>
+      <div class="hero-vignette-solid"></div>
 
       <div class="hero-content">
+        <!-- Small Category / Metadata Tag -->
         <div class="hero-meta-strip">
-          <span class="hero-chip chip-highlight">FEATURED PREMIERE</span>
-          <span class="hero-chip chip-rating" id="billboard-match">99% Match</span>
+          <span class="hero-chip chip-lime-tag">FEATURED</span>
+          <span class="hero-chip chip-match" id="billboard-match">99% Match</span>
           <span class="hero-chip chip-quality">4K Ultra HD</span>
-          <span class="hero-chip chip-year" id="billboard-year">2026</span>
-          <span class="hero-chip chip-genres" id="billboard-genres">Action • Sci-Fi</span>
         </div>
 
+        <!-- Huge Bold Title -->
         <h1 class="hero-title" id="billboard-title">Discovering Cinema...</h1>
 
+        <!-- Metadata Row: ★ Rating Year • Genre • Runtime -->
+        <div class="hero-metadata-row">
+          <span class="hero-rating-badge">
+            <svg class="star-svg" width="13" height="13" viewBox="0 0 24 24" fill="#95FF50">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span id="billboard-rating">8.4</span>
+          </span>
+          <span id="billboard-year">2026</span>
+          <span class="meta-dot">•</span>
+          <span id="billboard-genres">Action • Sci-Fi</span>
+          <span class="meta-dot">•</span>
+          <span id="billboard-runtime">2h 14m</span>
+        </div>
+
+        <!-- Short Description of the Movie -->
         <p class="hero-synopsis" id="billboard-synopsis">
           Immerse yourself in breathtaking 4K Ultra HD cinematic releases, top-tier audio, and instantaneous high-speed streaming directly in your browser.
         </p>
 
+        <!-- Primary Lime Play Button & Secondary Glass Action Buttons -->
         <div class="hero-actions">
-          <button class="btn-joy-primary" id="billboard-play-btn">
+          <button class="btn-joy-lime" id="billboard-play-btn">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
-            <span>Watch Now</span>
+            <span>Play</span>
+          </button>
+
+          <button class="btn-joy-glass" id="billboard-mylist-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+            <span id="billboard-mylist-text">+ My List</span>
           </button>
 
           <button class="btn-joy-glass" id="billboard-info-btn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-            <span>Story & Details</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <span>More Info</span>
           </button>
         </div>
       </div>
     </section>
 
-    <!-- Media Shelves (Uncrowded, spacious layout, touch-snap) -->
+    <!-- Content Sections (Horizontally Scrolling Movie Shelves) -->
     <section class="media-shelves" id="rows-container">
       <div class="shelf-loader">
         <div class="joy-spinner"></div>
@@ -115,77 +133,192 @@
       </div>
     </section>
 
-    <!-- Search View -->
+    <!-- Dedicated Search Experience with Advanced Filters -->
     <section class="search-view" id="search-view" style="display: none;">
-      <div class="search-header-row">
-        <h2 class="search-results-heading" id="search-results-heading">Explore Titles</h2>
-        <span class="search-badge" id="search-count-badge">0 results</span>
+      <div class="search-header-panel">
+        <div class="search-hero-bar">
+          <svg class="search-hero-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="dedicated-search-input" placeholder="Search movies, shows, actors..." autocomplete="off">
+          <button class="search-clear-hero-btn" id="dedicated-clear-btn" title="Clear search" aria-label="Clear search">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <!-- Filter Controls (Type, Genre, Year, Rating) -->
+        <div class="search-filters-bar">
+          <!-- Type Filter -->
+          <div class="filter-group">
+            <span class="filter-group-label">Type:</span>
+            <div class="filter-pills-row" id="type-filters">
+              <button class="filter-pill active" data-type="all">All</button>
+              <button class="filter-pill" data-type="movie">Movies</button>
+              <button class="filter-pill" data-type="series">TV Shows</button>
+            </div>
+          </div>
+
+          <!-- Genre Filter -->
+          <div class="filter-group">
+            <span class="filter-group-label">Genre:</span>
+            <div class="filter-pills-row" id="genre-filters">
+              <button class="filter-pill active" data-genre="all">All Genres</button>
+              <button class="filter-pill" data-genre="Action">Action</button>
+              <button class="filter-pill" data-genre="Sci-Fi">Sci-Fi</button>
+              <button class="filter-pill" data-genre="Drama">Drama</button>
+              <button class="filter-pill" data-genre="Comedy">Comedy</button>
+              <button class="filter-pill" data-genre="Animation">Animation</button>
+              <button class="filter-pill" data-genre="Thriller">Thriller</button>
+              <button class="filter-pill" data-genre="Horror">Horror</button>
+            </div>
+          </div>
+
+          <!-- Year Filter -->
+          <div class="filter-group">
+            <span class="filter-group-label">Year:</span>
+            <div class="filter-pills-row" id="year-filters">
+              <button class="filter-pill active" data-year="all">All Years</button>
+              <button class="filter-pill" data-year="2026">2026</button>
+              <button class="filter-pill" data-year="2025">2025</button>
+              <button class="filter-pill" data-year="2024">2024</button>
+              <button class="filter-pill" data-year="classic">Classics</button>
+            </div>
+          </div>
+
+          <!-- Rating Filter -->
+          <div class="filter-group">
+            <span class="filter-group-label">Rating:</span>
+            <div class="filter-pills-row" id="rating-filters">
+              <button class="filter-pill active" data-rating="all">All Ratings</button>
+              <button class="filter-pill" data-rating="8">8.0+ Stars</button>
+              <button class="filter-pill" data-rating="7">7.0+ Stars</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="search-results-meta">
+          <h2 class="search-results-heading" id="search-results-heading">Explore Titles</h2>
+          <span class="search-count-pill" id="search-count-badge">0 results</span>
+        </div>
       </div>
+
       <div class="joy-grid" id="search-grid"></div>
+    </section>
+
+    <!-- Watchlist Dedicated View -->
+    <section class="mylist-view" id="mylist-view" style="display: none;">
+      <div class="mylist-header">
+        <h2 class="mylist-title">My List</h2>
+        <span class="search-count-pill" id="mylist-count-badge">0 saved</span>
+      </div>
+      <div class="joy-grid" id="mylist-grid"></div>
+      <div class="mylist-empty-state" id="mylist-empty" style="display: none;">
+        <div class="empty-icon-circle">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+        </div>
+        <h3 class="empty-heading">Your Watchlist is empty</h3>
+        <p class="empty-subtext">Bookmark movies and TV series you want to watch later by clicking "+ My List" on any title.</p>
+        <button class="btn-joy-lime" id="browse-catalog-btn">
+          <span>Discover Titles</span>
+        </button>
+      </div>
     </section>
   </main>
 
-  <!-- Cinema Detail Modal (Bottom Sheet on Mobile) -->
+  <!-- Cinema Detail Page / Modal (Clean Layout, Backdrop Image with Dark Fade) -->
   <div class="modal-backdrop" id="detail-modal" style="display: none;" role="dialog" aria-modal="true">
     <div class="modal-dialog">
       <div class="modal-sheet-handle"></div>
       <button class="modal-dismiss-btn" id="modal-close-btn" aria-label="Close modal">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       </button>
 
-      <!-- Modal Banner -->
+      <!-- Upper Portion: Backdrop Image behind with Strong Dark Fade -->
       <div class="modal-hero" id="modal-banner">
-        <div class="modal-hero-mask"></div>
-        <div class="modal-hero-details">
-          <div class="modal-chips-row">
-            <span class="hero-chip chip-highlight" id="modal-type">Feature Film</span>
-            <span class="hero-chip chip-rating" id="modal-match">99% Match</span>
-            <span class="hero-chip chip-year" id="modal-year">2026</span>
-            <span class="hero-chip chip-quality">4K Ultra HD</span>
-            <span class="hero-chip" id="modal-runtime">2h 14m</span>
+        <div class="modal-hero-vignette"></div>
+
+        <div class="modal-hero-layout">
+          <!-- Poster -->
+          <div class="modal-poster-col">
+            <img class="modal-poster-img" id="modal-poster-img" src="" alt="Movie Poster" loading="lazy">
           </div>
 
-          <h2 class="modal-title" id="modal-title">Title</h2>
+          <!-- Hero Details -->
+          <div class="modal-hero-details">
+            <div class="modal-chips-row">
+              <span class="hero-chip chip-lime-tag" id="modal-type">Feature Film</span>
+              <span class="hero-chip chip-match" id="modal-match">99% Match</span>
+              <span class="hero-chip chip-quality">4K Ultra HD</span>
+            </div>
 
-          <div class="modal-action-bar">
-            <button class="btn-joy-primary" id="modal-play-btn">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
-              <span>Play</span>
-            </button>
+            <h2 class="modal-title" id="modal-title">Movie Title</h2>
 
-            <button class="btn-joy-icon" id="modal-mylist-btn" title="Save to JoyList" aria-label="Save to JoyList">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-            </button>
+            <div class="modal-metadata-line">
+              <span class="hero-rating-badge">
+                <svg class="star-svg" width="13" height="13" viewBox="0 0 24 24" fill="#95FF50">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                <span id="modal-rating">8.4</span>
+              </span>
+              <span id="modal-year">2026</span>
+              <span class="meta-dot">•</span>
+              <span id="modal-genres">Drama</span>
+              <span class="meta-dot">•</span>
+              <span id="modal-runtime">2h 14m</span>
+            </div>
+
+            <p class="modal-hero-synopsis" id="modal-hero-synopsis">Loading story overview...</p>
+
+            <div class="modal-action-bar">
+              <button class="btn-joy-lime" id="modal-play-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                <span>Play</span>
+              </button>
+
+              <button class="btn-joy-glass" id="modal-mylist-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                <span id="modal-mylist-text">+ My List</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Modal Body -->
+      <!-- Lower Portion: About / Synopsis, Cast, Episodes, You May Also Like -->
       <div class="modal-body-content">
-        <div class="modal-synopsis-box">
+        <!-- About / Synopsis -->
+        <div class="modal-section-block">
+          <h3 class="modal-block-heading">Synopsis</h3>
           <p class="modal-synopsis" id="modal-synopsis">Loading story overview...</p>
-          <div class="modal-tags-row">
-            <span class="meta-label">Genres:</span>
-            <span class="meta-tags-value" id="modal-genres">Drama, Sci-Fi</span>
-            <span class="meta-separator">•</span>
-            <span class="meta-label">Rating:</span>
-            <span class="meta-tags-value" id="modal-rating">8.7 / 10</span>
+        </div>
+
+        <!-- Cast List -->
+        <div class="modal-section-block" id="modal-cast-section">
+          <h3 class="modal-block-heading">Top Cast</h3>
+          <div class="modal-cast-list" id="modal-cast-list">
+            <!-- Dynamically populated actor chips -->
           </div>
         </div>
 
         <!-- TV Series Episode Browser -->
-        <div class="episodes-accordion" id="episodes-section" style="display: none;">
+        <div class="modal-section-block episodes-accordion" id="episodes-section" style="display: none;">
           <div class="episodes-top-bar">
-            <h3 class="section-heading">Episodes</h3>
+            <h3 class="modal-block-heading">Episodes</h3>
             <select class="joy-select" id="season-select" aria-label="Select Season"></select>
           </div>
           <div class="episodes-scroll-list" id="episodes-list"></div>
+        </div>
+
+        <!-- You May Also Like Section -->
+        <div class="modal-section-block" id="modal-related-section">
+          <h3 class="modal-block-heading">You May Also Like</h3>
+          <div class="modal-related-shelf" id="modal-related-shelf">
+            <!-- Dynamically populated related cards -->
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Fullscreen Player Canvas -->
+  <!-- Direct In-Browser Video Player Viewport -->
   <div class="joy-player-overlay" id="video-player" style="display: none;">
     <div class="joy-player-header">
       <button class="player-return-btn" id="player-back-btn" title="Exit player (Esc)">
@@ -194,11 +327,12 @@
       </button>
 
       <div class="player-current-info">
-        <div class="player-brand-tiny">Joywatch Player</div>
+        <div class="player-brand-tiny">Joywatch Cinema Player</div>
         <span class="player-headline" id="player-title">Movie Title</span>
         <span class="player-subline" id="player-sub"></span>
       </div>
 
+      <!-- Right-Side Streaming Servers Switcher Option -->
       <div class="player-header-actions">
         <div class="player-servers-dropdown" id="player-servers-dropdown">
           <button class="player-servers-toggle-btn" id="player-servers-toggle-btn" aria-haspopup="true" aria-expanded="false" title="Choose Streaming Server">
@@ -229,30 +363,30 @@
     </div>
   </div>
 
-  <!-- Mobile Bottom Navigation (Floating Pill Bar) -->
+  <!-- Mobile Floating Bottom Navigation (5 Thumb-Friendly Tabs) -->
   <nav class="joy-bottom-nav" id="bottom-nav" aria-label="Mobile Navigation">
     <button class="bottom-nav-pill active" data-filter="all">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-      <span>Discover</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span>Home</span>
     </button>
     <button class="bottom-nav-pill" data-filter="movie">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
       <span>Movies</span>
     </button>
     <button class="bottom-nav-pill" data-filter="series">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
-      <span>Series</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
+      <span>TV Shows</span>
     </button>
-    <button class="bottom-nav-pill" data-filter="anime">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="12 8 8 12 12 16 16 12 12 8"></polygon></svg>
-      <span>Anime</span>
+    <button class="bottom-nav-pill" id="mobile-search-tab">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <span>Search</span>
     </button>
     <button class="bottom-nav-pill" data-filter="mylist">
       <div class="bottom-icon-badge">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
         <span class="joylist-counter bottom-counter" id="mobile-joylist-counter">0</span>
       </div>
-      <span>JoyList</span>
+      <span>My List</span>
     </button>
   </nav>
 

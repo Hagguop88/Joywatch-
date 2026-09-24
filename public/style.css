@@ -1,50 +1,57 @@
 /* ==========================================================================
-   JOYWATCH - MINIMALIST AESTHETIC CINEMATIC STYLESHEET
-   Strict Rules:
-   - ZERO Gradients (Solid colors and clean alpha tints only)
-   - ZERO Purple (Pure obsidian, charcoal, slate & crisp white monochrome)
-   - ZERO Emojis
-   - Round Corner Buttons (border-radius: 9999px / pill)
-   - Minimal & Uncluttered Layout
-   - Small Icons (12px - 14px) & Large Movie Posters (210px desktop / 155px mobile)
-   - Small Joywatch Logo & Small Logo Icon
-   - Small Navigation Typography (Discover, Movies, Series, Anime, JoyList)
-   - Enlarged, Spacious Search Bar
-   - ULTRA-SMOOTH ANIMATIONS & FLUID GPU ACCELERATION
-   - FULL MOBILE OPTIMIZATION (Touch targets, safe-area, bottom nav, bottom sheet)
+   JOYWATCH • CINEMATIC DISCOVERY & STREAMING PLATFORM
+   Strict UI/UX Invariants:
+   - ZERO Purple (Strictly no purple, violet, magenta, lavender, #6366F1, #EC4899)
+   - ZERO Gradients (No linear-gradient, radial-gradient, conic-gradient, or SVG gradients)
+   - ZERO Emojis (Delicate SVGs and clean text only)
+   - Rounded Corner Buttons (border-radius: 9999px / pill)
+   - Primary Accent: Lime Green (#95FF50), Accent Dark (#5FB82C)
+   - Dark Palette: #050505, #0B0D0C, #111412, #171A18, rgba(20, 24, 21, 0.70)
+   - Typography: Inter / Clean Sans-serif
+   - Ultra-smooth 60/120fps hardware-accelerated kinetic transitions
    ========================================================================== */
 
 :root {
-  /* Core Palette - Pure Dark Monochrome & Charcoal */
-  --joy-bg: #090A0E;
-  --joy-bg-elevated: #11131A;
-  --joy-bg-card: #151720;
-  --joy-bg-card-hover: #1C1F2B;
-  --joy-border: rgba(255, 255, 255, 0.08);
-  --joy-border-hover: rgba(255, 255, 255, 0.22);
-  --joy-border-focus: #FFFFFF;
+  /* Color System */
+  --joy-bg: #050505;
+  --joy-bg-secondary: #0B0D0C;
+  --joy-bg-card: #111412;
+  --joy-bg-card-hover: #161A17;
+  --joy-bg-elevated: #171A18;
+  --joy-glass: rgba(20, 24, 21, 0.70);
+  --joy-glass-elevated: rgba(26, 31, 27, 0.85);
+
+  /* Primary Accent - Lime Green (Selective Usage) */
+  --joy-accent: #95FF50;
+  --joy-accent-hover: #A5FF69;
+  --joy-accent-dark: #5FB82C;
+  --joy-accent-tint: rgba(149, 255, 80, 0.12);
+  --joy-accent-border: rgba(149, 255, 80, 0.35);
+  --joy-accent-shadow: rgba(149, 255, 80, 0.25);
+
+  /* Star Rating */
+  --joy-star-gold: #95FF50;
+  --joy-star-amber: #EAB308;
 
   /* Typography Colors */
-  --joy-text-primary: #F4F5F7;
-  --joy-text-secondary: #9499A8;
-  --joy-text-muted: #5F6474;
-  --joy-text-inverse: #090A0E;
+  --joy-text-primary: #F5F5F5;
+  --joy-text-secondary: #A7AAA8;
+  --joy-text-muted: #727773;
+  --joy-text-inverse: #050505;
 
-  /* Accent & Highlight Colors (Solid, No Purple, No Gradients) */
-  --joy-accent: #FFFFFF;
-  --joy-accent-hover: #E2E4E9;
-  --joy-rating-gold: #EAB308;
-  --joy-surface-pill: #181A24;
-  --joy-surface-pill-hover: #222533;
+  /* Borders */
+  --joy-border: rgba(255, 255, 255, 0.08);
+  --joy-border-hover: rgba(255, 255, 255, 0.18);
+  --joy-border-subtle: rgba(255, 255, 255, 0.05);
 
   /* Fonts */
-  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   /* Radii */
   --radius-round: 9999px;
-  --radius-card: 12px;
-  --radius-dialog: 16px;
+  --radius-card: 16px;
+  --radius-dialog: 20px;
 
   /* Safe Area Tokens */
   --safe-top: env(safe-area-inset-top, 0px);
@@ -52,15 +59,14 @@
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
 
-  /* Ultra-Smooth Animation Physics & Easing Curves */
+  /* Animation Easing Curves */
   --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.15);
-  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   --duration-instant: 120ms;
   --duration-fast: 220ms;
-  --duration-normal: 380ms;
+  --duration-normal: 360ms;
   --duration-slow: 550ms;
 }
 
@@ -93,7 +99,7 @@ body.joywatch-body {
   touch-action: manipulation;
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -102,16 +108,15 @@ body.joywatch-body {
   background: var(--joy-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.14);
   border-radius: var(--radius-round);
-  transition: background-color var(--duration-fast) var(--ease-smooth);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(149, 255, 80, 0.4);
 }
 
 /* ==========================================================================
-   HEADER & NAVBAR (Liquid Glass Scroll)
+   STICKY CINEMATIC NAVBAR (Glassmorphism, Subtle Blur, Lime Touch)
    ========================================================================== */
 .joy-navbar {
   position: fixed;
@@ -119,8 +124,8 @@ body.joywatch-body {
   left: 0;
   right: 0;
   z-index: 1000;
-  padding: max(14px, var(--safe-top)) 36px 14px;
-  background-color: rgba(9, 10, 14, 0.82);
+  padding: max(14px, var(--safe-top)) 40px 14px;
+  background-color: rgba(11, 13, 12, 0.82);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--joy-border);
@@ -131,7 +136,7 @@ body.joywatch-body {
 }
 
 .joy-navbar.scrolled {
-  background-color: rgba(9, 10, 14, 0.96);
+  background-color: rgba(7, 9, 8, 0.95);
   border-bottom-color: rgba(255, 255, 255, 0.12);
   padding-top: max(10px, var(--safe-top));
   padding-bottom: 10px;
@@ -143,7 +148,7 @@ body.joywatch-body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 28px;
 }
 
 .nav-left {
@@ -152,49 +157,43 @@ body.joywatch-body {
   gap: 32px;
 }
 
-/* Joywatch Logo (Small icon & Small refined text) */
+/* Brand Logo (Small icon & Small refined text) */
 .joy-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
   text-decoration: none;
   cursor: pointer;
   user-select: none;
-  flex-shrink: 0;
 }
 
 .joy-gem {
   width: 26px;
   height: 26px;
   border-radius: var(--radius-round);
-  background-color: var(--joy-bg-card);
-  border: 1px solid var(--joy-border);
+  background-color: var(--joy-accent);
   display: flex;
   align-items: center;
   justify-content: center;
-  will-change: transform, border-color;
+  flex-shrink: 0;
+  box-shadow: 0 2px 10px rgba(149, 255, 80, 0.35);
   transition: transform var(--duration-fast) var(--ease-spring),
-              border-color var(--duration-fast) var(--ease-smooth);
+              background-color var(--duration-fast) var(--ease-smooth);
 }
 
 .joy-brand:hover .joy-gem {
-  border-color: var(--joy-border-hover);
   transform: scale(1.08);
+  background-color: var(--joy-accent-hover);
 }
 
 .joy-brand:active .joy-gem {
-  transform: scale(0.95);
-}
-
-.joy-gem svg {
-  width: 12px;
-  height: 12px;
+  transform: scale(0.94);
 }
 
 .joy-wordmark {
   font-family: var(--font-display);
   font-size: 0.88rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--joy-text-primary);
@@ -202,10 +201,10 @@ body.joywatch-body {
 }
 
 .joy-brand:hover .joy-wordmark {
-  opacity: 0.9;
+  opacity: 0.92;
 }
 
-/* Desktop Navigation Pills (Small text & Small icons) */
+/* Desktop Navigation Pills */
 .joy-nav-pills {
   display: flex;
   align-items: center;
@@ -226,7 +225,6 @@ body.joywatch-body {
   font-weight: 500;
   letter-spacing: 0.02em;
   cursor: pointer;
-  will-change: transform, background-color, color, border-color;
   transform: translateZ(0);
   transition: transform var(--duration-fast) var(--ease-smooth),
               background-color var(--duration-fast) var(--ease-smooth),
@@ -237,48 +235,50 @@ body.joywatch-body {
 .nav-pill svg {
   width: 13px;
   height: 13px;
-  opacity: 0.75;
+  opacity: 0.7;
   transition: opacity var(--duration-fast) var(--ease-smooth),
               transform var(--duration-fast) var(--ease-smooth);
 }
 
 .nav-pill:hover {
   color: var(--joy-text-primary);
-  background-color: var(--joy-surface-pill);
+  background-color: rgba(255, 255, 255, 0.05);
   transform: translateY(-1px);
 }
 
 .nav-pill:hover svg {
   opacity: 1;
-  transform: scale(1.08);
 }
 
 .nav-pill:active {
   transform: scale(0.96) translateY(0);
 }
 
+/* Active Nav Item: White text, subtle lime-green accent, NO purple */
 .nav-pill.active {
   color: #FFFFFF;
-  background-color: var(--joy-surface-pill);
-  border-color: rgba(255, 255, 255, 0.15);
+  background-color: var(--joy-accent-tint);
+  border-color: var(--joy-accent-border);
+  font-weight: 600;
 }
 
 .nav-pill.active svg {
   opacity: 1;
+  stroke: var(--joy-accent);
 }
 
 .joylist-counter {
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 1px 6px;
-  background-color: rgba(255, 255, 255, 0.12);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  background-color: var(--joy-accent);
+  color: var(--joy-text-inverse);
   border-radius: var(--radius-round);
-  color: #FFFFFF;
   transition: transform var(--duration-fast) var(--ease-spring);
 }
 
 .nav-pill:hover .joylist-counter {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 /* Enlarged Modern Search Box */
@@ -298,7 +298,6 @@ body.joywatch-body {
   border: 1px solid var(--joy-border);
   border-radius: var(--radius-round);
   padding: 0 16px;
-  will-change: transform, border-color, background-color, box-shadow;
   transition: transform var(--duration-fast) var(--ease-smooth),
               border-color var(--duration-fast) var(--ease-smooth),
               background-color var(--duration-fast) var(--ease-smooth),
@@ -310,22 +309,20 @@ body.joywatch-body {
 }
 
 .joy-search-wrapper:focus-within {
-  border-color: rgba(255, 255, 255, 0.35);
+  border-color: var(--joy-accent-border);
   background-color: var(--joy-bg-card-hover);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--joy-accent-border);
 }
 
 .search-icon {
   color: var(--joy-text-muted);
   flex-shrink: 0;
   margin-right: 10px;
-  width: 14px;
-  height: 14px;
   transition: color var(--duration-fast) var(--ease-smooth);
 }
 
 .joy-search-wrapper:focus-within .search-icon {
-  color: #FFFFFF;
+  color: var(--joy-accent);
 }
 
 .joy-search-wrapper input {
@@ -340,11 +337,6 @@ body.joywatch-body {
 
 .joy-search-wrapper input::placeholder {
   color: var(--joy-text-muted);
-  transition: opacity var(--duration-fast) var(--ease-smooth);
-}
-
-.joy-search-wrapper:focus-within input::placeholder {
-  opacity: 0.7;
 }
 
 .search-shortcut-hint {
@@ -357,7 +349,6 @@ body.joywatch-body {
   margin-left: 8px;
   user-select: none;
   pointer-events: none;
-  transition: opacity var(--duration-fast) var(--ease-smooth);
 }
 
 .joy-search-wrapper:focus-within .search-shortcut-hint {
@@ -385,19 +376,18 @@ body.joywatch-body {
 }
 
 /* ==========================================================================
-   BUTTONS (Tactile Spring Physics, Round Corners, 44px Touch Targets)
+   BUTTONS (Lime Green Primary, Glass Secondary, Round Pill Corners)
    ========================================================================== */
-.btn-joy-primary,
-.btn-joy-secondary,
+.btn-joy-lime,
 .btn-joy-glass,
-.btn-joy-icon,
 .stream-play-btn,
 .episode-btn,
 .player-return-btn,
 .modal-dismiss-btn {
   will-change: transform, background-color, border-color, box-shadow;
   transform: translateZ(0);
-  min-height: 40px;
+  min-height: 42px;
+  border-radius: var(--radius-round);
   transition: transform var(--duration-fast) var(--ease-smooth),
               background-color var(--duration-fast) var(--ease-smooth),
               border-color var(--duration-fast) var(--ease-smooth),
@@ -405,128 +395,97 @@ body.joywatch-body {
               color var(--duration-fast) var(--ease-smooth);
 }
 
-.btn-joy-primary {
+/* Primary Lime Button */
+.btn-joy-lime {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 22px;
-  border-radius: var(--radius-round);
+  padding: 10px 24px;
   background-color: var(--joy-accent);
   color: var(--joy-text-inverse);
   border: none;
   font-family: var(--font-body);
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   cursor: pointer;
+  box-shadow: 0 4px 14px rgba(149, 255, 80, 0.18);
 }
 
-.btn-joy-primary svg {
-  width: 13px;
-  height: 13px;
-  transition: transform var(--duration-fast) var(--ease-spring);
-}
-
-.btn-joy-primary:hover {
-  background-color: var(--joy-accent-hover);
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.16);
-}
-
-.btn-joy-primary:hover svg {
-  transform: scale(1.12);
-}
-
-.btn-joy-primary:active {
-  transform: scale(0.96) translateY(0);
-  transition-duration: 80ms;
-}
-
-.btn-joy-secondary,
-.btn-joy-glass {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-radius: var(--radius-round);
-  background-color: var(--joy-surface-pill);
-  color: var(--joy-text-primary);
-  border: 1px solid var(--joy-border);
-  font-family: var(--font-body);
-  font-size: 0.82rem;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.btn-joy-secondary svg,
-.btn-joy-glass svg {
-  width: 13px;
-  height: 13px;
-  transition: transform var(--duration-fast) var(--ease-spring);
-}
-
-.btn-joy-secondary:hover,
-.btn-joy-glass:hover {
-  background-color: var(--joy-surface-pill-hover);
-  border-color: var(--joy-border-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-.btn-joy-secondary:hover svg,
-.btn-joy-glass:hover svg {
-  transform: scale(1.12);
-}
-
-.btn-joy-secondary:active,
-.btn-joy-glass:active {
-  transform: scale(0.96) translateY(0);
-  transition-duration: 80ms;
-}
-
-.btn-joy-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-round);
-  background-color: var(--joy-surface-pill);
-  color: var(--joy-text-primary);
-  border: 1px solid var(--joy-border);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.btn-joy-icon svg {
+.btn-joy-lime svg {
   width: 14px;
   height: 14px;
   transition: transform var(--duration-fast) var(--ease-spring);
 }
 
-.btn-joy-icon:hover {
-  background-color: var(--joy-surface-pill-hover);
-  border-color: var(--joy-border-hover);
-  transform: translateY(-2px) scale(1.05);
+.btn-joy-lime:hover {
+  background-color: var(--joy-accent-hover);
+  transform: scale(1.02) translateY(-1px);
+  box-shadow: 0 8px 24px var(--joy-accent-shadow);
 }
 
-.btn-joy-icon:hover svg {
-  transform: scale(1.15);
+.btn-joy-lime:hover svg {
+  transform: scale(1.1);
 }
 
-.btn-joy-icon:active {
-  transform: scale(0.92);
+.btn-joy-lime:active {
+  transform: scale(0.96) translateY(0);
   transition-duration: 80ms;
 }
 
-.btn-joy-icon.active {
-  background-color: #FFFFFF;
-  color: #090A0E;
-  border-color: #FFFFFF;
+/* Secondary Glass Button */
+.btn-joy-glass {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  background-color: var(--joy-glass);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  color: var(--joy-text-primary);
+  border: 1px solid var(--joy-border);
+  font-family: var(--font-body);
+  font-size: 0.84rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-joy-glass svg {
+  width: 14px;
+  height: 14px;
+  transition: transform var(--duration-fast) var(--ease-spring);
+}
+
+.btn-joy-glass:hover {
+  background-color: var(--joy-glass-elevated);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.02) translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.btn-joy-glass:hover svg {
+  transform: scale(1.1);
+}
+
+.btn-joy-glass:active {
+  transform: scale(0.96) translateY(0);
+  transition-duration: 80ms;
+}
+
+/* Active State for Glass Buttons (e.g. My List saved) */
+.btn-joy-glass.active {
+  background-color: var(--joy-accent-tint);
+  border-color: var(--joy-accent-border);
+  color: var(--joy-accent);
+}
+
+.btn-joy-glass.active svg {
+  fill: var(--joy-accent);
+  stroke: var(--joy-accent);
 }
 
 /* ==========================================================================
-   HERO CANVAS (Smooth Kinetic Transitions, No Gradients)
+   FEATURED HERO SECTION (Cinematic Cropping, Strong Fade into #050505)
    ========================================================================== */
 .joy-main {
   min-height: 100vh;
@@ -535,10 +494,10 @@ body.joywatch-body {
 
 .hero-canvas {
   position: relative;
-  min-height: 70vh;
+  min-height: 72vh;
   display: flex;
   align-items: flex-end;
-  padding: 60px 48px 72px;
+  padding: 64px 48px 84px;
   overflow: hidden;
   max-width: 1440px;
   margin: 0 auto;
@@ -549,7 +508,7 @@ body.joywatch-body {
   inset: 0;
   background-size: cover;
   background-position: center top;
-  filter: brightness(0.65) saturate(1.1);
+  filter: brightness(0.65) saturate(1.08);
   will-change: opacity, transform;
   transform: scale(1) translateZ(0);
   transition: opacity var(--duration-slow) var(--ease-smooth),
@@ -561,28 +520,35 @@ body.joywatch-body {
   transform: scale(1.03) translateZ(0);
 }
 
-.hero-overlay-solid {
+/* Authentic Dark Vignette & Layered Fade into #050505 (Zero Gradients Invariant) */
+.hero-vignette-solid {
   position: absolute;
   inset: 0;
-  background-color: rgba(9, 10, 14, 0.65);
   z-index: 2;
-  transition: background-color var(--duration-normal) var(--ease-smooth);
+  background-color: rgba(5, 5, 5, 0.45);
+  box-shadow:
+    inset 680px 0 200px -40px #050505,
+    inset 0 -280px 180px -40px #050505,
+    inset 0 120px 100px -30px rgba(5, 5, 5, 0.8);
+  pointer-events: none;
 }
 
+/* Hero Content (Occupies 40-45% width on left) */
 .hero-content {
   position: relative;
   z-index: 3;
-  max-width: 660px;
+  max-width: 580px;
+  width: 44%;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  animation: heroTextEntrance var(--duration-slow) var(--ease-smooth) both;
+  animation: heroEntrance var(--duration-slow) var(--ease-smooth) both;
 }
 
-@keyframes heroTextEntrance {
+@keyframes heroEntrance {
   0% {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(24px);
   }
   100% {
     opacity: 1;
@@ -608,67 +574,85 @@ body.joywatch-body {
   font-weight: 500;
   color: var(--joy-text-secondary);
   letter-spacing: 0.03em;
-  transition: transform var(--duration-fast) var(--ease-smooth),
-              background-color var(--duration-fast) var(--ease-smooth);
 }
 
-.hero-chip:hover {
-  transform: translateY(-1px);
-  background-color: rgba(255, 255, 255, 0.12);
-}
-
-.chip-highlight {
-  background-color: #FFFFFF;
-  color: #090A0E;
-  border: none;
+.chip-lime-tag {
+  background-color: var(--joy-accent-tint);
+  border-color: var(--joy-accent-border);
+  color: var(--joy-accent);
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
 }
 
-.chip-rating {
-  color: var(--joy-rating-gold);
-  border-color: rgba(234, 179, 8, 0.25);
-  background-color: rgba(234, 179, 8, 0.08);
+.chip-match {
+  color: var(--joy-accent);
+  border-color: rgba(149, 255, 80, 0.25);
+  background-color: rgba(149, 255, 80, 0.06);
 }
 
+.chip-quality {
+  color: var(--joy-text-primary);
+}
+
+/* Huge Bold Hero Title (56px-76px on large screens) */
 .hero-title {
   font-family: var(--font-display);
-  font-size: 2.75rem;
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
   color: #FFFFFF;
-  transition: opacity var(--duration-normal) var(--ease-smooth);
+}
+
+/* Metadata Row: ★ Rating Year • Genre • Runtime */
+.hero-metadata-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: var(--joy-text-secondary);
+}
+
+.hero-rating-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--joy-accent);
+  font-weight: 600;
+}
+
+.meta-dot {
+  color: var(--joy-text-muted);
 }
 
 .hero-synopsis {
-  font-size: 0.92rem;
-  line-height: 1.6;
+  font-size: 0.94rem;
+  line-height: 1.65;
   color: var(--joy-text-secondary);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  transition: opacity var(--duration-normal) var(--ease-smooth);
 }
 
 .hero-actions {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 /* ==========================================================================
-   MEDIA SHELVES & CARDS (Smooth Physics, Large Covers, Small Icons)
+   CONTENT SECTIONS & MEDIA SHELVES (Spacious, Generous Margins)
    ========================================================================== */
 .media-shelves {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 32px 48px 80px;
+  padding: 36px 48px 84px;
   display: flex;
   flex-direction: column;
-  gap: 44px;
+  gap: 48px;
 }
 
 .shelf-loader {
@@ -680,19 +664,13 @@ body.joywatch-body {
   padding: 80px 0;
   color: var(--joy-text-muted);
   font-size: 0.85rem;
-  animation: fadeIn var(--duration-normal) var(--ease-smooth);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }
 
 .joy-spinner {
   width: 28px;
   height: 28px;
   border: 2px solid rgba(255, 255, 255, 0.1);
-  border-top-color: #FFFFFF;
+  border-top-color: var(--joy-accent);
   border-radius: var(--radius-round);
   animation: joySpin 0.75s linear infinite;
 }
@@ -705,18 +683,6 @@ body.joywatch-body {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  animation: shelfRowEntrance var(--duration-normal) var(--ease-smooth) both;
-}
-
-@keyframes shelfRowEntrance {
-  0% {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .shelf-header {
@@ -725,23 +691,51 @@ body.joywatch-body {
   justify-content: space-between;
 }
 
+.shelf-title-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
 .shelf-title {
   font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
   color: var(--joy-text-primary);
+}
+
+.shelf-see-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--joy-accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: var(--radius-round);
+  background-color: var(--joy-accent-tint);
+  border: 1px solid var(--joy-accent-border);
+  transition: transform var(--duration-fast) var(--ease-spring),
+              background-color var(--duration-fast) var(--ease-smooth);
+}
+
+.shelf-see-all:hover {
+  background-color: rgba(149, 255, 80, 0.22);
+  transform: translateX(2px);
 }
 
 .shelf-nav-controls {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .shelf-arrow-btn {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: var(--radius-round);
   background-color: var(--joy-bg-card);
   border: 1px solid var(--joy-border);
@@ -750,7 +744,6 @@ body.joywatch-body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  will-change: transform, background-color, border-color, color;
   transition: transform var(--duration-fast) var(--ease-spring),
               background-color var(--duration-fast) var(--ease-smooth),
               border-color var(--duration-fast) var(--ease-smooth),
@@ -760,7 +753,6 @@ body.joywatch-body {
 .shelf-arrow-btn svg {
   width: 14px;
   height: 14px;
-  transition: transform var(--duration-fast) var(--ease-spring);
 }
 
 .shelf-arrow-btn:hover {
@@ -778,17 +770,16 @@ body.joywatch-body {
 
 .shelf-arrow-btn:active {
   transform: scale(0.92);
-  transition-duration: 80ms;
 }
 
-/* Card Strip with Smooth Momentum Scroll & Dragging */
+/* Horizontal Track (Drag-to-Scroll Momentum) */
 .shelf-cards-track {
   display: flex;
   align-items: stretch;
   gap: 18px;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 12px 4px 18px;
+  padding: 10px 4px 18px;
   scrollbar-width: none;
   -ms-overflow-style: none;
   scroll-behavior: smooth;
@@ -806,29 +797,9 @@ body.joywatch-body {
   display: none;
 }
 
-/* Staggered Card Entrance Animation */
-@keyframes cardStaggerEntrance {
-  0% {
-    opacity: 0;
-    transform: translateY(20px) scale(0.96);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.shelf-cards-track > .movie-card {
-  animation: cardStaggerEntrance var(--duration-normal) var(--ease-smooth) both;
-}
-.shelf-cards-track > .movie-card:nth-child(1) { animation-delay: 30ms; }
-.shelf-cards-track > .movie-card:nth-child(2) { animation-delay: 60ms; }
-.shelf-cards-track > .movie-card:nth-child(3) { animation-delay: 90ms; }
-.shelf-cards-track > .movie-card:nth-child(4) { animation-delay: 120ms; }
-.shelf-cards-track > .movie-card:nth-child(5) { animation-delay: 150ms; }
-.shelf-cards-track > .movie-card:nth-child(6) { animation-delay: 180ms; }
-
-/* Movie Card (Ultra-Smooth Scale & Lift, Large Posters) */
+/* ==========================================================================
+   MOVIE CARDS (Large 2:3 Portrait Posters, Rounded Corners, Hover Overlay)
+   ========================================================================== */
 .movie-card {
   flex: 0 0 210px;
   width: 210px;
@@ -836,10 +807,11 @@ body.joywatch-body {
   flex-direction: column;
   border-radius: var(--radius-card);
   background-color: var(--joy-bg-card);
-  border: 1px solid var(--joy-border);
+  border: 1px solid var(--joy-border-subtle);
   overflow: hidden;
   cursor: pointer;
   position: relative;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6);
   will-change: transform, border-color, box-shadow;
   transform: translateZ(0);
   transition: transform var(--duration-normal) var(--ease-smooth),
@@ -848,16 +820,16 @@ body.joywatch-body {
 }
 
 .movie-card:hover {
-  transform: translateY(-8px) scale(1.025);
-  border-color: rgba(255, 255, 255, 0.28);
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7);
+  transform: translateY(-6px) scale(1.025);
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.85);
 }
 
 .card-poster-wrapper {
   position: relative;
   width: 100%;
   height: 315px;
-  background-color: #0E1017;
+  background-color: var(--joy-bg-secondary);
   overflow: hidden;
 }
 
@@ -878,90 +850,103 @@ body.joywatch-body {
 }
 
 .movie-card:hover .card-poster {
-  transform: scale(1.06) translateZ(0);
-  filter: brightness(1.05);
+  transform: scale(1.05) translateZ(0);
+  filter: brightness(1.04);
 }
 
+/* Top Rating Pill on Poster */
 .card-top-pill {
   position: absolute;
   top: 10px;
   left: 10px;
   padding: 3px 8px;
   border-radius: var(--radius-round);
-  background-color: rgba(9, 10, 14, 0.85);
+  background-color: rgba(5, 5, 5, 0.85);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  color: var(--joy-rating-gold);
+  color: var(--joy-accent);
   display: flex;
   align-items: center;
   gap: 4px;
-  will-change: transform, background-color;
-  transition: transform var(--duration-fast) var(--ease-smooth),
-              background-color var(--duration-fast) var(--ease-smooth);
-}
-
-.movie-card:hover .card-top-pill {
-  transform: translateY(-2px);
-  background-color: rgba(9, 10, 14, 0.95);
 }
 
 .card-top-pill svg {
   width: 11px;
   height: 11px;
+  fill: var(--joy-accent);
 }
 
-.card-quick-actions {
+/* Subtle Dark Overlay Revealed on Hover (Play Icon, Title, Rating, Year) */
+.card-hover-overlay {
   position: absolute;
-  bottom: 10px;
-  right: 10px;
+  inset: 0;
+  background-color: rgba(5, 5, 5, 0.65);
   display: flex;
-  align-items: center;
-  gap: 6px;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px;
   opacity: 0;
-  transform: translateY(12px) scale(0.9);
-  will-change: transform, opacity;
-  transition: opacity var(--duration-fast) var(--ease-smooth),
-              transform var(--duration-fast) var(--ease-spring);
+  pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-smooth);
 }
 
-.movie-card:hover .card-quick-actions {
+.movie-card:hover .card-hover-overlay {
   opacity: 1;
-  transform: translateY(0) scale(1);
 }
 
-.card-action-mini {
-  width: 32px;
-  height: 32px;
+.overlay-center-play {
+  align-self: center;
+  margin-top: auto;
+  margin-bottom: auto;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-round);
-  background-color: rgba(9, 10, 14, 0.9);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  color: #FFFFFF;
+  background-color: var(--joy-accent);
+  color: var(--joy-text-inverse);
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: background-color var(--duration-fast) var(--ease-smooth),
-              transform var(--duration-fast) var(--ease-spring);
+  box-shadow: 0 4px 20px rgba(149, 255, 80, 0.4);
+  transform: scale(0.85);
+  transition: transform var(--duration-fast) var(--ease-spring);
 }
 
-.card-action-mini svg {
-  width: 12px;
-  height: 12px;
+.movie-card:hover .overlay-center-play {
+  transform: scale(1);
 }
 
-.card-action-mini:hover {
-  background-color: #FFFFFF;
-  color: #090A0E;
-  transform: scale(1.1);
+.overlay-center-play svg {
+  width: 16px;
+  height: 16px;
 }
 
-.card-action-mini:active {
-  transform: scale(0.92);
+.overlay-bottom-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
+.overlay-title {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.overlay-subline {
+  font-size: 0.72rem;
+  color: var(--joy-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Card Metadata Below Poster */
 .card-meta-box {
   padding: 12px 14px;
   display: flex;
@@ -977,13 +962,12 @@ body.joywatch-body {
 
 .card-title {
   font-family: var(--font-body);
-  font-size: 0.86rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: var(--joy-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: color var(--duration-fast) var(--ease-smooth);
 }
 
 .card-subline {
@@ -995,44 +979,166 @@ body.joywatch-body {
 }
 
 /* ==========================================================================
-   SEARCH RESULTS VIEW (Smooth Fade & Grid Transition)
+   DEDICATED SEARCH PAGE & ADVANCED FILTERS (Dark Rounded Controls, Lime Accents)
    ========================================================================== */
 .search-view {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 32px 48px 80px;
-  animation: viewFadeIn var(--duration-normal) var(--ease-smooth) both;
+  padding: 36px 48px 84px;
+  animation: fadeIn 0.3s var(--ease-smooth) both;
 }
 
-@keyframes viewFadeIn {
-  0% {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.search-header-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 32px;
 }
 
-.search-header-row {
+.search-hero-bar {
+  display: flex;
+  align-items: center;
+  height: 52px;
+  width: 100%;
+  max-width: 820px;
+  background-color: var(--joy-glass);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--joy-border);
+  border-radius: var(--radius-round);
+  padding: 0 20px;
+  transition: border-color var(--duration-fast) var(--ease-smooth),
+              box-shadow var(--duration-fast) var(--ease-smooth);
+}
+
+.search-hero-bar:focus-within {
+  border-color: var(--joy-accent-border);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--joy-accent-border);
+}
+
+.search-hero-icon {
+  color: var(--joy-text-muted);
+  flex-shrink: 0;
+  margin-right: 14px;
+}
+
+.search-hero-bar:focus-within .search-hero-icon {
+  color: var(--joy-accent);
+}
+
+.search-hero-bar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--joy-text-primary);
+}
+
+.search-hero-bar input::placeholder {
+  color: var(--joy-text-muted);
+}
+
+.search-clear-hero-btn {
+  background: transparent;
+  border: none;
+  color: var(--joy-text-muted);
+  cursor: pointer;
+  padding: 6px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-round);
+  transition: color var(--duration-fast) var(--ease-smooth);
+}
+
+.search-clear-hero-btn:hover {
+  color: var(--joy-text-primary);
+}
+
+/* Filters Bar */
+.search-filters-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: var(--joy-bg-card);
+  border: 1px solid var(--joy-border);
+  border-radius: 18px;
+  padding: 16px 20px;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-group-label {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--joy-text-muted);
+  min-width: 52px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.filter-pills-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-pill {
+  padding: 6px 14px;
+  border-radius: var(--radius-round);
+  background-color: var(--joy-glass);
+  border: 1px solid var(--joy-border);
+  color: var(--joy-text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-smooth),
+              border-color var(--duration-fast) var(--ease-smooth),
+              color var(--duration-fast) var(--ease-smooth),
+              transform var(--duration-fast) var(--ease-spring);
+}
+
+.filter-pill:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--joy-text-primary);
+  transform: translateY(-1px);
+}
+
+.filter-pill.active {
+  background-color: var(--joy-accent-tint);
+  border-color: var(--joy-accent-border);
+  color: var(--joy-accent);
+  font-weight: 600;
+}
+
+.search-results-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin-top: 8px;
 }
 
 .search-results-heading {
   font-family: var(--font-display);
-  font-size: 1.4rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--joy-text-primary);
 }
 
-.search-badge {
-  font-size: 0.76rem;
-  padding: 4px 12px;
+.search-count-pill {
+  font-size: 0.78rem;
+  padding: 5px 14px;
   border-radius: var(--radius-round);
-  background-color: var(--joy-surface-pill);
+  background-color: var(--joy-bg-card);
   border: 1px solid var(--joy-border);
   color: var(--joy-text-secondary);
 }
@@ -1040,27 +1146,85 @@ body.joywatch-body {
 .joy-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: 20px;
+  gap: 22px;
 }
 
 /* ==========================================================================
-   DETAIL MODAL (Fluid Backdrop Fade & Dialog Float-Up)
+   WATCHLIST / MY LIST PAGE (Clean Grid + Empty State)
+   ========================================================================== */
+.mylist-view {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 36px 48px 84px;
+  animation: fadeIn 0.3s var(--ease-smooth) both;
+}
+
+.mylist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.mylist-title {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--joy-text-primary);
+}
+
+.mylist-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 16px;
+  padding: 100px 20px;
+}
+
+.empty-icon-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-round);
+  background-color: var(--joy-bg-card);
+  border: 1px solid var(--joy-border);
+  color: var(--joy-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-heading {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--joy-text-primary);
+}
+
+.empty-subtext {
+  font-size: 0.9rem;
+  color: var(--joy-text-muted);
+  max-width: 440px;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   CINEMATIC DETAIL MODAL (Upper Backdrop Fade, Poster + Info, Cast, Related)
    ========================================================================== */
 .modal-backdrop {
   position: fixed;
   inset: 0;
   z-index: 2000;
-  background-color: rgba(0, 0, 0, 0.76);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   display: none;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 28px;
   opacity: 0;
-  will-change: opacity, backdrop-filter;
-  transition: opacity var(--duration-normal) var(--ease-smooth),
-              backdrop-filter var(--duration-normal) var(--ease-smooth);
+  transition: opacity var(--duration-normal) var(--ease-smooth);
 }
 
 .modal-backdrop.open {
@@ -1070,16 +1234,15 @@ body.joywatch-body {
 .modal-dialog {
   position: relative;
   width: 100%;
-  max-width: 780px;
+  max-width: 860px;
   max-height: 90vh;
   background-color: var(--joy-bg-elevated);
   border: 1px solid var(--joy-border);
   border-radius: var(--radius-dialog);
   overflow-y: auto;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.75);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85);
   transform: scale(0.92) translateY(24px);
   opacity: 0;
-  will-change: transform, opacity;
   transition: transform var(--duration-normal) var(--ease-smooth),
               opacity var(--duration-normal) var(--ease-smooth);
 }
@@ -1097,11 +1260,11 @@ body.joywatch-body {
   position: absolute;
   top: 16px;
   right: 16px;
-  z-index: 10;
-  width: 34px;
-  height: 34px;
+  z-index: 20;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-round);
-  background-color: rgba(9, 10, 14, 0.8);
+  background-color: rgba(5, 5, 5, 0.8);
   border: 1px solid var(--joy-border);
   color: var(--joy-text-secondary);
   display: flex;
@@ -1110,15 +1273,9 @@ body.joywatch-body {
   cursor: pointer;
 }
 
-.modal-dismiss-btn svg {
-  width: 13px;
-  height: 13px;
-  transition: transform var(--duration-fast) var(--ease-smooth);
-}
-
 .modal-dismiss-btn:hover {
-  background-color: #FFFFFF;
-  color: #090A0E;
+  background-color: var(--joy-accent);
+  color: var(--joy-text-inverse);
   transform: rotate(90deg) scale(1.08);
 }
 
@@ -1126,98 +1283,165 @@ body.joywatch-body {
   transform: rotate(90deg) scale(0.92);
 }
 
+/* Modal Hero Banner */
 .modal-hero {
   position: relative;
-  height: 340px;
+  min-height: 360px;
   background-size: cover;
   background-position: center top;
   display: flex;
   align-items: flex-end;
-  padding: 32px;
-  transition: background-image var(--duration-slow) var(--ease-smooth);
+  padding: 36px 36px 28px;
 }
 
-.modal-hero-mask {
+.modal-hero-vignette {
   position: absolute;
   inset: 0;
-  background-color: rgba(17, 19, 26, 0.72);
+  background-color: rgba(11, 13, 12, 0.55);
+  box-shadow:
+    inset 0 -200px 140px -20px var(--joy-bg-elevated),
+    inset 420px 0 160px -20px var(--joy-bg-elevated),
+    inset 0 100px 80px -20px rgba(5, 5, 5, 0.8);
+  pointer-events: none;
+}
+
+.modal-hero-layout {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: flex-end;
+  gap: 28px;
+  width: 100%;
+}
+
+.modal-poster-col {
+  flex-shrink: 0;
+  width: 155px;
+  height: 232px;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.85);
+  border: 1px solid var(--joy-border);
+}
+
+.modal-poster-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .modal-hero-details {
-  position: relative;
-  z-index: 2;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  width: 100%;
+  flex: 1;
 }
 
 .modal-chips-row {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 .modal-title {
   font-family: var(--font-display);
-  font-size: 1.85rem;
+  font-size: 2rem;
   font-weight: 700;
   color: #FFFFFF;
+  line-height: 1.2;
+}
+
+.modal-metadata-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.84rem;
+  color: var(--joy-text-secondary);
+}
+
+.modal-hero-synopsis {
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: var(--joy-text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .modal-action-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-top: 4px;
 }
 
+/* Modal Body Content */
 .modal-body-content {
-  padding: 28px 32px;
+  padding: 32px 36px 40px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 32px;
 }
 
-.modal-synopsis-box {
+.modal-section-block {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.modal-block-heading {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--joy-text-primary);
+  letter-spacing: -0.01em;
 }
 
 .modal-synopsis {
-  font-size: 0.9rem;
-  line-height: 1.65;
+  font-size: 0.92rem;
+  line-height: 1.7;
   color: var(--joy-text-secondary);
 }
 
-.modal-tags-row {
+/* Cast Chips */
+.modal-cast-list {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  gap: 10px;
+}
+
+.actor-chip {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
-  font-size: 0.8rem;
-}
-
-.meta-label {
-  color: var(--joy-text-muted);
-}
-
-.meta-tags-value {
+  padding: 6px 14px;
+  border-radius: var(--radius-round);
+  background-color: var(--joy-bg-card);
+  border: 1px solid var(--joy-border);
   color: var(--joy-text-primary);
+  font-size: 0.8rem;
   font-weight: 500;
 }
 
-.meta-separator {
-  color: var(--joy-text-muted);
+.actor-avatar-letter {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-round);
+  background-color: var(--joy-accent-tint);
+  color: var(--joy-accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* TV Episodes Browser */
+/* Episodes Accordion */
 .episodes-accordion {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
   border-top: 1px solid var(--joy-border);
   padding-top: 24px;
 }
@@ -1228,19 +1452,12 @@ body.joywatch-body {
   justify-content: space-between;
 }
 
-.section-heading {
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--joy-text-primary);
-}
-
 .joy-select {
-  background-color: var(--joy-surface-pill);
+  background-color: var(--joy-bg-card);
   border: 1px solid var(--joy-border);
   color: var(--joy-text-primary);
   border-radius: var(--radius-round);
-  padding: 6px 14px;
+  padding: 7px 16px;
   font-size: 0.8rem;
   font-family: var(--font-body);
   outline: none;
@@ -1249,7 +1466,7 @@ body.joywatch-body {
 }
 
 .joy-select:hover {
-  border-color: var(--joy-border-hover);
+  border-color: var(--joy-accent-border);
 }
 
 .episodes-scroll-list {
@@ -1277,7 +1494,7 @@ body.joywatch-body {
 .episode-btn:hover {
   background-color: var(--joy-bg-card-hover);
   color: #FFFFFF;
-  border-color: var(--joy-border-hover);
+  border-color: var(--joy-accent-border);
   transform: translateY(-1px);
 }
 
@@ -1286,114 +1503,37 @@ body.joywatch-body {
 }
 
 .episode-btn.active {
-  background-color: #FFFFFF;
-  color: #090A0E;
-  border-color: #FFFFFF;
-  font-weight: 600;
+  background-color: var(--joy-accent);
+  color: var(--joy-text-inverse);
+  border-color: var(--joy-accent);
+  font-weight: 700;
 }
 
-/* Streams Section */
-.stream-servers-box {
+/* You May Also Like Shelf */
+.modal-related-shelf {
   display: flex;
-  flex-direction: column;
+  align-items: stretch;
   gap: 14px;
-  border-top: 1px solid var(--joy-border);
-  padding-top: 24px;
+  overflow-x: auto;
+  padding: 6px 2px 14px;
+  scrollbar-width: none;
 }
 
-.streams-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.modal-related-shelf::-webkit-scrollbar {
+  display: none;
 }
 
-.stream-guarantee-tag {
-  font-size: 0.72rem;
-  padding: 3px 10px;
-  border-radius: var(--radius-round);
-  background-color: var(--joy-surface-pill);
-  border: 1px solid var(--joy-border);
-  color: var(--joy-text-secondary);
+.modal-related-shelf .movie-card {
+  flex: 0 0 160px;
+  width: 160px;
 }
 
-.streams-cards-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.stream-loader {
-  padding: 20px;
-  text-align: center;
-  font-size: 0.82rem;
-  color: var(--joy-text-muted);
-}
-
-.stream-source-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 18px;
-  border-radius: var(--radius-card);
-  background-color: var(--joy-bg-card);
-  border: 1px solid var(--joy-border);
-  will-change: transform, border-color, box-shadow;
-  transition: transform var(--duration-fast) var(--ease-smooth),
-              border-color var(--duration-fast) var(--ease-smooth),
-              box-shadow var(--duration-fast) var(--ease-smooth);
-}
-
-.stream-source-card:hover {
-  border-color: var(--joy-border-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-.stream-source-info {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.stream-source-name {
-  font-size: 0.84rem;
-  font-weight: 600;
-  color: var(--joy-text-primary);
-}
-
-.stream-source-sub {
-  font-size: 0.74rem;
-  color: var(--joy-text-muted);
-}
-
-.stream-action-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.stream-play-btn {
-  padding: 7px 16px;
-  border-radius: var(--radius-round);
-  background-color: #FFFFFF;
-  color: #090A0E;
-  border: none;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.stream-play-btn:hover {
-  background-color: #E2E4E9;
-  transform: translateY(-1px) scale(1.03);
-}
-
-.stream-play-btn:active {
-  transform: scale(0.96);
+.modal-related-shelf .card-poster-wrapper {
+  height: 240px;
 }
 
 /* ==========================================================================
-   FULLSCREEN PLAYER (Cinema Fade Transition)
+   DIRECT IN-BROWSER VIDEO PLAYER
    ========================================================================== */
 .joy-player-overlay {
   position: fixed;
@@ -1403,7 +1543,6 @@ body.joywatch-body {
   display: none;
   flex-direction: column;
   opacity: 0;
-  will-change: opacity;
   transition: opacity var(--duration-normal) var(--ease-smooth);
 }
 
@@ -1417,7 +1556,7 @@ body.joywatch-body {
   left: 0;
   right: 0;
   z-index: 3010;
-  padding: max(16px, var(--safe-top)) 28px 16px;
+  padding: max(16px, var(--safe-top)) 32px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1425,7 +1564,6 @@ body.joywatch-body {
   pointer-events: none;
   transform: translateY(-20px);
   opacity: 0;
-  will-change: transform, opacity;
   transition: transform var(--duration-normal) var(--ease-smooth),
               opacity var(--duration-normal) var(--ease-smooth);
 }
@@ -1454,24 +1592,10 @@ body.joywatch-body {
   cursor: pointer;
 }
 
-.player-return-btn svg {
-  width: 13px;
-  height: 13px;
-  transition: transform var(--duration-fast) var(--ease-spring);
-}
-
 .player-return-btn:hover {
-  background-color: #FFFFFF;
-  color: #090A0E;
+  background-color: var(--joy-accent);
+  color: var(--joy-text-inverse);
   transform: translateX(-2px);
-}
-
-.player-return-btn:hover svg {
-  transform: translateX(-2px);
-}
-
-.player-return-btn:active {
-  transform: scale(0.96);
 }
 
 .player-current-info {
@@ -1483,7 +1607,7 @@ body.joywatch-body {
   font-size: 0.68rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--joy-text-muted);
+  color: var(--joy-accent);
 }
 
 .player-headline {
@@ -1513,7 +1637,7 @@ body.joywatch-body {
   object-fit: contain;
 }
 
-/* Player Header Actions & Small Right-Side Server Option */
+/* Right-Side Streaming Servers Switcher */
 .player-header-actions {
   display: flex;
   align-items: center;
@@ -1524,7 +1648,6 @@ body.joywatch-body {
   position: relative;
 }
 
-/* Small Server Toggle Option on Right Side */
 .player-servers-toggle-btn {
   display: inline-flex;
   align-items: center;
@@ -1545,10 +1668,6 @@ body.joywatch-body {
               border-color var(--duration-fast) var(--ease-smooth);
 }
 
-.player-servers-toggle-btn svg {
-  flex-shrink: 0;
-}
-
 .player-servers-toggle-btn .dropdown-chevron {
   transition: transform var(--duration-fast) var(--ease-smooth);
 }
@@ -1558,24 +1677,19 @@ body.joywatch-body {
 }
 
 .player-servers-toggle-btn:hover {
-  background-color: #FFFFFF;
-  color: #090A0E;
-  border-color: #FFFFFF;
+  background-color: var(--joy-accent);
+  color: var(--joy-text-inverse);
+  border-color: var(--joy-accent);
   transform: translateY(-1px);
 }
 
-.player-servers-toggle-btn:active {
-  transform: scale(0.96);
-}
-
-/* Popover / Panel on the Right Side */
 .player-servers-panel {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
   width: 290px;
   max-width: 90vw;
-  background-color: #11131A;
+  background-color: var(--joy-bg-elevated);
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 16px;
   box-shadow: 0 20px 48px rgba(0, 0, 0, 0.85);
@@ -1587,7 +1701,6 @@ body.joywatch-body {
   opacity: 0;
   transform: translateY(-8px) scale(0.97);
   pointer-events: none;
-  will-change: transform, opacity;
   transition: transform var(--duration-fast) var(--ease-spring),
               opacity var(--duration-fast) var(--ease-smooth);
 }
@@ -1611,17 +1724,16 @@ body.joywatch-body {
   font-size: 0.82rem;
   font-weight: 600;
   color: #FFFFFF;
-  letter-spacing: 0.02em;
 }
 
 .servers-panel-active-tag {
   font-size: 0.68rem;
   font-weight: 500;
-  color: var(--joy-text-secondary);
-  background-color: #1C1F2B;
+  color: var(--joy-accent);
+  background-color: var(--joy-accent-tint);
   padding: 3px 8px;
   border-radius: var(--radius-round);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--joy-accent-border);
 }
 
 .servers-panel-list {
@@ -1639,7 +1751,7 @@ body.joywatch-body {
   width: 100%;
   padding: 9px 14px;
   border-radius: var(--radius-round);
-  background-color: #171923;
+  background-color: var(--joy-bg-card);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--joy-text-secondary);
   font-family: var(--font-body);
@@ -1649,38 +1761,30 @@ body.joywatch-body {
   text-align: left;
   transition: background-color var(--duration-fast) var(--ease-smooth),
               color var(--duration-fast) var(--ease-smooth),
-              border-color var(--duration-fast) var(--ease-smooth),
-              transform var(--duration-fast) var(--ease-spring);
+              border-color var(--duration-fast) var(--ease-smooth);
 }
 
 .servers-panel-item:hover {
-  background-color: #222533;
+  background-color: var(--joy-bg-card-hover);
   color: #FFFFFF;
-  border-color: rgba(255, 255, 255, 0.22);
-  transform: translateX(2px);
+  border-color: var(--joy-accent-border);
 }
 
 .servers-panel-item.active {
-  background-color: #FFFFFF;
-  color: #090A0E;
-  border-color: #FFFFFF;
+  background-color: var(--joy-accent);
+  color: var(--joy-text-inverse);
+  border-color: var(--joy-accent);
   font-weight: 600;
-  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.2);
-}
-
-.servers-panel-item:active {
-  transform: scale(0.97);
 }
 
 .servers-panel-quality {
   font-size: 0.68rem;
-  opacity: 0.8;
-  letter-spacing: 0.02em;
+  opacity: 0.85;
 }
 
 .servers-panel-item.active .servers-panel-quality {
-  opacity: 0.9;
-  font-weight: 600;
+  opacity: 1;
+  font-weight: 700;
 }
 
 .servers-panel-hint {
@@ -1688,35 +1792,33 @@ body.joywatch-body {
   color: var(--joy-text-muted);
   text-align: center;
   padding-top: 4px;
-  line-height: 1.4;
 }
 
 /* ==========================================================================
-   MOBILE FLOATING BOTTOM NAVIGATION (Desktop Hidden, Mobile Visible)
+   MOBILE FLOATING BOTTOM NAVIGATION BAR
    ========================================================================== */
 .joy-bottom-nav {
   display: none;
 }
 
 /* ==========================================================================
-   TOAST NOTIFICATION (Fluid Spring Animation, No Gradients)
+   TOAST NOTIFICATION (Spring Physics, Lime Border, Zero Emojis)
    ========================================================================== */
 .joy-toast {
   position: fixed;
   bottom: 32px;
   left: 50%;
   transform: translateX(-50%) translateY(28px) scale(0.92);
-  background-color: #171923;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background-color: var(--joy-bg-elevated);
+  border: 1px solid var(--joy-accent-border);
   color: #FFFFFF;
   padding: 11px 24px;
   border-radius: var(--radius-round);
   font-size: 0.82rem;
   font-weight: 500;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.75);
   z-index: 9999;
   opacity: 0;
-  will-change: transform, opacity;
   transition: transform var(--duration-normal) var(--ease-spring),
               opacity var(--duration-fast) var(--ease-smooth);
   pointer-events: none;
@@ -1740,24 +1842,23 @@ body.joywatch-body {
 }
 
 /* ==========================================================================
-   RESPONSIVE DESIGN: TABLET & MOBILE (Breakpoints: 960px, 768px, 480px)
+   RESPONSIVE DESIGN: TABLET & MOBILE
    ========================================================================== */
 @media (max-width: 960px) {
   .joy-navbar {
     padding: max(12px, var(--safe-top)) 24px 12px;
   }
-  .nav-left {
-    gap: 20px;
-  }
   .hero-canvas {
     padding: 48px 32px 64px;
     min-height: 60vh;
   }
-  .hero-title {
-    font-size: 2.2rem;
+  .hero-content {
+    width: 65%;
+    max-width: 100%;
   }
   .media-shelves,
-  .search-view {
+  .search-view,
+  .mylist-view {
     padding: 24px 28px 60px;
   }
   .movie-card {
@@ -1770,17 +1871,10 @@ body.joywatch-body {
 }
 
 @media (max-width: 768px) {
-  /* Top Bar Mobile Optimization */
+  /* Navbar */
   .joy-navbar {
     padding: max(10px, var(--safe-top)) 16px 10px;
   }
-  .nav-container {
-    gap: 12px;
-  }
-  .nav-left {
-    gap: 12px;
-  }
-  /* Hide desktop top nav pills on mobile */
   .joy-nav-pills {
     display: none !important;
   }
@@ -1790,24 +1884,21 @@ body.joywatch-body {
   }
   .joy-search-wrapper {
     min-width: 140px;
-    max-width: 220px;
+    max-width: 200px;
     height: 38px;
     padding: 0 12px;
   }
   .search-shortcut-hint {
     display: none;
   }
-  .joy-search-wrapper input {
-    font-size: 0.8rem;
-  }
 
   /* Main Canvas Spacing for Bottom Bar */
   .joy-main {
     padding-top: calc(58px + var(--safe-top));
-    padding-bottom: calc(72px + var(--safe-bottom));
+    padding-bottom: calc(76px + var(--safe-bottom));
   }
 
-  /* Floating Mobile Bottom Navigation Bar */
+  /* Mobile Floating Bottom Nav */
   .joy-bottom-nav {
     display: flex;
     position: fixed;
@@ -1815,15 +1906,14 @@ body.joywatch-body {
     left: 0;
     right: 0;
     z-index: 1000;
-    background-color: rgba(11, 13, 18, 0.95);
+    background-color: rgba(11, 13, 12, 0.96);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-top: 1px solid var(--joy-border);
-    padding: 6px 12px max(8px, var(--safe-bottom));
+    padding: 6px 10px max(8px, var(--safe-bottom));
     justify-content: space-around;
     align-items: center;
-    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.5);
-    will-change: transform;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.6);
   }
 
   .bottom-nav-pill {
@@ -1838,35 +1928,28 @@ body.joywatch-body {
     font-family: var(--font-body);
     font-size: 0.68rem;
     font-weight: 500;
-    letter-spacing: 0.02em;
-    min-width: 54px;
+    min-width: 52px;
     min-height: 44px;
     cursor: pointer;
-    padding: 4px 6px;
+    padding: 4px;
     border-radius: var(--radius-round);
-    transition: color var(--duration-fast) var(--ease-smooth),
-                transform var(--duration-fast) var(--ease-smooth);
+    transition: color var(--duration-fast) var(--ease-smooth);
   }
 
   .bottom-nav-pill svg {
     width: 16px;
     height: 16px;
     opacity: 0.75;
-    transition: opacity var(--duration-fast) var(--ease-smooth),
-                transform var(--duration-fast) var(--ease-smooth);
-  }
-
-  .bottom-nav-pill:active {
-    transform: scale(0.92);
   }
 
   .bottom-nav-pill.active {
-    color: #FFFFFF;
+    color: var(--joy-accent);
+    font-weight: 600;
   }
 
   .bottom-nav-pill.active svg {
     opacity: 1;
-    transform: scale(1.08);
+    stroke: var(--joy-accent);
   }
 
   .bottom-icon-badge {
@@ -1882,34 +1965,34 @@ body.joywatch-body {
     padding: 0 4px;
   }
 
-  /* Hero Mobile Canvas */
+  /* Hero Mobile */
   .hero-canvas {
-    min-height: 52vh;
+    min-height: 54vh;
     padding: 24px 18px 36px;
+  }
+  .hero-content {
+    width: 100%;
   }
   .hero-title {
     font-size: 1.85rem;
-    line-height: 1.18;
   }
   .hero-synopsis {
     font-size: 0.84rem;
     -webkit-line-clamp: 2;
   }
   .hero-actions {
-    flex-direction: row;
     flex-wrap: wrap;
-    gap: 10px;
     width: 100%;
   }
-  .hero-actions .btn-joy-primary,
+  .hero-actions .btn-joy-lime,
   .hero-actions .btn-joy-glass {
     flex: 1;
     min-height: 44px;
     justify-content: center;
-    font-size: 0.8rem;
+    font-size: 0.82rem;
   }
 
-  /* Media Shelves Mobile Layout */
+  /* Media Shelves Mobile */
   .media-shelves {
     padding: 16px 0 36px;
     gap: 32px;
@@ -1918,15 +2001,14 @@ body.joywatch-body {
     padding: 0 16px;
   }
   .shelf-title {
-    font-size: 1.05rem;
+    font-size: 1.15rem;
   }
   .shelf-nav-controls {
-    display: none; /* Touch swipe is native & preferred */
+    display: none;
   }
   .shelf-cards-track {
     padding: 8px 16px 14px;
     gap: 14px;
-    scroll-padding-left: 16px;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
   }
@@ -1941,19 +2023,18 @@ body.joywatch-body {
   .card-meta-box {
     padding: 10px 12px;
   }
-  .card-title {
-    font-size: 0.82rem;
-  }
-  .card-subline {
-    font-size: 0.7rem;
-  }
 
-  /* Search Grid on Mobile (2 Columns) */
-  .search-view {
+  /* Search & Watchlist Grid Mobile */
+  .search-view,
+  .mylist-view {
     padding: 16px 16px 40px;
   }
-  .search-results-heading {
-    font-size: 1.2rem;
+  .search-hero-bar {
+    height: 46px;
+    font-size: 0.9rem;
+  }
+  .search-filters-bar {
+    padding: 12px 14px;
   }
   .joy-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -1979,7 +2060,6 @@ body.joywatch-body {
     max-height: 92vh;
     border-radius: 20px 20px 0 0;
     border-bottom: none;
-    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.85);
   }
   .modal-sheet-handle {
     display: block;
@@ -1989,90 +2069,60 @@ body.joywatch-body {
     background-color: rgba(255, 255, 255, 0.25);
     margin: 10px auto 0;
   }
-  .modal-dismiss-btn {
-    top: 12px;
-    right: 14px;
-    width: 38px;
-    height: 38px;
-  }
   .modal-hero {
-    height: 220px;
-    padding: 18px 16px;
+    min-height: 240px;
+    padding: 16px;
+  }
+  .modal-hero-layout {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .modal-poster-col {
+    display: none; /* Hide duplicate poster inside mobile sheet banner */
   }
   .modal-title {
-    font-size: 1.35rem;
+    font-size: 1.4rem;
   }
   .modal-action-bar {
     flex-wrap: wrap;
-    gap: 8px;
+    width: 100%;
   }
-  .modal-action-bar .btn-joy-primary,
-  .modal-action-bar .btn-joy-secondary {
+  .modal-action-bar .btn-joy-lime,
+  .modal-action-bar .btn-joy-glass {
     flex: 1;
     min-height: 44px;
     justify-content: center;
   }
   .modal-body-content {
-    padding: 18px 16px max(20px, var(--safe-bottom));
-    gap: 20px;
+    padding: 20px 16px max(24px, var(--safe-bottom));
+    gap: 22px;
   }
   .episodes-scroll-list {
     grid-template-columns: repeat(3, 1fr);
   }
-  .stream-source-card {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  .stream-play-btn {
-    width: 100%;
-    min-height: 42px;
-    text-align: center;
-    justify-content: center;
-    display: flex;
-    align-items: center;
-  }
 
   /* Fullscreen Player Mobile */
   .joy-player-header {
-    padding: max(12px, var(--safe-top)) 14px 10px;
-  }
-  .player-brand-tiny {
-    display: none;
+    padding: max(12px, var(--safe-top)) 16px 12px;
   }
   .player-headline {
-    font-size: 0.86rem;
-    max-width: 180px;
+    font-size: 0.88rem;
+    max-width: 160px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .player-return-btn {
-    padding: 6px 12px;
-    font-size: 0.74rem;
-    min-height: 40px;
-  }
   .player-return-btn span {
     display: none;
-  }
-  .player-servers-toggle-btn {
-    padding: 6px 12px;
-    font-size: 0.74rem;
-    min-height: 40px;
   }
   .player-servers-panel {
     right: 0;
     width: 260px;
-    top: calc(100% + 8px);
-    padding: 12px;
   }
 
-  /* Toast placement on Mobile */
+  /* Toast */
   .joy-toast {
-    bottom: calc(76px + var(--safe-bottom));
-    font-size: 0.78rem;
-    padding: 9px 18px;
-    max-width: 90vw;
-    text-align: center;
+    bottom: calc(84px + var(--safe-bottom));
   }
 }

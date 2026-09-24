@@ -9,20 +9,24 @@
  * - Round Corner Buttons (border-radius: 9999px)
  * - Primary Accent: Lime Green (#95FF50)
  * - Direct In-Browser Playback with Multi-Server Failover
+ * - OTT Platforms: Netflix, Prime Video, Disney+, Crunchyroll, Paramount+
  */
 
 document.addEventListener('DOMContentLoaded', () => {
   // Navigation & Header Elements
   const navbar = document.getElementById('navbar');
+  const searchBox = document.getElementById('search-box');
   const searchInput = document.getElementById('search-input');
   const clearSearchBtn = document.getElementById('clear-search-btn');
   const joylistCounter = document.getElementById('joylist-counter');
   const mobileJoylistCounter = document.getElementById('mobile-joylist-counter');
   const allNavButtons = document.querySelectorAll('.nav-pill, .bottom-nav-pill');
+  const navSearchBtn = document.getElementById('nav-search-btn');
   const mobileSearchTab = document.getElementById('mobile-search-tab');
 
-  // Main Views
+  // Main Views & Sections
   const billboard = document.getElementById('billboard');
+  const ottSection = document.getElementById('ott-section');
   const rowsContainer = document.getElementById('rows-container');
   const searchView = document.getElementById('search-view');
   const mylistView = document.getElementById('mylist-view');
@@ -41,11 +45,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const billboardInfoBtn = document.getElementById('billboard-info-btn');
   const billboardMatch = document.getElementById('billboard-match');
 
-  // Dedicated Search Elements
+  // Dedicated Search Page Elements
   const dedicatedSearchInput = document.getElementById('dedicated-search-input');
   const dedicatedClearBtn = document.getElementById('dedicated-clear-btn');
   const searchGrid = document.getElementById('search-grid');
   const searchResultsHeading = document.getElementById('search-results-heading');
+  const searchSubheading = document.getElementById('search-subheading');
   const searchCountBadge = document.getElementById('search-count-badge');
 
   // Watchlist View Elements
@@ -100,15 +105,73 @@ document.addEventListener('DOMContentLoaded', () => {
   let searchTimeout = null;
   let isModalAnimating = false;
   let isPlayerAnimating = false;
-  let cachedCatalogPool = []; // Pool of items used for instant filtering and recommendations
+  let cachedCatalogPool = [];
 
-  // Search Filter State
+  // Search & Filter State
   const filterState = {
+    platform: 'all',
     type: 'all',
     genre: 'all',
     year: 'all',
     rating: 'all'
   };
+
+  // =========================================================================
+  // CANONICAL OTT PLATFORMS DATA (Netflix, Prime, Disney+, Crunchyroll, Paramount+)
+  // =========================================================================
+  const OTT_DATA = {
+    netflix: [
+      { id: 'tt4574334', name: 'Stranger Things', type: 'series', year: '2025', imdbRating: '8.7', genres: ['Sci-Fi', 'Drama', 'Horror'], poster: 'https://images.metahub.space/poster/medium/tt4574334/img', background: 'https://images.metahub.space/background/medium/tt4574334/img', description: 'When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.', platform: 'netflix' },
+      { id: 'tt10919420', name: 'Squid Game', type: 'series', year: '2024', imdbRating: '8.0', genres: ['Action', 'Drama', 'Mystery'], poster: 'https://images.metahub.space/poster/medium/tt10919420/img', background: 'https://images.metahub.space/background/medium/tt10919420/img', description: 'Hundreds of cash-strapped players accept a strange invitation to compete in children\'s games. Inside, a tempting prize awaits with deadly high stakes.', platform: 'netflix' },
+      { id: 'tt13443470', name: 'Wednesday', type: 'series', year: '2025', imdbRating: '8.1', genres: ['Comedy', 'Crime', 'Fantasy'], poster: 'https://images.metahub.space/poster/medium/tt13443470/img', background: 'https://images.metahub.space/background/medium/tt13443470/img', description: 'Follows Wednesday Addams\' years as a student, when she attempts to master her emerging psychic ability, thwart and solve the mystery that embroiled her parents.', platform: 'netflix' },
+      { id: 'tt7991608', name: 'Red Notice', type: 'movie', year: '2021', imdbRating: '6.3', genres: ['Action', 'Comedy', 'Thriller'], poster: 'https://images.metahub.space/poster/medium/tt7991608/img', background: 'https://images.metahub.space/background/medium/tt7991608/img', description: 'An Interpol agent tracks the world\'s most wanted art thief, only to find himself entangled in a daring heist partnership.', platform: 'netflix' },
+      { id: 'tt11564570', name: 'Glass Onion: A Knives Out Mystery', type: 'movie', year: '2022', imdbRating: '7.1', genres: ['Comedy', 'Crime', 'Drama'], poster: 'https://images.metahub.space/poster/medium/tt11564570/img', background: 'https://images.metahub.space/background/medium/tt11564570/img', description: 'Famed Southern detective Benoit Blanc travels to Greece for his latest case, peeling back the layers of an extravagant tech mogul\'s murder mystery game.', platform: 'netflix' },
+      { id: 'tt5180504', name: 'The Witcher', type: 'series', year: '2023', imdbRating: '8.0', genres: ['Action', 'Adventure', 'Fantasy'], poster: 'https://images.metahub.space/poster/medium/tt5180504/img', background: 'https://images.metahub.space/background/medium/tt5180504/img', description: 'Geralt of Rivia, a solitary monster hunter, struggles to find his place in a world where people often prove more wicked than beasts.', platform: 'netflix' },
+      { id: 'tt12263384', name: 'Extraction 2', type: 'movie', year: '2023', imdbRating: '7.0', genres: ['Action', 'Thriller'], poster: 'https://images.metahub.space/poster/medium/tt12263384/img', background: 'https://images.metahub.space/background/medium/tt12263384/img', description: 'Back from the brink of death, highly skilled commando Tyler Rake takes on another dangerous mission: saving the battered family of a ruthless Georgian gangster.', platform: 'netflix' },
+      { id: 'tt2085059', name: 'Black Mirror', type: 'series', year: '2023', imdbRating: '8.7', genres: ['Drama', 'Sci-Fi', 'Thriller'], poster: 'https://images.metahub.space/poster/medium/tt2085059/img', background: 'https://images.metahub.space/background/medium/tt2085059/img', description: 'An anthology series exploring a twisted, high-tech multiverse where humanity\'s greatest innovations and darkest instincts collide.', platform: 'netflix' }
+    ],
+    prime: [
+      { id: 'tt1190634', name: 'The Boys', type: 'series', year: '2024', imdbRating: '8.7', genres: ['Action', 'Comedy', 'Drama'], poster: 'https://images.metahub.space/poster/medium/tt1190634/img', background: 'https://images.metahub.space/background/medium/tt1190634/img', description: 'A fun and irreverent take on what happens when superheroes abuse their superpowers rather than use them for good.', platform: 'prime' },
+      { id: 'tt12637874', name: 'Fallout', type: 'series', year: '2024', imdbRating: '8.4', genres: ['Action', 'Adventure', 'Drama'], poster: 'https://images.metahub.space/poster/medium/tt12637874/img', background: 'https://images.metahub.space/background/medium/tt12637874/img', description: 'In a future post-apocalyptic Los Angeles brought about by nuclear decimation, citizens must live in underground bunkers to protect themselves from radiation and mutants.', platform: 'prime' },
+      { id: 'tt9288030', name: 'Reacher', type: 'series', year: '2024', imdbRating: '8.1', genres: ['Action', 'Crime', 'Drama'], poster: 'https://images.metahub.space/poster/medium/tt9288030/img', background: 'https://images.metahub.space/background/medium/tt9288030/img', description: 'Jack Reacher, a veteran military police investigator, enters civilian life and moves from town to town, exploring the nation he once served.', platform: 'prime' },
+      { id: 'tt6741278', name: 'Invincible', type: 'series', year: '2024', imdbRating: '8.7', genres: ['Animation', 'Action', 'Adventure'], poster: 'https://images.metahub.space/poster/medium/tt6741278/img', background: 'https://images.metahub.space/background/medium/tt6741278/img', description: 'An adult animated series based on the Skybound/Image comic about a teenager whose father is the most powerful superhero on the planet.', platform: 'prime' },
+      { id: 'tt7631058', name: 'The Lord of the Rings: The Rings of Power', type: 'series', year: '2024', imdbRating: '7.0', genres: ['Action', 'Adventure', 'Drama'], poster: 'https://images.metahub.space/poster/medium/tt7631058/img', background: 'https://images.metahub.space/background/medium/tt7631058/img', description: 'Epic drama set thousands of years before the events of J.R.R. Tolkien\'s \'The Hobbit\' and \'The Lord of the Rings\'.', platform: 'prime' },
+      { id: 'tt3359350', name: 'Road House', type: 'movie', year: '2024', imdbRating: '6.2', genres: ['Action', 'Thriller'], poster: 'https://images.metahub.space/poster/medium/tt3359350/img', background: 'https://images.metahub.space/background/medium/tt3359350/img', description: 'Ex-UFC fighter Dalton takes a job as a bouncer at a Florida Keys roadhouse, only to discover that this paradise is not all it seems.', platform: 'prime' }
+    ],
+    disney: [
+      { id: 'tt9140554', name: 'Loki', type: 'series', year: '2023', imdbRating: '8.2', genres: ['Action', 'Adventure', 'Fantasy'], poster: 'https://images.metahub.space/poster/medium/tt9140554/img', background: 'https://images.metahub.space/background/medium/tt9140554/img', description: 'The mercurial villain Loki resumes his role as the God of Mischief in a series that takes place after the events of Avengers: Endgame.', platform: 'disney' },
+      { id: 'tt8111088', name: 'The Mandalorian', type: 'series', year: '2023', imdbRating: '8.6', genres: ['Action', 'Adventure', 'Sci-Fi'], poster: 'https://images.metahub.space/poster/medium/tt8111088/img', background: 'https://images.metahub.space/background/medium/tt8111088/img', description: 'The travels of a lone bounty hunter in the outer reaches of the galaxy, far from the authority of the New Republic.', platform: 'disney' },
+      { id: 'tt6263850', name: 'Deadpool & Wolverine', type: 'movie', year: '2024', imdbRating: '7.8', genres: ['Action', 'Comedy', 'Sci-Fi'], poster: 'https://images.metahub.space/poster/medium/tt6263850/img', background: 'https://images.metahub.space/background/medium/tt6263850/img', description: 'Wolverine is recovering from his injuries when he crosses paths with the loudmouth Deadpool. They team up to defeat a common enemy.', platform: 'disney' },
+      { id: 'tt22022452', name: 'Inside Out 2', type: 'movie', year: '2024', imdbRating: '7.6', genres: ['Animation', 'Adventure', 'Comedy'], poster: 'https://images.metahub.space/poster/medium/tt22022452/img', background: 'https://images.metahub.space/background/medium/tt22022452/img', description: 'Follows Riley in her teenage years as she encounters new emotions like Anxiety, Envy, and Embarrassment.', platform: 'disney' },
+      { id: 'tt4154796', name: 'Avengers: Endgame', type: 'movie', year: '2019', imdbRating: '8.4', genres: ['Action', 'Adventure', 'Drama'], poster: 'https://images.metahub.space/poster/medium/tt4154796/img', background: 'https://images.metahub.space/background/medium/tt4154796/img', description: 'After the devastating events of Infinity War, the universe is in ruins. The remaining Avengers assemble once more to reverse Thanos\' actions.', platform: 'disney' },
+      { id: 'tt9253284', name: 'Andor', type: 'series', year: '2025', imdbRating: '8.4', genres: ['Action', 'Adventure', 'Drama'], poster: 'https://images.metahub.space/poster/medium/tt9253284/img', background: 'https://images.metahub.space/background/medium/tt9253284/img', description: 'Prequel series to Star Wars\' \'Rogue One\'. In an era filled with danger, deception and intrigue, Cassian will embark on the path that is destined to turn him into a Rebel hero.', platform: 'disney' }
+    ],
+    crunchyroll: [
+      { id: 'tt9335498', name: 'Demon Slayer: Kimetsu no Yaiba', type: 'series', year: '2024', imdbRating: '8.6', genres: ['Animation', 'Action', 'Adventure'], poster: 'https://images.metahub.space/poster/medium/tt9335498/img', background: 'https://images.metahub.space/background/medium/tt9335498/img', description: 'A family is attacked by demons and only two members survive - Tanjiro and his sister Nezuko, who is turning into a demon slowly.', platform: 'crunchyroll' },
+      { id: 'tt2560140', name: 'Attack on Titan', type: 'series', year: '2023', imdbRating: '9.1', genres: ['Animation', 'Action', 'Adventure'], poster: 'https://images.metahub.space/poster/medium/tt2560140/img', background: 'https://images.metahub.space/background/medium/tt2560140/img', description: 'After his hometown is destroyed and his mother is killed, young Eren Jaeger vows to cleanse the earth of the giant humanoid Titans that have brought humanity to the brink of extinction.', platform: 'crunchyroll' },
+      { id: 'tt12343534', name: 'Jujutsu Kaisen', type: 'series', year: '2023', imdbRating: '8.6', genres: ['Animation', 'Action', 'Adventure'], poster: 'https://images.metahub.space/poster/medium/tt12343534/img', background: 'https://images.metahub.space/background/medium/tt12343534/img', description: 'A boy swallows a cursed talisman - the finger of a demon - and becomes cursed himself. He enters a shaman\'s school to be able to locate the demon\'s other body parts and thus exorcise himself.', platform: 'crunchyroll' },
+      { id: 'tt21209876', name: 'Solo Leveling', type: 'series', year: '2024', imdbRating: '8.3', genres: ['Animation', 'Action', 'Adventure'], poster: 'https://images.metahub.space/poster/medium/tt21209876/img', background: 'https://images.metahub.space/background/medium/tt21209876/img', description: 'In a world where hunters must battle deadly monsters to protect mankind, the weakest hunter discovers a pathway to unlimited power.', platform: 'crunchyroll' },
+      { id: 'tt13616990', name: 'Chainsaw Man', type: 'series', year: '2022', imdbRating: '8.4', genres: ['Animation', 'Action', 'Adventure'], poster: 'https://images.metahub.space/poster/medium/tt13616990/img', background: 'https://images.metahub.space/background/medium/tt13616990/img', description: 'Following a betrayal, a young man left for the dead is reborn as a powerful devil-human hybrid after merging with his pet devil pooch.', platform: 'crunchyroll' },
+      { id: 'tt22064098', name: 'Frieren: Beyond Journey\'s End', type: 'series', year: '2024', imdbRating: '8.9', genres: ['Animation', 'Adventure', 'Drama'], poster: 'https://images.metahub.space/poster/medium/tt22064098/img', background: 'https://images.metahub.space/background/medium/tt22064098/img', description: 'An elven mage and her fellow adventurers have defeated the Demon King and brought peace to the land. But what happens after the grand adventure ends?', platform: 'crunchyroll' }
+    ],
+    paramount: [
+      { id: 'tt4236770', name: 'Yellowstone', type: 'series', year: '2024', imdbRating: '8.7', genres: ['Drama', 'Western'], poster: 'https://images.metahub.space/poster/medium/tt4236770/img', background: 'https://images.metahub.space/background/medium/tt4236770/img', description: 'A ranching family in Montana faces off against others encroaching on their land.', platform: 'paramount' },
+      { id: 'tt1745960', name: 'Top Gun: Maverick', type: 'movie', year: '2022', imdbRating: '8.3', genres: ['Action', 'Drama'], poster: 'https://images.metahub.space/poster/medium/tt1745960/img', background: 'https://images.metahub.space/background/medium/tt1745960/img', description: 'After thirty years, Maverick is still pushing the envelope as a top naval aviator, but must confront ghosts of his past when he leads TOP GUN\'s elite graduates on a mission.', platform: 'paramount' },
+      { id: 'tt2934286', name: 'Halo', type: 'series', year: '2024', imdbRating: '7.3', genres: ['Action', 'Adventure', 'Sci-Fi'], poster: 'https://images.metahub.space/poster/medium/tt2934286/img', background: 'https://images.metahub.space/background/medium/tt2934286/img', description: 'Aliens threaten human existence in an epic 26th-century showdown. TV series based on the video game \'Halo\'.', platform: 'paramount' },
+      { id: 'tt9603212', name: 'Mission: Impossible - Dead Reckoning', type: 'movie', year: '2023', imdbRating: '7.7', genres: ['Action', 'Adventure', 'Thriller'], poster: 'https://images.metahub.space/poster/medium/tt9603212/img', background: 'https://images.metahub.space/background/medium/tt9603212/img', description: 'Ethan Hunt and his IMF team must track down a dangerous weapon before it falls into the wrong hands.', platform: 'paramount' },
+      { id: 'tt12327578', name: 'Star Trek: Strange New Worlds', type: 'series', year: '2023', imdbRating: '8.3', genres: ['Action', 'Adventure', 'Sci-Fi'], poster: 'https://images.metahub.space/poster/medium/tt12327578/img', background: 'https://images.metahub.space/background/medium/tt12327578/img', description: 'A prequel to Star Trek: The Original Series, following Captain Christopher Pike and the crew of the USS Enterprise in the 23rd century.', platform: 'paramount' },
+      { id: 'tt13433802', name: 'A Quiet Place: Day One', type: 'movie', year: '2024', imdbRating: '6.4', genres: ['Drama', 'Horror', 'Sci-Fi'], poster: 'https://images.metahub.space/poster/medium/tt13433802/img', background: 'https://images.metahub.space/background/medium/tt13433802/img', description: 'Experience the day the world went quiet in this terrifying continuation of the creature invasion.', platform: 'paramount' }
+    ]
+  };
+
+  // Seed cached pool with all curated OTT platform titles for instant availability
+  Object.values(OTT_DATA).forEach(list => {
+    list.forEach(item => {
+      if (!cachedCatalogPool.some(c => c.id === item.id)) {
+        cachedCatalogPool.push(item);
+      }
+    });
+  });
 
   // =========================================================================
   // LOCALSTORAGE WATCHLIST (My List)
@@ -328,7 +391,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, { passive: true });
 
-  // Top Nav Search Input
+  // Top Nav Search Box Trigger (Opens separate search page)
+  if (searchBox) {
+    searchBox.addEventListener('click', (e) => {
+      if (e.target !== clearSearchBtn && !clearSearchBtn.contains(e.target)) {
+        openDedicatedSearch(searchInput ? searchInput.value.trim() : '');
+      }
+    });
+  }
+
   searchInput.addEventListener('input', () => {
     const query = searchInput.value.trim();
     clearSearchBtn.style.display = query ? 'flex' : 'none';
@@ -336,26 +407,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dedicatedClearBtn) dedicatedClearBtn.style.display = query ? 'flex' : 'none';
 
     if (searchTimeout) clearTimeout(searchTimeout);
-    if (!query) {
-      closeSearchView();
-      return;
-    }
-
-    searchTimeout = setTimeout(() => {
-      openDedicatedSearch(query);
-    }, 240);
+    openDedicatedSearch(query);
   });
 
-  clearSearchBtn.addEventListener('click', () => {
+  clearSearchBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
     searchInput.value = '';
     clearSearchBtn.style.display = 'none';
     if (dedicatedSearchInput) dedicatedSearchInput.value = '';
     if (dedicatedClearBtn) dedicatedClearBtn.style.display = 'none';
-    closeSearchView();
-    searchInput.focus();
+    renderRecommendationsInSearch();
   });
 
-  // Dedicated Search Bar in Search View
+  // Dedicated Search Bar in Separate Search Page
   if (dedicatedSearchInput) {
     dedicatedSearchInput.addEventListener('input', () => {
       const query = dedicatedSearchInput.value.trim();
@@ -365,7 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (searchTimeout) clearTimeout(searchTimeout);
       if (!query) {
-        renderFilteredSearchPool();
+        renderRecommendationsInSearch();
         return;
       }
 
@@ -381,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dedicatedClearBtn.style.display = 'none';
       if (searchInput) searchInput.value = '';
       if (clearSearchBtn) clearSearchBtn.style.display = 'none';
-      renderFilteredSearchPool();
+      renderRecommendationsInSearch();
       dedicatedSearchInput.focus();
     });
   }
@@ -395,30 +459,45 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Nav Search Button
+  if (navSearchBtn) {
+    navSearchBtn.addEventListener('click', () => {
+      openDedicatedSearch('');
+      if (dedicatedSearchInput) dedicatedSearchInput.focus();
+    });
+  }
+
   // Mobile Bottom Nav Search Tab
   if (mobileSearchTab) {
     mobileSearchTab.addEventListener('click', () => {
-      allNavButtons.forEach(b => b.classList.remove('active'));
-      mobileSearchTab.classList.add('active');
       openDedicatedSearch('');
       if (dedicatedSearchInput) dedicatedSearchInput.focus();
     });
   }
 
   // =========================================================================
-  // DEDICATED SEARCH VIEW & ADVANCED FILTERS
+  // SEPARATE DEDICATED SEARCH PAGE WITH PRE-SEARCH RECOMMENDATIONS
   // =========================================================================
   function openDedicatedSearch(query = '') {
+    // Hide billboard, OTT section, home shelves, watchlist
     billboard.style.display = 'none';
+    if (ottSection) ottSection.style.display = 'none';
     rowsContainer.style.display = 'none';
     if (mylistView) mylistView.style.display = 'none';
     searchView.style.display = 'block';
+
+    // Synchronize active nav button
+    allNavButtons.forEach(b => {
+      if (b.dataset.filter === 'search' || b.id === 'mobile-search-tab') b.classList.add('active');
+      else b.classList.remove('active');
+    });
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     if (query) {
       executeSearchQuery(query);
     } else {
-      renderFilteredSearchPool();
+      renderRecommendationsInSearch();
     }
   }
 
@@ -426,34 +505,67 @@ document.addEventListener('DOMContentLoaded', () => {
     searchView.style.display = 'none';
     if (mylistView) mylistView.style.display = 'none';
     billboard.style.display = 'flex';
+    if (ottSection) ottSection.style.display = 'flex';
     rowsContainer.style.display = 'flex';
+  }
+
+  // Display Curated Recommendations When Search Is Empty (Like Real OTT Apps)
+  function renderRecommendationsInSearch() {
+    searchResultsHeading.textContent = 'Recommended for You';
+    if (searchSubheading) {
+      searchSubheading.textContent = 'Trending movies and shows across Netflix, Prime Video, Disney+, and more';
+    }
+    searchCountBadge.textContent = 'Curated picks';
+
+    let pool = [];
+    if (filterState.platform !== 'all' && OTT_DATA[filterState.platform]) {
+      pool = OTT_DATA[filterState.platform];
+      const pName = getPlatformDisplayName(filterState.platform);
+      searchResultsHeading.textContent = `Trending on ${pName}`;
+      if (searchSubheading) {
+        searchSubheading.textContent = `Popular titles available to stream on ${pName}`;
+      }
+    } else {
+      // Aggregate cross-platform recommendations
+      pool = [...cachedCatalogPool];
+      if (pool.length < 12) {
+        Object.values(OTT_DATA).forEach(list => {
+          list.forEach(item => {
+            if (!pool.some(p => p.id === item.id)) pool.push(item);
+          });
+        });
+      }
+    }
+
+    renderCardGridWithFilters(pool);
   }
 
   async function executeSearchQuery(query) {
     searchResultsHeading.textContent = `Search results for "${query}"`;
+    if (searchSubheading) {
+      searchSubheading.textContent = 'Real-time results matching your query across all streaming platforms';
+    }
     searchCountBadge.textContent = 'Searching...';
     searchGrid.innerHTML = '<div class="shelf-loader"><div class="joy-spinner"></div><span>Searching Joywatch universe...</span></div>';
 
     try {
       const data = await fetchSearch(query);
       const items = data.items || [];
-      renderSearchResultsWithFilters(items, `Search results for "${query}"`);
+      renderCardGridWithFilters(items, true);
     } catch (err) {
       searchGrid.innerHTML = `<div class="shelf-loader"><span>Search error: ${err.message}</span></div>`;
     }
   }
 
-  function renderFilteredSearchPool() {
-    searchResultsHeading.textContent = 'Explore Curated Titles';
-    const pool = (cachedCatalogPool && cachedCatalogPool.length > 0) ? cachedCatalogPool : [];
-    renderSearchResultsWithFilters(pool, 'Explore Curated Titles');
-  }
-
-  function renderSearchResultsWithFilters(items, headingText = 'Explore Titles') {
-    searchResultsHeading.textContent = headingText;
-
-    // Apply active filter criteria
+  function renderCardGridWithFilters(items, isSearchQuery = false) {
     let filtered = items.filter(item => {
+      // Platform Filter
+      if (filterState.platform !== 'all') {
+        const platformItems = OTT_DATA[filterState.platform] || [];
+        const isPlatformMatch = item.platform === filterState.platform || platformItems.some(p => p.id === item.id || p.name.toLowerCase() === item.name.toLowerCase());
+        if (!isPlatformMatch) return false;
+      }
+
       // Type Filter
       if (filterState.type !== 'all') {
         if (filterState.type === 'movie' && item.type === 'series') return false;
@@ -488,7 +600,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     searchGrid.innerHTML = '';
-    searchCountBadge.textContent = `${filtered.length} titles found`;
+    searchCountBadge.textContent = `${filtered.length} titles`;
 
     if (filtered.length === 0) {
       searchGrid.innerHTML = `<div class="shelf-loader"><span>No titles found matching current filters. Try selecting "All" or a different keyword.</span></div>`;
@@ -500,9 +612,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Setup Filter Pills Event Listeners
+  function getPlatformDisplayName(key) {
+    switch (key) {
+      case 'netflix': return 'Netflix';
+      case 'prime': return 'Prime Video';
+      case 'disney': return 'Disney+';
+      case 'crunchyroll': return 'Crunchyroll';
+      case 'paramount': return 'Paramount+';
+      default: return 'All Platforms';
+    }
+  }
+
+  // Setup Search Filter Buttons
   function initFilterButtons() {
-    // Type Filter Pills
+    // OTT Platform Filter in Search
+    document.querySelectorAll('#ott-filters .filter-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#ott-filters .filter-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filterState.platform = btn.dataset.ott || 'all';
+        applyCurrentFilters();
+      });
+    });
+
+    // Type Filter
     document.querySelectorAll('#type-filters .filter-pill').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('#type-filters .filter-pill').forEach(b => b.classList.remove('active'));
@@ -512,7 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // Genre Filter Pills
+    // Genre Filter
     document.querySelectorAll('#genre-filters .filter-pill').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('#genre-filters .filter-pill').forEach(b => b.classList.remove('active'));
@@ -522,7 +655,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // Year Filter Pills
+    // Year Filter
     document.querySelectorAll('#year-filters .filter-pill').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('#year-filters .filter-pill').forEach(b => b.classList.remove('active'));
@@ -532,7 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // Rating Filter Pills
+    // Rating Filter
     document.querySelectorAll('#rating-filters .filter-pill').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('#rating-filters .filter-pill').forEach(b => b.classList.remove('active'));
@@ -548,11 +681,62 @@ document.addEventListener('DOMContentLoaded', () => {
     if (q) {
       executeSearchQuery(q);
     } else {
-      renderFilteredSearchPool();
+      renderRecommendationsInSearch();
     }
   }
 
   initFilterButtons();
+
+  // =========================================================================
+  // HOMEPAGE OTT PLATFORMS SELECTOR STRIP
+  // =========================================================================
+  const ottButtons = document.querySelectorAll('.ott-card-btn');
+  ottButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const selectedOtt = btn.dataset.ott || 'all';
+      ottButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      if (selectedOtt === 'all') {
+        initHomeCatalog('all');
+      } else {
+        renderFilteredOttHomeShelves(selectedOtt);
+      }
+    });
+  });
+
+  function renderFilteredOttHomeShelves(platformKey) {
+    rowsContainer.innerHTML = '';
+    const platformName = getPlatformDisplayName(platformKey);
+    const titles = OTT_DATA[platformKey] || [];
+
+    if (titles.length > 0) {
+      setBillboard(titles[0]);
+    }
+
+    const platformShelf = createRowElement(`Popular on ${platformName}`, titles, platformKey);
+    if (platformShelf) rowsContainer.appendChild(platformShelf);
+
+    // Also show top movies and series matching that platform vibe
+    const movieMatches = titles.filter(t => t.type === 'movie');
+    if (movieMatches.length > 0) {
+      const row = createRowElement(`${platformName} Feature Films`, movieMatches, platformKey);
+      if (row) rowsContainer.appendChild(row);
+    }
+
+    const seriesMatches = titles.filter(t => t.type === 'series');
+    if (seriesMatches.length > 0) {
+      const row = createRowElement(`${platformName} Top Series`, seriesMatches, platformKey);
+      if (row) rowsContainer.appendChild(row);
+    }
+
+    // You May Also Like Row
+    const recommendations = cachedCatalogPool.filter(c => !titles.some(t => t.id === c.id)).slice(0, 15);
+    if (recommendations.length > 0) {
+      const recRow = createRowElement(`More Recommended Discoveries`, recommendations);
+      if (recRow) rowsContainer.appendChild(recRow);
+    }
+  }
 
   // =========================================================================
   // NAVIGATION & VIEWS
@@ -560,7 +744,13 @@ document.addEventListener('DOMContentLoaded', () => {
   allNavButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       const filter = btn.dataset.filter;
-      if (!filter) return; // e.g. mobile search tab handled separately
+      if (!filter) return;
+
+      if (filter === 'search') {
+        openDedicatedSearch('');
+        if (dedicatedSearchInput) dedicatedSearchInput.focus();
+        return;
+      }
 
       allNavButtons.forEach(b => {
         if (b.dataset.filter === filter) b.classList.add('active');
@@ -575,6 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (filter === 'mylist') {
       searchView.style.display = 'none';
       billboard.style.display = 'none';
+      if (ottSection) ottSection.style.display = 'none';
       rowsContainer.style.display = 'none';
       if (mylistView) mylistView.style.display = 'block';
       renderMyListView();
@@ -583,13 +774,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if (mylistView) mylistView.style.display = 'none';
       searchView.style.display = 'none';
       billboard.style.display = 'flex';
+      if (ottSection) ottSection.style.display = 'flex';
       rowsContainer.style.display = 'flex';
       window.scrollTo({ top: 0, behavior: 'smooth' });
       initHomeCatalog(filter);
     }
   }
 
-  // Render My List View
   function renderMyListView() {
     if (!mylistView) return;
     const list = getJoyList();
@@ -665,10 +856,8 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
 
-    // Click card opens detail modal
     card.addEventListener('click', () => openDetailModal(item));
 
-    // Center play button quick action
     const playBtn = card.querySelector('.overlay-center-play');
     if (playBtn) {
       playBtn.addEventListener('click', (e) => {
@@ -757,7 +946,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     attachSmoothDragScroll(track);
 
-    // Left & Right Carousel Controls
     const leftBtn = rowHeader.querySelector('.arrow-left');
     const rightBtn = rowHeader.querySelector('.arrow-right');
     leftBtn.addEventListener('click', () => {
@@ -769,14 +957,27 @@ document.addEventListener('DOMContentLoaded', () => {
       track.scrollBy({ left: step, behavior: 'smooth' });
     });
 
-    // See All Action
     const seeAllBtn = rowHeader.querySelector('.shelf-see-all');
     seeAllBtn.addEventListener('click', () => {
       if (filterCategory) {
-        if (filterCategory === 'movie' || filterCategory === 'series') {
+        if (filterCategory === 'netflix' || filterCategory === 'prime' || filterCategory === 'disney' || filterCategory === 'crunchyroll' || filterCategory === 'paramount') {
+          filterState.platform = filterCategory;
+          document.querySelectorAll('#ott-filters .filter-pill').forEach(b => {
+            if (b.dataset.ott === filterCategory) b.classList.add('active');
+            else b.classList.remove('active');
+          });
+        } else if (filterCategory === 'movie' || filterCategory === 'series') {
           filterState.type = filterCategory;
+          document.querySelectorAll('#type-filters .filter-pill').forEach(b => {
+            if (b.dataset.type === filterCategory) b.classList.add('active');
+            else b.classList.remove('active');
+          });
         } else {
           filterState.genre = filterCategory;
+          document.querySelectorAll('#genre-filters .filter-pill').forEach(b => {
+            if (b.dataset.genre === filterCategory) b.classList.add('active');
+            else b.classList.remove('active');
+          });
         }
       }
       openDedicatedSearch('');
@@ -813,21 +1014,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   billboardPlayBtn.addEventListener('click', () => {
-    if (currentFeaturedItem) {
-      openDetailModal(currentFeaturedItem, true);
-    }
+    if (currentFeaturedItem) openDetailModal(currentFeaturedItem, true);
   });
 
   billboardInfoBtn.addEventListener('click', () => {
-    if (currentFeaturedItem) {
-      openDetailModal(currentFeaturedItem);
-    }
+    if (currentFeaturedItem) openDetailModal(currentFeaturedItem);
   });
 
   billboardMyListBtn.addEventListener('click', () => {
-    if (currentFeaturedItem) {
-      toggleJoyList(currentFeaturedItem);
-    }
+    if (currentFeaturedItem) toggleJoyList(currentFeaturedItem);
   });
 
   // =========================================================================
@@ -845,7 +1040,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.body.style.overflow = 'hidden';
 
-    // Populate Hero Section inside Modal
     modalTitle.textContent = item.name;
     const bg = item.background || item.poster;
     modalBanner.style.backgroundImage = `url('${bg}')`;
@@ -864,7 +1058,6 @@ document.addEventListener('DOMContentLoaded', () => {
     modalCastList.innerHTML = '';
     modalRelatedShelf.innerHTML = '';
 
-    // Fetch Full Metadata (Cast, Crew, Videos, Similar)
     try {
       const metaData = await fetchMeta(item.type || 'movie', item.id);
       const meta = metaData.meta || {};
@@ -909,7 +1102,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Populate "You May Also Like"
       populateRelatedTitles(item);
 
-      // Pre-load streaming sources silently
+      // Pre-load streams silently
       loadStreams(item.type || 'movie', item.id, 1, 1, autoPlay);
     } catch (err) {
       console.error('Error fetching details:', err);
@@ -953,7 +1146,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (activeModalItem) toggleJoyList(activeModalItem);
   });
 
-  // Setup TV Episodes Browser
   function setupEpisodes(videos) {
     episodesSection.style.display = 'flex';
     const seasonsMap = {};
@@ -1048,7 +1240,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Modal Play Button (Defaults to topmost server)
   modalPlayBtn.addEventListener('click', () => {
     const itemTitle = activeModalItem ? activeModalItem.name : 'Movie';
     const stream = activeModalStreams.find(s => s.direct_playable || s.is_embed || s.browser_url) || activeModalStreams[0];
@@ -1073,7 +1264,6 @@ document.addEventListener('DOMContentLoaded', () => {
     launchVideoPlayer(directUrl, itemTitle, 'Server 1 (VidLink) • 1080p Ultra HD', true, 0);
   });
 
-  // Launch Video Player
   function launchVideoPlayer(url, title, subtitle, isEmbed = false, activeIndex = 0) {
     if (isPlayerAnimating) return;
     closeServersPanel();
@@ -1129,7 +1319,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   playerBackBtn.addEventListener('click', closeVideoPlayer);
 
-  // Right-Side Server Switcher Dropdown
   function renderPlayerServerPills(activeIndex = 0) {
     if (!playerServersContainer) return;
     playerServersContainer.innerHTML = '';
@@ -1264,7 +1453,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Global keydown listener for Escape
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       if (playerServersPanel && playerServersPanel.style.display !== 'none') {
@@ -1277,7 +1465,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Toast Notification (Lime accent, spring motion)
   function showToast(msg) {
     let toast = document.getElementById('joy-toast');
     if (!toast) {
@@ -1296,7 +1483,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // =========================================================================
-  // CATALOG LOADING (Trending Now, Popular Movies, TV Shows, Action, Anime)
+  // MULTI-SECTION CATALOG LOADING (Expanded Homepage Sections + OTT Curation)
   // =========================================================================
   async function initHomeCatalog(filter = 'all') {
     rowsContainer.innerHTML = '<div class="shelf-loader"><div class="joy-spinner"></div><span>Loading Joywatch universe...</span></div>';
@@ -1304,28 +1491,38 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const fetches = [];
 
+      // 1. Trending Movies
       if (filter === 'all' || filter === 'movie') {
         fetches.push(fetchCatalog('movie'));
       }
+      // 2. Top TV Series
       if (filter === 'all' || filter === 'series') {
         fetches.push(fetchCatalog('series'));
       }
+      // 3. Action & Adrenaline
       if (filter === 'all' || filter === 'movie') {
         fetches.push(fetchCatalog('movie', 'Action'));
       }
+      // 4. Sci-Fi & Cyberpunk
       if (filter === 'all' || filter === 'movie') {
         fetches.push(fetchCatalog('movie', 'Sci-Fi'));
       }
+      // 5. Psychological Thrillers
+      if (filter === 'all' || filter === 'movie') {
+        fetches.push(fetchCatalog('movie', 'Thriller'));
+      }
+      // 6. Popular Animation & Anime
       if (filter === 'all' || filter === 'series' || filter === 'anime') {
         fetches.push(fetchCatalog('series', 'Animation'));
       }
+      // 7. Watch History (from backend)
       fetches.push(safeFetchJson('/api/history', () => ({ recent: [] })).then(r => r || { recent: [] }));
 
       const results = await Promise.all(fetches);
       rowsContainer.innerHTML = '';
       let featuredSet = false;
 
-      // Continue Watching Row (from server history)
+      // 1. Continue Watching Row (if user has viewing history)
       const historyData = results[results.length - 1];
       const historyItems = (historyData && historyData.recent) ? historyData.recent.map(h => ({
         id: h.subject_id,
@@ -1342,7 +1539,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (historyRow) rowsContainer.appendChild(historyRow);
       }
 
-      // Catalog Sections
+      // 2. Trending Now
       let idx = 0;
       if (filter === 'all' || filter === 'movie') {
         const trendingMovies = results[idx++].items || [];
@@ -1354,6 +1551,46 @@ document.addEventListener('DOMContentLoaded', () => {
         if (row) rowsContainer.appendChild(row);
       }
 
+      // 3. Popular on Netflix (Dedicated OTT Shelf)
+      if (filter === 'all' || filter === 'movie') {
+        const netflixShelf = createRowElement('Popular on Netflix', OTT_DATA.netflix, 'netflix');
+        if (netflixShelf) rowsContainer.appendChild(netflixShelf);
+      }
+
+      // 4. Prime Video Exclusives (Dedicated OTT Shelf)
+      if (filter === 'all' || filter === 'series') {
+        const primeShelf = createRowElement('Prime Video Exclusives', OTT_DATA.prime, 'prime');
+        if (primeShelf) rowsContainer.appendChild(primeShelf);
+      }
+
+      // 5. Disney+ Cinema & Marvel (Dedicated OTT Shelf)
+      if (filter === 'all' || filter === 'movie') {
+        const disneyShelf = createRowElement('Disney+ Cinema & Marvel', OTT_DATA.disney, 'disney');
+        if (disneyShelf) rowsContainer.appendChild(disneyShelf);
+      }
+
+      // 6. Crunchyroll Anime Vault (Dedicated OTT Shelf)
+      if (filter === 'all' || filter === 'anime' || filter === 'series') {
+        const crunchyShelf = createRowElement('Crunchyroll Anime Vault', OTT_DATA.crunchyroll, 'crunchyroll');
+        if (crunchyShelf) rowsContainer.appendChild(crunchyShelf);
+      }
+
+      // 7. Paramount+ Blockbusters (Dedicated OTT Shelf)
+      if (filter === 'all' || filter === 'movie') {
+        const paramountShelf = createRowElement('Paramount+ Blockbusters', OTT_DATA.paramount, 'paramount');
+        if (paramountShelf) rowsContainer.appendChild(paramountShelf);
+      }
+
+      // 8. Top Rated Masterpieces (IMDb 8.5+)
+      if (filter === 'all' || filter === 'movie') {
+        const masterpieces = cachedCatalogPool.filter(c => parseFloat(c.imdbRating) >= 8.5).slice(0, 15);
+        if (masterpieces.length > 0) {
+          const row = createRowElement('Top Rated Masterpieces (IMDb 8.5+)', masterpieces);
+          if (row) rowsContainer.appendChild(row);
+        }
+      }
+
+      // 9. Popular TV Shows
       if (filter === 'all' || filter === 'series') {
         const topSeries = results[idx++].items || [];
         if (filter === 'series' && topSeries.length > 0 && !featuredSet) {
@@ -1364,25 +1601,35 @@ document.addEventListener('DOMContentLoaded', () => {
         if (row) rowsContainer.appendChild(row);
       }
 
+      // 10. Action & High Adrenaline
       if (filter === 'all' || filter === 'movie') {
         const actionMovies = results[idx++].items || [];
-        const row = createRowElement('Action & Adventure', actionMovies, 'Action');
+        const row = createRowElement('Action & High Adrenaline', actionMovies, 'Action');
         if (row) rowsContainer.appendChild(row);
       }
 
+      // 11. Sci-Fi & Cyberpunk
       if (filter === 'all' || filter === 'movie') {
         const sciFiMovies = results[idx++].items || [];
-        const row = createRowElement('Sci-Fi & Fantasy', sciFiMovies, 'Sci-Fi');
+        const row = createRowElement('Sci-Fi & Cyberpunk', sciFiMovies, 'Sci-Fi');
         if (row) rowsContainer.appendChild(row);
       }
 
+      // 12. Psychological Thrillers & Mystery
+      if (filter === 'all' || filter === 'movie') {
+        const thrillerMovies = results[idx++].items || [];
+        const row = createRowElement('Psychological Thrillers & Mystery', thrillerMovies, 'Thriller');
+        if (row) rowsContainer.appendChild(row);
+      }
+
+      // 13. Popular Animation & Anime
       if (filter === 'all' || filter === 'series' || filter === 'anime') {
         const animeShows = results[idx++].items || [];
         const row = createRowElement('Popular Animation & Anime', animeShows, 'Animation');
         if (row) rowsContainer.appendChild(row);
       }
 
-      // My List Shelf on Home (if items saved)
+      // 14. From Your Watchlist (if user has saved items)
       const mylistItems = getJoyList();
       if (mylistItems.length > 0 && filter === 'all') {
         const row = createRowElement('From Your Watchlist', mylistItems);

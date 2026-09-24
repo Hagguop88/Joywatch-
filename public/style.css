@@ -644,6 +644,144 @@ body.joywatch-body {
 }
 
 /* ==========================================================================
+   STREAMING NETWORKS / OTT PLATFORMS SECTION
+   ========================================================================== */
+.ott-section {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 28px 48px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ott-header-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ott-tagline {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--joy-accent);
+}
+
+.ott-title {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--joy-text-primary);
+}
+
+.ott-platforms-track {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 4px 2px 14px;
+  scrollbar-width: none;
+}
+
+.ott-platforms-track::-webkit-scrollbar {
+  display: none;
+}
+
+.ott-card-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border-radius: var(--radius-round);
+  background-color: var(--joy-bg-card);
+  border: 1px solid var(--joy-border);
+  color: var(--joy-text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: transform var(--duration-fast) var(--ease-spring),
+              background-color var(--duration-fast) var(--ease-smooth),
+              border-color var(--duration-fast) var(--ease-smooth),
+              color var(--duration-fast) var(--ease-smooth),
+              box-shadow var(--duration-fast) var(--ease-smooth);
+}
+
+.ott-card-btn:hover {
+  background-color: var(--joy-bg-card-hover);
+  color: #FFFFFF;
+  border-color: var(--joy-border-hover);
+  transform: translateY(-2px);
+}
+
+.ott-card-btn:active {
+  transform: scale(0.96);
+}
+
+.ott-card-btn.active {
+  background-color: var(--joy-accent-tint);
+  border-color: var(--joy-accent);
+  color: #FFFFFF;
+  box-shadow: 0 4px 16px rgba(149, 255, 80, 0.2);
+}
+
+.ott-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-round);
+  background-color: var(--joy-accent);
+  box-shadow: 0 0 8px rgba(149, 255, 80, 0.6);
+}
+
+.ott-badge-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  font-weight: 800;
+  border-radius: 6px;
+  padding: 2px 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ott-n {
+  background-color: #E50914;
+  color: #FFFFFF;
+  font-weight: 900;
+}
+
+.ott-pv {
+  background-color: #00A8E1;
+  color: #050505;
+  font-weight: 800;
+  text-transform: lowercase;
+}
+
+.ott-d {
+  background-color: #113CCF;
+  color: #FFFFFF;
+  font-weight: 800;
+}
+
+.ott-cr {
+  background-color: #F47521;
+  color: #050505;
+  font-weight: 900;
+}
+
+.ott-pm {
+  background-color: #0064FF;
+  color: #FFFFFF;
+  font-weight: 800;
+}
+
+/* ==========================================================================
    CONTENT SECTIONS & MEDIA SHELVES (Spacious, Generous Margins)
    ========================================================================== */
 .media-shelves {
@@ -1125,6 +1263,14 @@ body.joywatch-body {
   align-items: center;
   justify-content: space-between;
   margin-top: 8px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.search-titles-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
 .search-results-heading {
@@ -1132,6 +1278,11 @@ body.joywatch-body {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--joy-text-primary);
+}
+
+.search-subheading {
+  font-size: 0.82rem;
+  color: var(--joy-text-muted);
 }
 
 .search-count-pill {
@@ -1990,6 +2141,19 @@ body.joywatch-body {
     min-height: 44px;
     justify-content: center;
     font-size: 0.82rem;
+  }
+
+  /* OTT Platforms Mobile */
+  .ott-section {
+    padding: 18px 16px 6px;
+    gap: 12px;
+  }
+  .ott-title {
+    font-size: 1.25rem;
+  }
+  .ott-card-btn {
+    padding: 8px 16px;
+    font-size: 0.78rem;
   }
 
   /* Media Shelves Mobile */

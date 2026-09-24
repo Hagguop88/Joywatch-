@@ -31,7 +31,7 @@
           <span class="joy-wordmark">JOYWATCH</span>
         </a>
 
-        <!-- Desktop Navigation Items (Home, Movies, TV Shows, My List) -->
+        <!-- Desktop Navigation Items (Home, Movies, TV Shows, Search, My List) -->
         <nav class="joy-nav-pills" aria-label="Main Navigation">
           <button class="nav-pill active" data-filter="all">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -45,6 +45,10 @@
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
             <span>TV Shows</span>
           </button>
+          <button class="nav-pill" data-filter="search" id="nav-search-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span>Search</span>
+          </button>
           <button class="nav-pill" data-filter="mylist">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
             <span>My List</span>
@@ -54,10 +58,10 @@
       </div>
 
       <div class="nav-right">
-        <!-- Spacious Search Trigger Container (Pill radius, keyboard shortcut) -->
-        <div class="joy-search-wrapper" id="search-box">
+        <!-- Search Trigger Button in Header (Opens separate search page) -->
+        <div class="joy-search-wrapper" id="search-box" role="button" tabindex="0" title="Open Search">
           <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" id="search-input" placeholder="Search movies, shows, genres..." autocomplete="off">
+          <input type="text" id="search-input" placeholder="Search movies, shows, OTT..." autocomplete="off">
           <span class="search-shortcut-hint">/</span>
           <button class="search-clear-btn" id="clear-search-btn" title="Clear search" aria-label="Clear search">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -125,6 +129,40 @@
       </div>
     </section>
 
+    <!-- OTT Platforms Strip: Netflix, Prime Video, Disney+, Crunchyroll, Paramount+ -->
+    <section class="ott-section" id="ott-section">
+      <div class="ott-header-box">
+        <span class="ott-tagline">STREAMING NETWORKS</span>
+        <h2 class="ott-title">Browse by Platform</h2>
+      </div>
+      <div class="ott-platforms-track">
+        <button class="ott-card-btn active" data-ott="all" title="View all platforms">
+          <span class="ott-status-dot"></span>
+          <span class="ott-card-label">All Platforms</span>
+        </button>
+        <button class="ott-card-btn" data-ott="netflix" title="Browse Netflix Originals & Hits">
+          <span class="ott-badge-icon ott-n">N</span>
+          <span class="ott-card-label">Netflix</span>
+        </button>
+        <button class="ott-card-btn" data-ott="prime" title="Browse Prime Video Exclusives">
+          <span class="ott-badge-icon ott-pv">prime</span>
+          <span class="ott-card-label">Prime Video</span>
+        </button>
+        <button class="ott-card-btn" data-ott="disney" title="Browse Disney+ Cinema & Marvel">
+          <span class="ott-badge-icon ott-d">D+</span>
+          <span class="ott-card-label">Disney+</span>
+        </button>
+        <button class="ott-card-btn" data-ott="crunchyroll" title="Browse Crunchyroll Anime Vault">
+          <span class="ott-badge-icon ott-cr">CR</span>
+          <span class="ott-card-label">Crunchyroll</span>
+        </button>
+        <button class="ott-card-btn" data-ott="paramount" title="Browse Paramount+ Blockbusters">
+          <span class="ott-badge-icon ott-pm">P+</span>
+          <span class="ott-card-label">Paramount+</span>
+        </button>
+      </div>
+    </section>
+
     <!-- Content Sections (Horizontally Scrolling Movie Shelves) -->
     <section class="media-shelves" id="rows-container">
       <div class="shelf-loader">
@@ -133,19 +171,32 @@
       </div>
     </section>
 
-    <!-- Dedicated Search Experience with Advanced Filters -->
+    <!-- Separate Search Page with Recommendations & Advanced Filters -->
     <section class="search-view" id="search-view" style="display: none;">
       <div class="search-header-panel">
         <div class="search-hero-bar">
           <svg class="search-hero-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" id="dedicated-search-input" placeholder="Search movies, shows, actors..." autocomplete="off">
+          <input type="text" id="dedicated-search-input" placeholder="Search movies, TV shows, anime, OTT platforms..." autocomplete="off">
           <button class="search-clear-hero-btn" id="dedicated-clear-btn" title="Clear search" aria-label="Clear search">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
         </div>
 
-        <!-- Filter Controls (Type, Genre, Year, Rating) -->
+        <!-- Filter Controls (Platform, Type, Genre, Year, Rating) -->
         <div class="search-filters-bar">
+          <!-- OTT Platform Filter -->
+          <div class="filter-group">
+            <span class="filter-group-label">Platform:</span>
+            <div class="filter-pills-row" id="ott-filters">
+              <button class="filter-pill active" data-ott="all">All Platforms</button>
+              <button class="filter-pill" data-ott="netflix">Netflix</button>
+              <button class="filter-pill" data-ott="prime">Prime Video</button>
+              <button class="filter-pill" data-ott="disney">Disney+</button>
+              <button class="filter-pill" data-ott="crunchyroll">Crunchyroll</button>
+              <button class="filter-pill" data-ott="paramount">Paramount+</button>
+            </div>
+          </div>
+
           <!-- Type Filter -->
           <div class="filter-group">
             <span class="filter-group-label">Type:</span>
@@ -195,11 +246,15 @@
         </div>
 
         <div class="search-results-meta">
-          <h2 class="search-results-heading" id="search-results-heading">Explore Titles</h2>
-          <span class="search-count-pill" id="search-count-badge">0 results</span>
+          <div class="search-titles-group">
+            <h2 class="search-results-heading" id="search-results-heading">Recommended for You</h2>
+            <span class="search-subheading" id="search-subheading">Trending movies and shows across all major streaming services</span>
+          </div>
+          <span class="search-count-pill" id="search-count-badge">Popular titles</span>
         </div>
       </div>
 
+      <!-- Search & Recommendations Grid -->
       <div class="joy-grid" id="search-grid"></div>
     </section>
 
@@ -377,7 +432,7 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
       <span>TV Shows</span>
     </button>
-    <button class="bottom-nav-pill" id="mobile-search-tab">
+    <button class="bottom-nav-pill" data-filter="search" id="mobile-search-tab">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
       <span>Search</span>
     </button>

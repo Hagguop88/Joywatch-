@@ -17,6 +17,7 @@ import shutil
 import hashlib
 import hmac
 import base64
+from concurrent.futures import ThreadPoolExecutor
 
 PORT = 7680
 PUBLIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "public")
@@ -200,6 +201,168 @@ def fetch_json(url, timeout=5):
     except Exception:
         return None
 
+# =========================================================================
+# TMDb API Engine & Streaming Watch Providers (Netflix, Prime, Disney+, etc.)
+# =========================================================================
+TMDB_API_KEY = "b4a5cc243be17db99639ea6bbd462ed6"
+TMDB_BASE_URL = "https://api.tmdb.org/3"
+
+TMDB_GENRES = {
+    28: 'Action', 12: 'Adventure', 16: 'Animation', 35: 'Comedy', 80: 'Crime',
+    99: 'Documentary', 18: 'Drama', 10751: 'Family', 14: 'Fantasy', 36: 'History',
+    27: 'Horror', 10402: 'Music', 9648: 'Mystery', 10749: 'Romance', 878: 'Sci-Fi',
+    10770: 'TV Movie', 53: 'Thriller', 10752: 'War', 37: 'Western',
+    10759: 'Action & Adventure', 10762: 'Kids', 10763: 'News', 10764: 'Reality',
+    10765: 'Sci-Fi & Fantasy', 10766: 'Soap', 10767: 'Talk', 10768: 'War & Politics'
+}
+
+TMDB_OTT_PROVIDERS = {
+    "netflix": {"providers": "8|1796", "name": "Netflix"},
+    "prime": {"providers": "9|119|2100", "name": "Prime Video"},
+    "disney": {"providers": "337", "name": "Disney+"},
+    "crunchyroll": {"providers": "283|1968", "name": "Crunchyroll"},
+    "paramount": {"providers": "531|582|2303|2616", "name": "Paramount+"},
+}
+
+def resolve_tmdb_imdb_id(tmdb_id, media_type="movie"):
+    """Resolves canonical IMDb ID (tt...) for a TMDb ID using external_ids."""
+    clean_id = str(tmdb_id).replace("tmdb:", "").strip()
+    if not clean_id or not clean_id.isdigit():
+        return None
+
+    endpoint = "tv" if media_type in ("series", "tv") else "movie"
+    cache_key = f"tmdb_imdb:{endpoint}:{clean_id}"
+    now = time.time()
+    if cache_key in CACHE:
+        ts, val = CACHE[cache_key]
+        if now - ts < 86400:  # 24h cache for external IDs
+            return val
+
+    try:
+        url = f"{TMDB_BASE_URL}/{endpoint}/{clean_id}/external_ids?api_key={TMDB_API_KEY}"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            imdb = data.get("imdb_id")
+            if imdb and imdb.startswith("tt"):
+                CACHE[cache_key] = (now, imdb)
+                return imdb
+    except Exception:
+        pass
+    return None
+
+def fetch_tmdb_ott_catalog(platform="all", media_type="all", limit=24):
+    """Fetches and arranges movies and TV shows accurately as per OTT platforms using TMDb."""
+    cache_key = f"tmdb_ott:{platform}:{media_type}:{limit}"
+    now = time.time()
+    if cache_key in CACHE:
+        ts, data = CACHE[cache_key]
+        if now - ts < 900:  # 15 minutes TTL
+            return data
+
+    selected_platforms = (
+        ["netflix", "prime", "disney", "crunchyroll", "paramount"]
+        if platform == "all"
+        else [platform.lower()]
+    )
+
+    fetch_jobs = []
+    headers = {"User-Agent": "Mozilla/5.0"}
+
+    for p in selected_platforms:
+        p_info = TMDB_OTT_PROVIDERS.get(p)
+        if not p_info:
+            continue
+        p_ids = p_info["providers"]
+        p_name = p_info["name"]
+
+        if media_type in ("movie", "all"):
+            url_movie = (
+                f"{TMDB_BASE_URL}/discover/movie?api_key={TMDB_API_KEY}"
+                f"&watch_region=US&with_watch_providers={p_ids}"
+                f"&sort_by=popularity.desc&vote_count.gte=25"
+            )
+            fetch_jobs.append((p, p_name, "movie", url_movie))
+
+        if media_type in ("series", "tv", "all"):
+            url_tv = (
+                f"{TMDB_BASE_URL}/discover/tv?api_key={TMDB_API_KEY}"
+                f"&watch_region=US&with_watch_providers={p_ids}"
+                f"&sort_by=popularity.desc&vote_count.gte=25"
+            )
+            fetch_jobs.append((p, p_name, "tv", url_tv))
+
+    def fetch_single_job(job):
+        p_key, p_name, m_type, url = job
+        try:
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, timeout=4) as resp:
+                d = json.loads(resp.read().decode("utf-8"))
+                return (p_key, p_name, m_type, d.get("results", []))
+        except Exception:
+            return (p_key, p_name, m_type, [])
+
+    with ThreadPoolExecutor(max_workers=max(1, len(fetch_jobs))) as ex:
+        job_outputs = list(ex.map(fetch_single_job, fetch_jobs))
+
+    all_raw_items = []
+    seen_ids = set()
+    for p_key, p_name, m_type, results in job_outputs:
+        for r in results:
+            tid = r.get("id")
+            if not tid or tid in seen_ids:
+                continue
+            seen_ids.add(tid)
+            all_raw_items.append((p_key, p_name, m_type, r))
+
+    # Sort combined titles by popularity descending
+    all_raw_items.sort(key=lambda x: x[3].get("popularity", 0), reverse=True)
+    all_raw_items = all_raw_items[:limit]
+
+    processed = []
+    for p_key, p_name, m_type, r in all_raw_items:
+        tmdb_id = r.get("id")
+        title = r.get("title") or r.get("name")
+        year_str = (r.get("release_date") or r.get("first_air_date") or "2024")[:4]
+        rating_val = r.get("vote_average", 8.0)
+        formatted_rating = f"{rating_val:.1f}" if rating_val else "8.0"
+
+        poster_path = r.get("poster_path")
+        backdrop_path = r.get("backdrop_path") or poster_path
+        poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}" if poster_path else ""
+        backdrop_url = f"https://image.tmdb.org/t/p/w1280{backdrop_path}" if backdrop_path else poster_url
+
+        genre_names = [TMDB_GENRES[gid] for gid in r.get("genre_ids", []) if gid in TMDB_GENRES]
+        if not genre_names:
+            genre_names = [p_name]
+
+        processed.append({
+            "id": f"tmdb:{tmdb_id}",
+            "tmdb_id": tmdb_id,
+            "name": title,
+            "type": "series" if m_type == "tv" else "movie",
+            "year": year_str,
+            "imdbRating": formatted_rating,
+            "poster": poster_url,
+            "background": backdrop_url,
+            "description": r.get("overview", ""),
+            "genres": genre_names,
+            "platform": p_key,
+            "platform_name": p_name,
+        })
+
+    def attach_imdb(item):
+        resolved_imdb = resolve_tmdb_imdb_id(item["tmdb_id"], item["type"])
+        if resolved_imdb:
+            item["id"] = resolved_imdb
+        return item
+
+    with ThreadPoolExecutor(max_workers=max(1, min(12, len(processed)))) as ex:
+        final_items = list(ex.map(attach_imdb, processed))
+
+    CACHE[cache_key] = (now, final_items)
+    return final_items
+
 class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=PUBLIC_DIR, **kwargs)
@@ -266,6 +429,18 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         # -------------------------------------------------------------
+        # 3b. OTT Platform Catalog (TMDb Watch Providers)
+        # -------------------------------------------------------------
+        if path == "/api/ott-catalog":
+            platform = query.get("platform", ["all"])[0].lower()
+            media_type = query.get("type", ["all"])[0].lower()
+            limit_param = query.get("limit", ["24"])[0]
+            limit = int(limit_param) if limit_param.isdigit() else 24
+            items = fetch_tmdb_ott_catalog(platform=platform, media_type=media_type, limit=limit)
+            self.send_json({"items": items})
+            return
+
+        # -------------------------------------------------------------
         # 4. Item Details & Seasons/Episodes
         # -------------------------------------------------------------
         if path == "/api/meta":
@@ -274,6 +449,12 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
             if not imdb_id:
                 self.send_error(400, "Missing id parameter")
                 return
+
+            if imdb_id.startswith("tmdb:") or imdb_id.isdigit():
+                clean_tid = imdb_id.replace("tmdb:", "").strip()
+                resolved_imdb = resolve_tmdb_imdb_id(clean_tid, media_type)
+                if resolved_imdb:
+                    imdb_id = resolved_imdb
 
             url = f"https://v3-cinemeta.strem.io/meta/{media_type}/{imdb_id}.json"
             data = fetch_json(url) or {}
@@ -354,7 +535,12 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
             imdb_id = None
             if item_id and item_id.startswith("tt"):
                 imdb_id = item_id
-            elif title:
+            elif item_id and (item_id.startswith("tmdb:") or item_id.isdigit()):
+                clean_tid = item_id.replace("tmdb:", "").strip()
+                resolved_imdb = resolve_tmdb_imdb_id(clean_tid, media_type)
+                if resolved_imdb:
+                    imdb_id = resolved_imdb
+            if not imdb_id and title:
                 try:
                     search_url = f"https://v3-cinemeta.strem.io/catalog/{media_type}/top/search={urllib.parse.quote(title)}.json"
                     c_data = fetch_json(search_url, timeout=3)

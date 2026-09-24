@@ -298,6 +298,73 @@ document.addEventListener('DOMContentLoaded', () => {
     return { items };
   }
 
+  // =========================================================================
+  // TMDb API ENGINE & STREAMING WATCH PROVIDERS (Netflix, Prime, Disney+, etc.)
+  // =========================================================================
+  const TMDB_API_KEY = 'b4a5cc243be17db99639ea6bbd462ed6';
+  const TMDB_BASE_URL = 'https://api.tmdb.org/3';
+
+  async function fetchOttCatalog(platform, type = 'all', limit = 24) {
+    if (!platform || platform === 'all') {
+      const allProms = ['netflix', 'prime', 'disney', 'crunchyroll', 'paramount'].map(p => fetchOttCatalog(p, type, 8));
+      const res = await Promise.all(allProms);
+      const combined = [];
+      const seen = new Set();
+      res.flat().forEach(item => {
+        if (!seen.has(item.id)) {
+          seen.add(item.id);
+          combined.push(item);
+        }
+      });
+      return combined;
+    }
+
+    const apiPath = `/api/ott-catalog?platform=${encodeURIComponent(platform)}&type=${encodeURIComponent(type)}&limit=${limit}`;
+    const data = await safeFetchJson(apiPath, async () => {
+      // Direct client fallback to TMDb if server proxy is unavailable
+      const provMap = {
+        netflix: '8|1796',
+        prime: '9|119|2100',
+        disney: '337',
+        crunchyroll: '283|1968',
+        paramount: '531|582|2303|2616'
+      };
+      const prov = provMap[platform.toLowerCase()] || '8';
+      const mType = type === 'series' ? 'tv' : 'movie';
+      const tmdbUrl = `${TMDB_BASE_URL}/discover/${mType}?api_key=${TMDB_API_KEY}&watch_region=US&with_watch_providers=${prov}&sort_by=popularity.desc&vote_count.gte=25`;
+      const res = await fetch(tmdbUrl);
+      const json = await res.json();
+      return {
+        items: (json.results || []).slice(0, limit).map(r => ({
+          id: `tmdb:${r.id}`,
+          tmdb_id: r.id,
+          name: r.title || r.name,
+          type: mType === 'tv' ? 'series' : 'movie',
+          year: (r.release_date || r.first_air_date || '2024').substring(0, 4),
+          imdbRating: r.vote_average ? r.vote_average.toFixed(1) : '8.0',
+          poster: r.poster_path ? `https://image.tmdb.org/t/p/w500${r.poster_path}` : '',
+          background: r.backdrop_path ? `https://image.tmdb.org/t/p/w1280${r.backdrop_path}` : '',
+          description: r.overview || '',
+          genres: [getPlatformDisplayName(platform)],
+          platform: platform,
+          platform_name: getPlatformDisplayName(platform)
+        }))
+      };
+    });
+
+    const items = (data && data.items && data.items.length > 0) ? data.items : (OTT_DATA[platform] || []);
+    if (items.length > 0) {
+      OTT_DATA[platform] = items;
+      items.forEach(it => {
+        it.platform = platform;
+        if (!cachedCatalogPool.some(c => c.id === it.id)) {
+          cachedCatalogPool.push(it);
+        }
+      });
+    }
+    return items;
+  }
+
   async function fetchMeta(type, id) {
     const apiPath = `/api/meta?type=${type}&id=${id}`;
     const data = await safeFetchJson(apiPath, async () => {
@@ -510,34 +577,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Display Curated Recommendations When Search Is Empty (Like Real OTT Apps)
-  function renderRecommendationsInSearch() {
+  async function renderRecommendationsInSearch() {
     searchResultsHeading.textContent = 'Recommended for You';
     if (searchSubheading) {
-      searchSubheading.textContent = 'Trending movies and shows across Netflix, Prime Video, Disney+, and more';
+      searchSubheading.textContent = 'Trending movies and shows across Netflix, Prime Video, Disney+, Crunchyroll, and Paramount+';
     }
     searchCountBadge.textContent = 'Curated picks';
 
-    let pool = [];
-    if (filterState.platform !== 'all' && OTT_DATA[filterState.platform]) {
-      pool = OTT_DATA[filterState.platform];
+    if (filterState.platform !== 'all') {
       const pName = getPlatformDisplayName(filterState.platform);
       searchResultsHeading.textContent = `Trending on ${pName}`;
       if (searchSubheading) {
-        searchSubheading.textContent = `Popular titles available to stream on ${pName}`;
+        searchSubheading.textContent = `Popular titles accurately arranged for ${pName} via TMDb`;
       }
+      searchCountBadge.textContent = 'Loading...';
+      const titles = await fetchOttCatalog(filterState.platform, filterState.type, 24);
+      renderCardGridWithFilters(titles);
     } else {
-      // Aggregate cross-platform recommendations
-      pool = [...cachedCatalogPool];
-      if (pool.length < 12) {
-        Object.values(OTT_DATA).forEach(list => {
-          list.forEach(item => {
-            if (!pool.some(p => p.id === item.id)) pool.push(item);
-          });
-        });
+      let pool = cachedCatalogPool;
+      if (pool.length < 15) {
+        pool = await fetchOttCatalog('all', filterState.type, 30);
       }
+      renderCardGridWithFilters(pool);
     }
-
-    renderCardGridWithFilters(pool);
   }
 
   async function executeSearchQuery(query) {
@@ -705,10 +767,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  function renderFilteredOttHomeShelves(platformKey) {
-    rowsContainer.innerHTML = '';
+  async function renderFilteredOttHomeShelves(platformKey) {
     const platformName = getPlatformDisplayName(platformKey);
-    const titles = OTT_DATA[platformKey] || [];
+    rowsContainer.innerHTML = '<div class="shelf-loader"><div class="joy-spinner"></div><span>Arranging ' + platformName + ' universe via TMDb...</span></div>';
+
+    const [allTitles, movies, series] = await Promise.all([
+      fetchOttCatalog(platformKey, 'all', 20),
+      fetchOttCatalog(platformKey, 'movie', 15),
+      fetchOttCatalog(platformKey, 'series', 15)
+    ]);
+
+    rowsContainer.innerHTML = '';
+    const titles = (allTitles && allTitles.length > 0) ? allTitles : (OTT_DATA[platformKey] || []);
 
     if (titles.length > 0) {
       setBillboard(titles[0]);
@@ -718,13 +788,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (platformShelf) rowsContainer.appendChild(platformShelf);
 
     // Also show top movies and series matching that platform vibe
-    const movieMatches = titles.filter(t => t.type === 'movie');
+    const movieMatches = (movies && movies.length > 0) ? movies : titles.filter(t => t.type === 'movie');
     if (movieMatches.length > 0) {
       const row = createRowElement(`${platformName} Feature Films`, movieMatches, platformKey);
       if (row) rowsContainer.appendChild(row);
     }
 
-    const seriesMatches = titles.filter(t => t.type === 'series');
+    const seriesMatches = (series && series.length > 0) ? series : titles.filter(t => t.type === 'series');
     if (seriesMatches.length > 0) {
       const row = createRowElement(`${platformName} Top Series`, seriesMatches, platformKey);
       if (row) rowsContainer.appendChild(row);
@@ -1518,7 +1588,16 @@ document.addEventListener('DOMContentLoaded', () => {
       // 7. Watch History (from backend)
       fetches.push(safeFetchJson('/api/history', () => ({ recent: [] })).then(r => r || { recent: [] }));
 
-      const results = await Promise.all(fetches);
+      // Fetch TMDb OTT platform catalogs concurrently with category catalog
+      const [catResults, netflixOtt, primeOtt, disneyOtt, crunchyOtt, paramountOtt] = await Promise.all([
+        Promise.all(fetches),
+        fetchOttCatalog('netflix', 'all', 20),
+        fetchOttCatalog('prime', 'all', 20),
+        fetchOttCatalog('disney', 'all', 20),
+        fetchOttCatalog('crunchyroll', 'all', 20),
+        fetchOttCatalog('paramount', 'all', 20)
+      ]);
+      const results = catResults;
       rowsContainer.innerHTML = '';
       let featuredSet = false;
 
@@ -1551,33 +1630,38 @@ document.addEventListener('DOMContentLoaded', () => {
         if (row) rowsContainer.appendChild(row);
       }
 
-      // 3. Popular on Netflix (Dedicated OTT Shelf)
+      // 3. Popular on Netflix (TMDb Verified Watch Provider)
       if (filter === 'all' || filter === 'movie') {
-        const netflixShelf = createRowElement('Popular on Netflix', OTT_DATA.netflix, 'netflix');
+        const nData = (netflixOtt && netflixOtt.length > 0) ? netflixOtt : OTT_DATA.netflix;
+        const netflixShelf = createRowElement('Popular on Netflix', nData, 'netflix');
         if (netflixShelf) rowsContainer.appendChild(netflixShelf);
       }
 
-      // 4. Prime Video Exclusives (Dedicated OTT Shelf)
+      // 4. Prime Video Exclusives (TMDb Verified Watch Provider)
       if (filter === 'all' || filter === 'series') {
-        const primeShelf = createRowElement('Prime Video Exclusives', OTT_DATA.prime, 'prime');
+        const pData = (primeOtt && primeOtt.length > 0) ? primeOtt : OTT_DATA.prime;
+        const primeShelf = createRowElement('Prime Video Exclusives', pData, 'prime');
         if (primeShelf) rowsContainer.appendChild(primeShelf);
       }
 
-      // 5. Disney+ Cinema & Marvel (Dedicated OTT Shelf)
+      // 5. Disney+ Cinema & Marvel (TMDb Verified Watch Provider)
       if (filter === 'all' || filter === 'movie') {
-        const disneyShelf = createRowElement('Disney+ Cinema & Marvel', OTT_DATA.disney, 'disney');
+        const dData = (disneyOtt && disneyOtt.length > 0) ? disneyOtt : OTT_DATA.disney;
+        const disneyShelf = createRowElement('Disney+ Cinema & Marvel', dData, 'disney');
         if (disneyShelf) rowsContainer.appendChild(disneyShelf);
       }
 
-      // 6. Crunchyroll Anime Vault (Dedicated OTT Shelf)
+      // 6. Crunchyroll Anime Vault (TMDb Verified Watch Provider)
       if (filter === 'all' || filter === 'anime' || filter === 'series') {
-        const crunchyShelf = createRowElement('Crunchyroll Anime Vault', OTT_DATA.crunchyroll, 'crunchyroll');
+        const cData = (crunchyOtt && crunchyOtt.length > 0) ? crunchyOtt : OTT_DATA.crunchyroll;
+        const crunchyShelf = createRowElement('Crunchyroll Anime Vault', cData, 'crunchyroll');
         if (crunchyShelf) rowsContainer.appendChild(crunchyShelf);
       }
 
-      // 7. Paramount+ Blockbusters (Dedicated OTT Shelf)
+      // 7. Paramount+ Blockbusters (TMDb Verified Watch Provider)
       if (filter === 'all' || filter === 'movie') {
-        const paramountShelf = createRowElement('Paramount+ Blockbusters', OTT_DATA.paramount, 'paramount');
+        const pmData = (paramountOtt && paramountOtt.length > 0) ? paramountOtt : OTT_DATA.paramount;
+        const paramountShelf = createRowElement('Paramount+ Blockbusters', pmData, 'paramount');
         if (paramountShelf) rowsContainer.appendChild(paramountShelf);
       }
 

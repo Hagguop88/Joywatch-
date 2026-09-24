@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=1.1.0">
 </head>
 <body class="joywatch-body">
 
@@ -148,9 +148,9 @@
           <span class="ott-badge-icon ott-pv">prime</span>
           <span class="ott-card-label">Prime Video</span>
         </button>
-        <button class="ott-card-btn" data-ott="disney" title="Browse Disney+ Cinema & Marvel">
+        <button class="ott-card-btn" data-ott="disney" title="Browse Disney+ Hotstar Cinema, Marvel & Originals">
           <span class="ott-badge-icon ott-d">D+</span>
-          <span class="ott-card-label">Disney+</span>
+          <span class="ott-card-label">Disney+ Hotstar</span>
         </button>
         <button class="ott-card-btn" data-ott="crunchyroll" title="Browse Crunchyroll Anime Vault">
           <span class="ott-badge-icon ott-cr">CR</span>
@@ -191,7 +191,7 @@
               <button class="filter-pill active" data-ott="all">All Platforms</button>
               <button class="filter-pill" data-ott="netflix">Netflix</button>
               <button class="filter-pill" data-ott="prime">Prime Video</button>
-              <button class="filter-pill" data-ott="disney">Disney+</button>
+              <button class="filter-pill" data-ott="disney">Disney+ Hotstar</button>
               <button class="filter-pill" data-ott="crunchyroll">Crunchyroll</button>
               <button class="filter-pill" data-ott="paramount">Paramount+</button>
             </div>
@@ -445,7 +445,8 @@
     </button>
   </nav>
 
-  <script src="app.js"></script>
+  <script src="ott-data.js?v=1.1.0"></script>
+  <script src="app.js?v=1.1.0"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

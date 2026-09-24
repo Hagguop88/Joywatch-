@@ -3,11 +3,12 @@
  * Fast offline shell caching & background sync
  */
 
-const CACHE_NAME = 'joywatch-v1.0.0';
+const CACHE_NAME = 'joywatch-v1.1.0';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/style.css',
+  '/ott-data.js',
   '/app.js',
   '/manifest.json',
   '/icons/icon-192.png',

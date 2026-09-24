@@ -117,52 +117,18 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // =========================================================================
-  // CANONICAL OTT PLATFORMS DATA (Netflix, Prime, Disney+, Crunchyroll, Paramount+)
+  // CANONICAL OTT PLATFORMS DATA (100+ to 200+ titles per platform from TMDb)
+  // Netflix, Prime Video, Disney+ Hotstar, Crunchyroll, Paramount+
   // =========================================================================
-  const OTT_DATA = {
-    netflix: [
-      { id: 'tt4574334', name: 'Stranger Things', type: 'series', year: '2025', imdbRating: '8.7', genres: ['Sci-Fi', 'Drama', 'Horror'], poster: 'https://images.metahub.space/poster/medium/tt4574334/img', background: 'https://images.metahub.space/background/medium/tt4574334/img', description: 'When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.', platform: 'netflix' },
-      { id: 'tt10919420', name: 'Squid Game', type: 'series', year: '2024', imdbRating: '8.0', genres: ['Action', 'Drama', 'Mystery'], poster: 'https://images.metahub.space/poster/medium/tt10919420/img', background: 'https://images.metahub.space/background/medium/tt10919420/img', description: 'Hundreds of cash-strapped players accept a strange invitation to compete in children\'s games. Inside, a tempting prize awaits with deadly high stakes.', platform: 'netflix' },
-      { id: 'tt13443470', name: 'Wednesday', type: 'series', year: '2025', imdbRating: '8.1', genres: ['Comedy', 'Crime', 'Fantasy'], poster: 'https://images.metahub.space/poster/medium/tt13443470/img', background: 'https://images.metahub.space/background/medium/tt13443470/img', description: 'Follows Wednesday Addams\' years as a student, when she attempts to master her emerging psychic ability, thwart and solve the mystery that embroiled her parents.', platform: 'netflix' },
-      { id: 'tt7991608', name: 'Red Notice', type: 'movie', year: '2021', imdbRating: '6.3', genres: ['Action', 'Comedy', 'Thriller'], poster: 'https://images.metahub.space/poster/medium/tt7991608/img', background: 'https://images.metahub.space/background/medium/tt7991608/img', description: 'An Interpol agent tracks the world\'s most wanted art thief, only to find himself entangled in a daring heist partnership.', platform: 'netflix' },
-      { id: 'tt11564570', name: 'Glass Onion: A Knives Out Mystery', type: 'movie', year: '2022', imdbRating: '7.1', genres: ['Comedy', 'Crime', 'Drama'], poster: 'https://images.metahub.space/poster/medium/tt11564570/img', background: 'https://images.metahub.space/background/medium/tt11564570/img', description: 'Famed Southern detective Benoit Blanc travels to Greece for his latest case, peeling back the layers of an extravagant tech mogul\'s murder mystery game.', platform: 'netflix' },
-      { id: 'tt5180504', name: 'The Witcher', type: 'series', year: '2023', imdbRating: '8.0', genres: ['Action', 'Adventure', 'Fantasy'], poster: 'https://images.metahub.space/poster/medium/tt5180504/img', background: 'https://images.metahub.space/background/medium/tt5180504/img', description: 'Geralt of Rivia, a solitary monster hunter, struggles to find his place in a world where people often prove more wicked than beasts.', platform: 'netflix' },
-      { id: 'tt12263384', name: 'Extraction 2', type: 'movie', year: '2023', imdbRating: '7.0', genres: ['Action', 'Thriller'], poster: 'https://images.metahub.space/poster/medium/tt12263384/img', background: 'https://images.metahub.space/background/medium/tt12263384/img', description: 'Back from the brink of death, highly skilled commando Tyler Rake takes on another dangerous mission: saving the battered family of a ruthless Georgian gangster.', platform: 'netflix' },
-      { id: 'tt2085059', name: 'Black Mirror', type: 'series', year: '2023', imdbRating: '8.7', genres: ['Drama', 'Sci-Fi', 'Thriller'], poster: 'https://images.metahub.space/poster/medium/tt2085059/img', background: 'https://images.metahub.space/background/medium/tt2085059/img', description: 'An anthology series exploring a twisted, high-tech multiverse where humanity\'s greatest innovations and darkest instincts collide.', platform: 'netflix' }
-    ],
-    prime: [
-      { id: 'tt1190634', name: 'The Boys', type: 'series', year: '2024', imdbRating: '8.7', genres: ['Action', 'Comedy', 'Drama'], poster: 'https://images.metahub.space/poster/medium/tt1190634/img', background: 'https://images.metahub.space/background/medium/tt1190634/img', description: 'A fun and irreverent take on what happens when superheroes abuse their superpowers rather than use them for good.', platform: 'prime' },
-      { id: 'tt12637874', name: 'Fallout', type: 'series', year: '2024', imdbRating: '8.4', genres: ['Action', 'Adventure', 'Drama'], poster: 'https://images.metahub.space/poster/medium/tt12637874/img', background: 'https://images.metahub.space/background/medium/tt12637874/img', description: 'In a future post-apocalyptic Los Angeles brought about by nuclear decimation, citizens must live in underground bunkers to protect themselves from radiation and mutants.', platform: 'prime' },
-      { id: 'tt9288030', name: 'Reacher', type: 'series', year: '2024', imdbRating: '8.1', genres: ['Action', 'Crime', 'Drama'], poster: 'https://images.metahub.space/poster/medium/tt9288030/img', background: 'https://images.metahub.space/background/medium/tt9288030/img', description: 'Jack Reacher, a veteran military police investigator, enters civilian life and moves from town to town, exploring the nation he once served.', platform: 'prime' },
-      { id: 'tt6741278', name: 'Invincible', type: 'series', year: '2024', imdbRating: '8.7', genres: ['Animation', 'Action', 'Adventure'], poster: 'https://images.metahub.space/poster/medium/tt6741278/img', background: 'https://images.metahub.space/background/medium/tt6741278/img', description: 'An adult animated series based on the Skybound/Image comic about a teenager whose father is the most powerful superhero on the planet.', platform: 'prime' },
-      { id: 'tt7631058', name: 'The Lord of the Rings: The Rings of Power', type: 'series', year: '2024', imdbRating: '7.0', genres: ['Action', 'Adventure', 'Drama'], poster: 'https://images.metahub.space/poster/medium/tt7631058/img', background: 'https://images.metahub.space/background/medium/tt7631058/img', description: 'Epic drama set thousands of years before the events of J.R.R. Tolkien\'s \'The Hobbit\' and \'The Lord of the Rings\'.', platform: 'prime' },
-      { id: 'tt3359350', name: 'Road House', type: 'movie', year: '2024', imdbRating: '6.2', genres: ['Action', 'Thriller'], poster: 'https://images.metahub.space/poster/medium/tt3359350/img', background: 'https://images.metahub.space/background/medium/tt3359350/img', description: 'Ex-UFC fighter Dalton takes a job as a bouncer at a Florida Keys roadhouse, only to discover that this paradise is not all it seems.', platform: 'prime' }
-    ],
-    disney: [
-      { id: 'tt9140554', name: 'Loki', type: 'series', year: '2023', imdbRating: '8.2', genres: ['Action', 'Adventure', 'Fantasy'], poster: 'https://images.metahub.space/poster/medium/tt9140554/img', background: 'https://images.metahub.space/background/medium/tt9140554/img', description: 'The mercurial villain Loki resumes his role as the God of Mischief in a series that takes place after the events of Avengers: Endgame.', platform: 'disney' },
-      { id: 'tt8111088', name: 'The Mandalorian', type: 'series', year: '2023', imdbRating: '8.6', genres: ['Action', 'Adventure', 'Sci-Fi'], poster: 'https://images.metahub.space/poster/medium/tt8111088/img', background: 'https://images.metahub.space/background/medium/tt8111088/img', description: 'The travels of a lone bounty hunter in the outer reaches of the galaxy, far from the authority of the New Republic.', platform: 'disney' },
-      { id: 'tt6263850', name: 'Deadpool & Wolverine', type: 'movie', year: '2024', imdbRating: '7.8', genres: ['Action', 'Comedy', 'Sci-Fi'], poster: 'https://images.metahub.space/poster/medium/tt6263850/img', background: 'https://images.metahub.space/background/medium/tt6263850/img', description: 'Wolverine is recovering from his injuries when he crosses paths with the loudmouth Deadpool. They team up to defeat a common enemy.', platform: 'disney' },
-      { id: 'tt22022452', name: 'Inside Out 2', type: 'movie', year: '2024', imdbRating: '7.6', genres: ['Animation', 'Adventure', 'Comedy'], poster: 'https://images.metahub.space/poster/medium/tt22022452/img', background: 'https://images.metahub.space/background/medium/tt22022452/img', description: 'Follows Riley in her teenage years as she encounters new emotions like Anxiety, Envy, and Embarrassment.', platform: 'disney' },
-      { id: 'tt4154796', name: 'Avengers: Endgame', type: 'movie', year: '2019', imdbRating: '8.4', genres: ['Action', 'Adventure', 'Drama'], poster: 'https://images.metahub.space/poster/medium/tt4154796/img', background: 'https://images.metahub.space/background/medium/tt4154796/img', description: 'After the devastating events of Infinity War, the universe is in ruins. The remaining Avengers assemble once more to reverse Thanos\' actions.', platform: 'disney' },
-      { id: 'tt9253284', name: 'Andor', type: 'series', year: '2025', imdbRating: '8.4', genres: ['Action', 'Adventure', 'Drama'], poster: 'https://images.metahub.space/poster/medium/tt9253284/img', background: 'https://images.metahub.space/background/medium/tt9253284/img', description: 'Prequel series to Star Wars\' \'Rogue One\'. In an era filled with danger, deception and intrigue, Cassian will embark on the path that is destined to turn him into a Rebel hero.', platform: 'disney' }
-    ],
-    crunchyroll: [
-      { id: 'tt9335498', name: 'Demon Slayer: Kimetsu no Yaiba', type: 'series', year: '2024', imdbRating: '8.6', genres: ['Animation', 'Action', 'Adventure'], poster: 'https://images.metahub.space/poster/medium/tt9335498/img', background: 'https://images.metahub.space/background/medium/tt9335498/img', description: 'A family is attacked by demons and only two members survive - Tanjiro and his sister Nezuko, who is turning into a demon slowly.', platform: 'crunchyroll' },
-      { id: 'tt2560140', name: 'Attack on Titan', type: 'series', year: '2023', imdbRating: '9.1', genres: ['Animation', 'Action', 'Adventure'], poster: 'https://images.metahub.space/poster/medium/tt2560140/img', background: 'https://images.metahub.space/background/medium/tt2560140/img', description: 'After his hometown is destroyed and his mother is killed, young Eren Jaeger vows to cleanse the earth of the giant humanoid Titans that have brought humanity to the brink of extinction.', platform: 'crunchyroll' },
-      { id: 'tt12343534', name: 'Jujutsu Kaisen', type: 'series', year: '2023', imdbRating: '8.6', genres: ['Animation', 'Action', 'Adventure'], poster: 'https://images.metahub.space/poster/medium/tt12343534/img', background: 'https://images.metahub.space/background/medium/tt12343534/img', description: 'A boy swallows a cursed talisman - the finger of a demon - and becomes cursed himself. He enters a shaman\'s school to be able to locate the demon\'s other body parts and thus exorcise himself.', platform: 'crunchyroll' },
-      { id: 'tt21209876', name: 'Solo Leveling', type: 'series', year: '2024', imdbRating: '8.3', genres: ['Animation', 'Action', 'Adventure'], poster: 'https://images.metahub.space/poster/medium/tt21209876/img', background: 'https://images.metahub.space/background/medium/tt21209876/img', description: 'In a world where hunters must battle deadly monsters to protect mankind, the weakest hunter discovers a pathway to unlimited power.', platform: 'crunchyroll' },
-      { id: 'tt13616990', name: 'Chainsaw Man', type: 'series', year: '2022', imdbRating: '8.4', genres: ['Animation', 'Action', 'Adventure'], poster: 'https://images.metahub.space/poster/medium/tt13616990/img', background: 'https://images.metahub.space/background/medium/tt13616990/img', description: 'Following a betrayal, a young man left for the dead is reborn as a powerful devil-human hybrid after merging with his pet devil pooch.', platform: 'crunchyroll' },
-      { id: 'tt22064098', name: 'Frieren: Beyond Journey\'s End', type: 'series', year: '2024', imdbRating: '8.9', genres: ['Animation', 'Adventure', 'Drama'], poster: 'https://images.metahub.space/poster/medium/tt22064098/img', background: 'https://images.metahub.space/background/medium/tt22064098/img', description: 'An elven mage and her fellow adventurers have defeated the Demon King and brought peace to the land. But what happens after the grand adventure ends?', platform: 'crunchyroll' }
-    ],
-    paramount: [
-      { id: 'tt4236770', name: 'Yellowstone', type: 'series', year: '2024', imdbRating: '8.7', genres: ['Drama', 'Western'], poster: 'https://images.metahub.space/poster/medium/tt4236770/img', background: 'https://images.metahub.space/background/medium/tt4236770/img', description: 'A ranching family in Montana faces off against others encroaching on their land.', platform: 'paramount' },
-      { id: 'tt1745960', name: 'Top Gun: Maverick', type: 'movie', year: '2022', imdbRating: '8.3', genres: ['Action', 'Drama'], poster: 'https://images.metahub.space/poster/medium/tt1745960/img', background: 'https://images.metahub.space/background/medium/tt1745960/img', description: 'After thirty years, Maverick is still pushing the envelope as a top naval aviator, but must confront ghosts of his past when he leads TOP GUN\'s elite graduates on a mission.', platform: 'paramount' },
-      { id: 'tt2934286', name: 'Halo', type: 'series', year: '2024', imdbRating: '7.3', genres: ['Action', 'Adventure', 'Sci-Fi'], poster: 'https://images.metahub.space/poster/medium/tt2934286/img', background: 'https://images.metahub.space/background/medium/tt2934286/img', description: 'Aliens threaten human existence in an epic 26th-century showdown. TV series based on the video game \'Halo\'.', platform: 'paramount' },
-      { id: 'tt9603212', name: 'Mission: Impossible - Dead Reckoning', type: 'movie', year: '2023', imdbRating: '7.7', genres: ['Action', 'Adventure', 'Thriller'], poster: 'https://images.metahub.space/poster/medium/tt9603212/img', background: 'https://images.metahub.space/background/medium/tt9603212/img', description: 'Ethan Hunt and his IMF team must track down a dangerous weapon before it falls into the wrong hands.', platform: 'paramount' },
-      { id: 'tt12327578', name: 'Star Trek: Strange New Worlds', type: 'series', year: '2023', imdbRating: '8.3', genres: ['Action', 'Adventure', 'Sci-Fi'], poster: 'https://images.metahub.space/poster/medium/tt12327578/img', background: 'https://images.metahub.space/background/medium/tt12327578/img', description: 'A prequel to Star Trek: The Original Series, following Captain Christopher Pike and the crew of the USS Enterprise in the 23rd century.', platform: 'paramount' },
-      { id: 'tt13433802', name: 'A Quiet Place: Day One', type: 'movie', year: '2024', imdbRating: '6.4', genres: ['Drama', 'Horror', 'Sci-Fi'], poster: 'https://images.metahub.space/poster/medium/tt13433802/img', background: 'https://images.metahub.space/background/medium/tt13433802/img', description: 'Experience the day the world went quiet in this terrifying continuation of the creature invasion.', platform: 'paramount' }
-    ]
-  };
+  const OTT_DATA = (typeof window !== 'undefined' && window.TMDB_PRECOMPILED_OTT)
+    ? window.TMDB_PRECOMPILED_OTT
+    : ((typeof TMDB_PRECOMPILED_OTT !== 'undefined' && TMDB_PRECOMPILED_OTT) ? TMDB_PRECOMPILED_OTT : {
+        netflix: [],
+        prime: [],
+        disney: [],
+        crunchyroll: [],
+        paramount: []
+      });
 
   // Seed cached pool with all curated OTT platform titles for instant availability
   Object.values(OTT_DATA).forEach(list => {
@@ -304,19 +270,33 @@ document.addEventListener('DOMContentLoaded', () => {
   const TMDB_API_KEY = 'b4a5cc243be17db99639ea6bbd462ed6';
   const TMDB_BASE_URL = 'https://api.tmdb.org/3';
 
-  async function fetchOttCatalog(platform, type = 'all', limit = 24) {
+  async function fetchOttCatalog(platform, type = 'all', limit = 200) {
     if (!platform || platform === 'all') {
-      const allProms = ['netflix', 'prime', 'disney', 'crunchyroll', 'paramount'].map(p => fetchOttCatalog(p, type, 8));
-      const res = await Promise.all(allProms);
       const combined = [];
       const seen = new Set();
-      res.flat().forEach(item => {
-        if (!seen.has(item.id)) {
-          seen.add(item.id);
-          combined.push(item);
-        }
+      ['netflix', 'prime', 'disney', 'crunchyroll', 'paramount'].forEach(p => {
+        const list = OTT_DATA[p] || [];
+        list.forEach(item => {
+          if (!seen.has(item.id)) {
+            seen.add(item.id);
+            combined.push(item);
+          }
+        });
       });
-      return combined;
+      let result = combined;
+      if (type !== 'all') {
+        result = result.filter(it => type === 'series' ? it.type === 'series' : it.type === 'movie');
+      }
+      return result.slice(0, limit);
+    }
+
+    const cached = OTT_DATA[platform] || [];
+    if (cached.length >= 50) {
+      let filtered = cached;
+      if (type !== 'all') {
+        filtered = filtered.filter(it => type === 'series' ? it.type === 'series' : it.type === 'movie');
+      }
+      return filtered.slice(0, limit);
     }
 
     const apiPath = `/api/ott-catalog?platform=${encodeURIComponent(platform)}&type=${encodeURIComponent(type)}&limit=${limit}`;
@@ -325,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const provMap = {
         netflix: '8|1796',
         prime: '9|119|2100',
-        disney: '337',
+        disney: '2336|337',
         crunchyroll: '283|1968',
         paramount: '531|582|2303|2616'
       };
@@ -354,7 +334,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const items = (data && data.items && data.items.length > 0) ? data.items : (OTT_DATA[platform] || []);
     if (items.length > 0) {
-      OTT_DATA[platform] = items;
+      if (!OTT_DATA[platform] || OTT_DATA[platform].length < items.length) {
+        OTT_DATA[platform] = items;
+      }
       items.forEach(it => {
         it.platform = platform;
         if (!cachedCatalogPool.some(c => c.id === it.id)) {
@@ -580,23 +562,24 @@ document.addEventListener('DOMContentLoaded', () => {
   async function renderRecommendationsInSearch() {
     searchResultsHeading.textContent = 'Recommended for You';
     if (searchSubheading) {
-      searchSubheading.textContent = 'Trending movies and shows across Netflix, Prime Video, Disney+, Crunchyroll, and Paramount+';
+      searchSubheading.textContent = 'Trending movies and shows across Netflix, Prime Video, Disney+ Hotstar, Crunchyroll, and Paramount+';
     }
     searchCountBadge.textContent = 'Curated picks';
 
     if (filterState.platform !== 'all') {
       const pName = getPlatformDisplayName(filterState.platform);
-      searchResultsHeading.textContent = `Trending on ${pName}`;
+      const titles = (OTT_DATA[filterState.platform] && OTT_DATA[filterState.platform].length > 0)
+        ? OTT_DATA[filterState.platform]
+        : (await fetchOttCatalog(filterState.platform, filterState.type, 200));
+      searchResultsHeading.textContent = `${pName} Universe`;
       if (searchSubheading) {
-        searchSubheading.textContent = `Popular titles accurately arranged for ${pName} via TMDb`;
+        searchSubheading.textContent = `All ${titles.length}+ movies & TV series streaming on ${pName} via TMDb`;
       }
-      searchCountBadge.textContent = 'Loading...';
-      const titles = await fetchOttCatalog(filterState.platform, filterState.type, 24);
       renderCardGridWithFilters(titles);
     } else {
       let pool = cachedCatalogPool;
-      if (pool.length < 15) {
-        pool = await fetchOttCatalog('all', filterState.type, 30);
+      if (pool.length < 50) {
+        pool = await fetchOttCatalog('all', filterState.type, 200);
       }
       renderCardGridWithFilters(pool);
     }
@@ -678,7 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
     switch (key) {
       case 'netflix': return 'Netflix';
       case 'prime': return 'Prime Video';
-      case 'disney': return 'Disney+';
+      case 'disney': return 'Disney+ Hotstar';
       case 'crunchyroll': return 'Crunchyroll';
       case 'paramount': return 'Paramount+';
       default: return 'All Platforms';
@@ -771,37 +754,76 @@ document.addEventListener('DOMContentLoaded', () => {
     const platformName = getPlatformDisplayName(platformKey);
     rowsContainer.innerHTML = '<div class="shelf-loader"><div class="joy-spinner"></div><span>Arranging ' + platformName + ' universe via TMDb...</span></div>';
 
-    const [allTitles, movies, series] = await Promise.all([
-      fetchOttCatalog(platformKey, 'all', 20),
-      fetchOttCatalog(platformKey, 'movie', 15),
-      fetchOttCatalog(platformKey, 'series', 15)
-    ]);
+    const titles = (OTT_DATA[platformKey] && OTT_DATA[platformKey].length > 0)
+      ? OTT_DATA[platformKey]
+      : (await fetchOttCatalog(platformKey, 'all', 200));
 
     rowsContainer.innerHTML = '';
-    const titles = (allTitles && allTitles.length > 0) ? allTitles : (OTT_DATA[platformKey] || []);
-
-    if (titles.length > 0) {
-      setBillboard(titles[0]);
+    if (!titles || titles.length === 0) {
+      rowsContainer.innerHTML = `<div class="shelf-loader"><span>No titles found for ${platformName}.</span></div>`;
+      return;
     }
 
-    const platformShelf = createRowElement(`Popular on ${platformName}`, titles, platformKey);
+    // Set billboard to the top title of the selected OTT platform
+    setBillboard(titles[0]);
+
+    // Shelf 1: Trending on Platform (Top 35 titles)
+    const trending = titles.slice(0, 35);
+    const platformShelf = createRowElement(`Trending on ${platformName}`, trending, platformKey);
     if (platformShelf) rowsContainer.appendChild(platformShelf);
 
-    // Also show top movies and series matching that platform vibe
-    const movieMatches = (movies && movies.length > 0) ? movies : titles.filter(t => t.type === 'movie');
+    // Shelf 2: Feature Films & Blockbusters
+    const movieMatches = titles.filter(t => t.type === 'movie');
     if (movieMatches.length > 0) {
-      const row = createRowElement(`${platformName} Feature Films`, movieMatches, platformKey);
+      const row = createRowElement(`${platformName} Feature Films & Blockbusters`, movieMatches, platformKey);
       if (row) rowsContainer.appendChild(row);
     }
 
-    const seriesMatches = (series && series.length > 0) ? series : titles.filter(t => t.type === 'series');
+    // Shelf 3: Binge-Worthy TV Series
+    const seriesMatches = titles.filter(t => t.type === 'series');
     if (seriesMatches.length > 0) {
-      const row = createRowElement(`${platformName} Top Series`, seriesMatches, platformKey);
+      const row = createRowElement(`${platformName} Binge-Worthy TV Series`, seriesMatches, platformKey);
       if (row) rowsContainer.appendChild(row);
     }
 
-    // You May Also Like Row
-    const recommendations = cachedCatalogPool.filter(c => !titles.some(t => t.id === c.id)).slice(0, 15);
+    // Shelf 4: Top Rated (IMDb 7.8+)
+    const topRated = titles.filter(t => parseFloat(t.imdbRating) >= 7.8);
+    if (topRated.length > 0) {
+      const row = createRowElement(`Top Rated on ${platformName} (IMDb 8.0+)`, topRated, platformKey);
+      if (row) rowsContainer.appendChild(row);
+    }
+
+    // Shelf 5: Curated Signature Platform Genre
+    let signatureTitles = [];
+    let signatureTitle = '';
+    if (platformKey === 'crunchyroll') {
+      signatureTitle = 'Crunchyroll Anime Hits & Shonen Masterpieces';
+      signatureTitles = titles.filter(t => (t.genres || []).some(g => ['Animation', 'Action', 'Fantasy'].includes(g)));
+    } else if (platformKey === 'disney') {
+      signatureTitle = 'Disney+ Hotstar: Marvel, Star Wars & Family Adventures';
+      signatureTitles = titles.filter(t => (t.genres || []).some(g => ['Action', 'Adventure', 'Animation', 'Family', 'Sci-Fi'].includes(g)));
+    } else if (platformKey === 'netflix') {
+      signatureTitle = 'Netflix Originals, Thrillers & Dramas';
+      signatureTitles = titles.filter(t => (t.genres || []).some(g => ['Drama', 'Thriller', 'Crime', 'Mystery'].includes(g)));
+    } else if (platformKey === 'prime') {
+      signatureTitle = 'Prime Video Action & Suspense Thrillers';
+      signatureTitles = titles.filter(t => (t.genres || []).some(g => ['Action', 'Thriller', 'Crime', 'Sci-Fi'].includes(g)));
+    } else if (platformKey === 'paramount') {
+      signatureTitle = 'Paramount+ Action & Sci-Fi Universe';
+      signatureTitles = titles.filter(t => (t.genres || []).some(g => ['Action', 'Sci-Fi', 'Adventure', 'Western'].includes(g)));
+    }
+
+    if (signatureTitles.length > 0) {
+      const sigRow = createRowElement(signatureTitle, signatureTitles, platformKey);
+      if (sigRow) rowsContainer.appendChild(sigRow);
+    }
+
+    // Shelf 6: Complete Platform Catalog (All 160-212 Titles!)
+    const completeRow = createRowElement(`Complete ${platformName} Catalog (${titles.length} Titles)`, titles, platformKey);
+    if (completeRow) rowsContainer.appendChild(completeRow);
+
+    // Shelf 7: More Recommended Discoveries
+    const recommendations = cachedCatalogPool.filter(c => c.platform !== platformKey).slice(0, 20);
     if (recommendations.length > 0) {
       const recRow = createRowElement(`More Recommended Discoveries`, recommendations);
       if (recRow) rowsContainer.appendChild(recRow);
@@ -1588,14 +1610,9 @@ document.addEventListener('DOMContentLoaded', () => {
       // 7. Watch History (from backend)
       fetches.push(safeFetchJson('/api/history', () => ({ recent: [] })).then(r => r || { recent: [] }));
 
-      // Fetch TMDb OTT platform catalogs concurrently with category catalog
-      const [catResults, netflixOtt, primeOtt, disneyOtt, crunchyOtt, paramountOtt] = await Promise.all([
-        Promise.all(fetches),
-        fetchOttCatalog('netflix', 'all', 20),
-        fetchOttCatalog('prime', 'all', 20),
-        fetchOttCatalog('disney', 'all', 20),
-        fetchOttCatalog('crunchyroll', 'all', 20),
-        fetchOttCatalog('paramount', 'all', 20)
+      // Fetch category catalog concurrently
+      const [catResults] = await Promise.all([
+        Promise.all(fetches)
       ]);
       const results = catResults;
       rowsContainer.innerHTML = '';
@@ -1630,37 +1647,37 @@ document.addEventListener('DOMContentLoaded', () => {
         if (row) rowsContainer.appendChild(row);
       }
 
-      // 3. Popular on Netflix (TMDb Verified Watch Provider)
+      // 3. Popular on Netflix (TMDb Verified Watch Provider - 164 Titles)
       if (filter === 'all' || filter === 'movie') {
-        const nData = (netflixOtt && netflixOtt.length > 0) ? netflixOtt : OTT_DATA.netflix;
+        const nData = (OTT_DATA.netflix && OTT_DATA.netflix.length > 0) ? OTT_DATA.netflix : (await fetchOttCatalog('netflix', 'all', 200));
         const netflixShelf = createRowElement('Popular on Netflix', nData, 'netflix');
         if (netflixShelf) rowsContainer.appendChild(netflixShelf);
       }
 
-      // 4. Prime Video Exclusives (TMDb Verified Watch Provider)
+      // 4. Prime Video Exclusives (TMDb Verified Watch Provider - 172 Titles)
       if (filter === 'all' || filter === 'series') {
-        const pData = (primeOtt && primeOtt.length > 0) ? primeOtt : OTT_DATA.prime;
+        const pData = (OTT_DATA.prime && OTT_DATA.prime.length > 0) ? OTT_DATA.prime : (await fetchOttCatalog('prime', 'all', 200));
         const primeShelf = createRowElement('Prime Video Exclusives', pData, 'prime');
         if (primeShelf) rowsContainer.appendChild(primeShelf);
       }
 
-      // 5. Disney+ Cinema & Marvel (TMDb Verified Watch Provider)
+      // 5. Disney+ Hotstar Cinema & Marvel (TMDb Verified Watch Provider - 212 Titles)
       if (filter === 'all' || filter === 'movie') {
-        const dData = (disneyOtt && disneyOtt.length > 0) ? disneyOtt : OTT_DATA.disney;
-        const disneyShelf = createRowElement('Disney+ Cinema & Marvel', dData, 'disney');
+        const dData = (OTT_DATA.disney && OTT_DATA.disney.length > 0) ? OTT_DATA.disney : (await fetchOttCatalog('disney', 'all', 200));
+        const disneyShelf = createRowElement('Disney+ Hotstar Cinema & Marvel', dData, 'disney');
         if (disneyShelf) rowsContainer.appendChild(disneyShelf);
       }
 
-      // 6. Crunchyroll Anime Vault (TMDb Verified Watch Provider)
+      // 6. Crunchyroll Anime Vault (TMDb Verified Watch Provider - 165 Titles)
       if (filter === 'all' || filter === 'anime' || filter === 'series') {
-        const cData = (crunchyOtt && crunchyOtt.length > 0) ? crunchyOtt : OTT_DATA.crunchyroll;
+        const cData = (OTT_DATA.crunchyroll && OTT_DATA.crunchyroll.length > 0) ? OTT_DATA.crunchyroll : (await fetchOttCatalog('crunchyroll', 'all', 200));
         const crunchyShelf = createRowElement('Crunchyroll Anime Vault', cData, 'crunchyroll');
         if (crunchyShelf) rowsContainer.appendChild(crunchyShelf);
       }
 
-      // 7. Paramount+ Blockbusters (TMDb Verified Watch Provider)
+      // 7. Paramount+ Blockbusters (TMDb Verified Watch Provider - 160 Titles)
       if (filter === 'all' || filter === 'movie') {
-        const pmData = (paramountOtt && paramountOtt.length > 0) ? paramountOtt : OTT_DATA.paramount;
+        const pmData = (OTT_DATA.paramount && OTT_DATA.paramount.length > 0) ? OTT_DATA.paramount : (await fetchOttCatalog('paramount', 'all', 200));
         const paramountShelf = createRowElement('Paramount+ Blockbusters', pmData, 'paramount');
         if (paramountShelf) rowsContainer.appendChild(paramountShelf);
       }

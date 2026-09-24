@@ -219,7 +219,7 @@ TMDB_GENRES = {
 TMDB_OTT_PROVIDERS = {
     "netflix": {"providers": "8|1796", "name": "Netflix"},
     "prime": {"providers": "9|119|2100", "name": "Prime Video"},
-    "disney": {"providers": "337", "name": "Disney+"},
+    "disney": {"providers": "2336|337", "name": "Disney+ Hotstar"},
     "crunchyroll": {"providers": "283|1968", "name": "Crunchyroll"},
     "paramount": {"providers": "531|582|2303|2616", "name": "Paramount+"},
 }

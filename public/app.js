@@ -59,6 +59,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const mylistEmpty = document.getElementById('mylist-empty');
   const browseCatalogBtn = document.getElementById('browse-catalog-btn');
 
+  // Settings View Elements
+  const settingsView = document.getElementById('settings-view');
+  const themeGrid = document.getElementById('theme-grid');
+  const serverList = document.getElementById('server-list');
+  const clearHistoryBtn = document.getElementById('clear-history-btn');
+  const resetSettingsBtn = document.getElementById('reset-settings-btn');
+
   // Cinema Detail Modal Elements
   const detailModal = document.getElementById('detail-modal');
   const modalCloseBtn = document.getElementById('modal-close-btn');
@@ -115,6 +122,70 @@ document.addEventListener('DOMContentLoaded', () => {
   function hasPlaybackEngine() {
     return typeof window.JoywatchProviders !== 'undefined' &&
       typeof window.JoywatchProgress !== 'undefined';
+  }
+
+  function hasSettingsEngine() {
+    return typeof window.JoywatchSettings !== 'undefined';
+  }
+
+  // Current media key for per-media server memory (matches sessionKey shape).
+  function mediaServerKey() {
+    if (!activeModalItem || !activeModalItem.id) return null;
+    const mediaType = activeModalItem.type === 'series' ? 'series' : 'movie';
+    return window.JoywatchSettings.buildMediaKey(mediaType, activeModalItem.id, activeSeason, activeEpisode);
+  }
+
+  // Consolidated per-stream display label, keyed on the stable provider id so
+  // VidSrc PM and SU never collide and labels always agree with Settings.
+  function serverLabelFor(stream, index) {
+    let providerId = null;
+    try {
+      if (hasPlaybackEngine()) providerId = window.JoywatchProviders.identify(stream.browser_url || stream.url);
+    } catch (e) { providerId = null; }
+    if (providerId && hasSettingsEngine()) {
+      const displayName = window.JoywatchSettings.SERVER_DISPLAY_NAMES[providerId];
+      if (displayName) return `Server ${index + 1} (${displayName})`;
+    }
+    return `Server ${index + 1}${stream.name ? ` (${stream.name})` : ''}`;
+  }
+
+  // Resolve the remembered server (provider id) for the active media to the
+  // current stream index. Returns -1 when there is no preference.
+  function resolvePreferredIndex() {
+    if (!hasSettingsEngine() || !hasPlaybackEngine() || !mediaServerKey()) return -1;
+    try {
+      const key = mediaServerKey();
+      const pref = window.JoywatchSettings.getServerPref(
+        activeModalItem.type === 'series' ? 'series' : 'movie',
+        activeModalItem.id, activeSeason, activeEpisode);
+      if (!pref || !key) return -1;
+      return activeModalStreams.findIndex(s =>
+        window.JoywatchProviders.identify(s.browser_url || s.url) === pref);
+    } catch (e) { return -1; }
+  }
+
+  // Persist the user's server choice for this title (provider id, never index).
+  function rememberServerChoice(index) {
+    if (!hasSettingsEngine() || !hasPlaybackEngine()) return;
+    try {
+      const stream = activeModalStreams[index];
+      if (!stream) return;
+      const providerId = window.JoywatchProviders.identify(stream.browser_url || stream.url);
+      if (!providerId) return; // Torrentio/proxy streams have no stable provider
+      if (!mediaServerKey()) return;
+      window.JoywatchSettings.setServerPref(
+        activeModalItem.type === 'series' ? 'series' : 'movie',
+        activeModalItem.id, activeSeason, activeEpisode, providerId);
+    } catch (e) { /* server memory is best-effort */ }
+  }
+
+  // Apply the stored server order / hidden list to the live stream array.
+  function applyServerPreferences() {
+    if (!hasSettingsEngine() || !activeModalStreams || !activeModalStreams.length) return;
+    try {
+      const settings = window.JoywatchSettings.getAll();
+      activeModalStreams = window.JoywatchSettings.reorderAndFilterStreams(activeModalStreams, settings);
+    } catch (e) { /* keep the raw order on failure */ }
   }
 
   function endActivePlaybackSession() {
@@ -547,11 +618,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // SEPARATE DEDICATED SEARCH PAGE WITH PRE-SEARCH RECOMMENDATIONS
   // =========================================================================
   function openDedicatedSearch(query = '') {
-    // Hide billboard, OTT section, home shelves, watchlist
-    billboard.style.display = 'none';
-    if (ottSection) ottSection.style.display = 'none';
-    rowsContainer.style.display = 'none';
-    if (mylistView) mylistView.style.display = 'none';
+    // Hide billboard, OTT section, home shelves, watchlist, settings
+    hideAllViews();
     searchView.style.display = 'block';
 
     // Synchronize active nav button
@@ -570,11 +638,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function closeSearchView() {
-    searchView.style.display = 'none';
-    if (mylistView) mylistView.style.display = 'none';
-    billboard.style.display = 'flex';
-    if (ottSection) ottSection.style.display = 'flex';
-    rowsContainer.style.display = 'flex';
+    showHomeViews();
   }
 
   // Display Curated Recommendations When Search Is Empty (Like Real OTT Apps)
@@ -872,21 +936,38 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Shared helper for mutually-exclusive top-level views.
+  function hideAllViews() {
+    if (mylistView) mylistView.style.display = 'none';
+    if (settingsView) settingsView.style.display = 'none';
+    searchView.style.display = 'none';
+    billboard.style.display = 'none';
+    if (ottSection) ottSection.style.display = 'none';
+    rowsContainer.style.display = 'none';
+  }
+
+  function showHomeViews() {
+    if (mylistView) mylistView.style.display = 'none';
+    if (settingsView) settingsView.style.display = 'none';
+    searchView.style.display = 'none';
+    billboard.style.display = 'flex';
+    if (ottSection) ottSection.style.display = 'flex';
+    rowsContainer.style.display = 'flex';
+  }
+
   function handleFilterChange(filter) {
     if (filter === 'mylist') {
-      searchView.style.display = 'none';
-      billboard.style.display = 'none';
-      if (ottSection) ottSection.style.display = 'none';
-      rowsContainer.style.display = 'none';
+      hideAllViews();
       if (mylistView) mylistView.style.display = 'block';
       renderMyListView();
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (filter === 'settings') {
+      hideAllViews();
+      if (settingsView) settingsView.style.display = 'block';
+      renderSettingsView();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      if (mylistView) mylistView.style.display = 'none';
-      searchView.style.display = 'none';
-      billboard.style.display = 'flex';
-      if (ottSection) ottSection.style.display = 'flex';
-      rowsContainer.style.display = 'flex';
+      showHomeViews();
       window.scrollTo({ top: 0, behavior: 'smooth' });
       initHomeCatalog(filter);
     }
@@ -919,6 +1000,215 @@ document.addEventListener('DOMContentLoaded', () => {
       handleFilterChange('all');
     });
   }
+
+  // =========================================================================
+  // SETTINGS VIEW (Appearance, Servers, Preferences, Data)
+  // =========================================================================
+  function renderSettingsView() {
+    if (!settingsView || !hasSettingsEngine()) return;
+    renderThemeSwatches();
+    renderServerRows();
+    renderSettingsToggles();
+    wireSettingsDataButtons();
+  }
+
+  function renderThemeSwatches() {
+    if (!themeGrid) return;
+    themeGrid.innerHTML = '';
+    const settings = window.JoywatchSettings.getAll();
+    window.JoywatchSettings.THEMES.forEach(theme => {
+      const btn = document.createElement('button');
+      btn.className = `theme-swatch ${settings.theme === theme.id ? 'active' : ''}`;
+      const dotColor = (theme.vars && theme.vars['--joy-accent']) ? theme.vars['--joy-accent'] : '#95FF50';
+      const dotBg = theme.id === 'slate' ? '#0F172A' : dotColor;
+      btn.innerHTML = `
+        <span class="theme-swatch-dot" style="background-color: ${dotBg};"></span>
+        <span>${theme.name}</span>
+      `;
+      btn.title = `Use the ${theme.name} theme`;
+      btn.addEventListener('click', () => {
+        try {
+          const current = window.JoywatchSettings.getAll();
+          current.theme = theme.id;
+          window.JoywatchSettings.setAll(current);
+          window.JoywatchSettings.applyTheme(theme.id);
+          renderThemeSwatches();
+          showToast(`${theme.name} theme applied`);
+        } catch (e) { /* theme change is cosmetic only */ }
+      });
+      themeGrid.appendChild(btn);
+    });
+  }
+
+  function renderServerRows() {
+    if (!serverList) return;
+    serverList.innerHTML = '';
+    const settings = window.JoywatchSettings.getAll();
+    const order = settings.serverOrder || [];
+    let prefs = {};
+    try { prefs = window.JoywatchSettings.getServerPrefs(); } catch (e) { prefs = {}; }
+
+    const rememberedIds = {};
+    Object.keys(prefs).forEach(k => { rememberedIds[prefs[k]] = true; });
+
+    order.forEach((providerId, pos) => {
+      const displayName = window.JoywatchSettings.SERVER_DISPLAY_NAMES[providerId] || providerId;
+      const isHidden = !!(settings.hiddenServers && settings.hiddenServers[providerId]);
+      const isFavorite = !!(settings.favoriteServers && settings.favoriteServers[providerId]);
+      const isRemembered = !!rememberedIds[providerId];
+
+      const row = document.createElement('div');
+      row.className = `server-row ${isFavorite ? 'favorite' : ''} ${isHidden ? 'hidden-server' : ''}`;
+      row.innerHTML = `
+        <span class="server-row-label">
+          <span class="server-row-name">${pos + 1}. ${displayName}</span>
+          ${isRemembered ? '<span class="server-memory-badge">Remembered</span>' : ''}
+        </span>
+      `;
+
+      const moveUp = document.createElement('button');
+      moveUp.className = 'server-btn';
+      moveUp.title = `Move ${displayName} up`;
+      moveUp.setAttribute('aria-label', `Move ${displayName} up`);
+      moveUp.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>';
+      moveUp.addEventListener('click', () => { moveServer(providerId, -1); });
+      row.appendChild(moveUp);
+
+      const moveDown = document.createElement('button');
+      moveDown.className = 'server-btn';
+      moveDown.title = `Move ${displayName} down`;
+      moveDown.setAttribute('aria-label', `Move ${displayName} down`);
+      moveDown.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+      moveDown.addEventListener('click', () => { moveServer(providerId, 1); });
+      row.appendChild(moveDown);
+
+      const fav = document.createElement('button');
+      fav.className = `server-btn ${isFavorite ? 'active-state' : ''}`;
+      fav.title = isFavorite ? `Unpin ${displayName}` : `Pin ${displayName} to top`;
+      fav.setAttribute('aria-label', fav.title);
+      fav.setAttribute('aria-pressed', isFavorite ? 'true' : 'false');
+      fav.innerHTML = `<svg viewBox="0 0 24 24" fill="${isFavorite ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+      fav.addEventListener('click', () => {
+        try {
+          const s = window.JoywatchSettings.getAll();
+          if (s.favoriteServers[providerId]) delete s.favoriteServers[providerId];
+          else s.favoriteServers[providerId] = true;
+          window.JoywatchSettings.setAll(s);
+          renderServerRows();
+          showToast(isFavorite ? `${displayName} unpinned` : `${displayName} pinned to top`);
+        } catch (e) { /* best-effort */ }
+      });
+      row.appendChild(fav);
+
+      const vis = document.createElement('button');
+      vis.className = `server-btn ${isHidden ? '' : 'active-state'}`;
+      vis.title = isHidden ? `Show ${displayName}` : `Hide ${displayName}`;
+      vis.setAttribute('aria-label', vis.title);
+      vis.setAttribute('aria-pressed', isHidden ? 'false' : 'true');
+      vis.innerHTML = isHidden
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
+        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+      vis.addEventListener('click', () => {
+        try {
+          const s = window.JoywatchSettings.getAll();
+          if (s.hiddenServers[providerId]) delete s.hiddenServers[providerId];
+          else s.hiddenServers[providerId] = true;
+          window.JoywatchSettings.setAll(s);
+          renderServerRows();
+          showToast(isHidden ? `${displayName} shown` : `${displayName} hidden`);
+        } catch (e) { /* best-effort */ }
+      });
+      row.appendChild(vis);
+
+      serverList.appendChild(row);
+    });
+
+    const note = document.createElement('p');
+    note.className = 'settings-note';
+    note.textContent = 'Order and visibility apply to the Servers panel in the player. Titles you already watched keep the server you last chose for them.';
+    serverList.appendChild(note);
+  }
+
+  function moveServer(providerId, dir) {
+    try {
+      const s = window.JoywatchSettings.getAll();
+      const idx = s.serverOrder.indexOf(providerId);
+      const swap = idx + dir;
+      if (idx < 0 || swap < 0 || swap >= s.serverOrder.length) return;
+      const tmp = s.serverOrder[idx];
+      s.serverOrder[idx] = s.serverOrder[swap];
+      s.serverOrder[swap] = tmp;
+      window.JoywatchSettings.setAll(s);
+      renderServerRows();
+    } catch (e) { /* best-effort */ }
+  }
+
+  function renderSettingsToggles() {
+    if (!hasSettingsEngine()) return;
+    const settings = window.JoywatchSettings.getAll();
+    document.querySelectorAll('.settings-toggle[data-toggle]').forEach(btn => {
+      const key = btn.getAttribute('data-toggle');
+      const on = !!settings[key];
+      btn.setAttribute('aria-checked', on ? 'true' : 'false');
+      btn.onclick = () => {
+        try {
+          const s = window.JoywatchSettings.getAll();
+          s[key] = !s[key];
+          window.JoywatchSettings.setAll(s);
+          applySettingsToggles();
+          renderSettingsToggles();
+          showToast(key === 'reducedMotion'
+            ? (s[key] ? 'Reduced motion on' : 'Reduced motion off')
+            : (s[key] ? 'Autoplay next episode on' : 'Autoplay next episode off'));
+        } catch (e) { /* best-effort */ }
+      };
+    });
+  }
+
+  function applySettingsToggles() {
+    if (!hasSettingsEngine()) return;
+    try {
+      const s = window.JoywatchSettings.getAll();
+      document.documentElement.classList.toggle('reduce-motion', !!s.reducedMotion);
+    } catch (e) { /* cosmetic only */ }
+  }
+
+  function wireSettingsDataButtons() {
+    if (clearHistoryBtn && !clearHistoryBtn.dataset.wired) {
+      clearHistoryBtn.dataset.wired = '1';
+      clearHistoryBtn.addEventListener('click', () => {
+        if (!window.confirm('Clear all watch history and Continue Watching entries?')) return;
+        try {
+          localStorage.removeItem('joywatch_progress_v1');
+          if (typeof window.JoywatchSettings !== 'undefined') window.JoywatchSettings.clearServerPrefs();
+          showToast('Watch history cleared');
+        } catch (e) { showToast('Could not clear history'); }
+      });
+    }
+    if (resetSettingsBtn && !resetSettingsBtn.dataset.wired) {
+      resetSettingsBtn.dataset.wired = '1';
+      resetSettingsBtn.addEventListener('click', () => {
+        if (!window.confirm('Reset all settings to defaults?')) return;
+        try {
+          window.JoywatchSettings.reset();
+          window.JoywatchSettings.applyTheme(window.JoywatchSettings.DEFAULT_THEME_ID);
+          applySettingsToggles();
+          renderSettingsView();
+          showToast('Settings reset to defaults');
+        } catch (e) { showToast('Could not reset settings'); }
+      });
+    }
+  }
+
+  // Apply persisted theme + toggles at startup.
+  (function applyPersistedSettings() {
+    if (!hasSettingsEngine()) return;
+    try {
+      const s = window.JoywatchSettings.getAll();
+      window.JoywatchSettings.applyTheme(s.theme);
+      document.documentElement.classList.toggle('reduce-motion', !!s.reducedMotion);
+    } catch (e) { /* startup cosmetics are best-effort */ }
+  })();
 
   // =========================================================================
   // MOVIE CARDS (2:3 Aspect Ratio, Rounded Corners, Hover Overlay)
@@ -1334,6 +1624,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (playableStreams.length > 0) {
         activeModalStreams = playableStreams;
+        applyServerPreferences();
       } else {
         const directUrl = type === 'series'
           ? `https://vidlink.pro/tv/${id}/${season}/${episode}`
@@ -1354,10 +1645,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (autoPlay && activeModalStreams.length > 0) {
-        const stream = activeModalStreams[0];
+        const preferred = resolvePreferredIndex();
+        const useIndex = preferred >= 0 ? preferred : 0;
+        const stream = activeModalStreams[useIndex];
         const playUrl = stream.browser_url || stream.url;
         if (playUrl) {
-          launchVideoPlayer(playUrl, itemTitle || 'Movie', `Server 1 • ${stream.quality || '1080p'}`, stream.is_embed, 0);
+          launchVideoPlayer(playUrl, itemTitle || 'Movie', `${serverLabelFor(stream, useIndex)} • ${stream.quality || '1080p'}`, stream.is_embed, useIndex);
         }
       }
     } catch (e) {
@@ -1378,16 +1671,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   modalPlayBtn.addEventListener('click', () => {
     const itemTitle = activeModalItem ? activeModalItem.name : 'Movie';
-    const stream = activeModalStreams.find(s => s.direct_playable || s.is_embed || s.browser_url) || activeModalStreams[0];
+    const preferred = resolvePreferredIndex();
+    const useIndex = preferred >= 0 ? preferred : 0;
+    const stream = activeModalStreams[useIndex] ||
+      activeModalStreams.find(s => s.direct_playable || s.is_embed || s.browser_url) ||
+      activeModalStreams[0];
 
     if (stream) {
       const playUrl = stream.browser_url || stream.url;
+      const streamIndex = activeModalStreams.indexOf(stream);
+      const labelIndex = streamIndex >= 0 ? streamIndex : useIndex;
       if (playUrl) {
-        let serverLabel = 'Server 1';
-        const titleLower = (stream.title || '').toLowerCase();
-        if (titleLower.includes('vidlink')) serverLabel = 'Server 1 (VidLink)';
-        else if (titleLower.includes('2embed')) serverLabel = 'Server 2 (2Embed)';
-        launchVideoPlayer(playUrl, itemTitle, `${serverLabel} • ${stream.quality || '1080p'}`, stream.is_embed, 0);
+        const serverLabel = serverLabelFor(stream, labelIndex);
+        launchVideoPlayer(playUrl, itemTitle, `${serverLabel} • ${stream.quality || '1080p'}`, stream.is_embed, labelIndex);
         return;
       }
     }
@@ -1538,14 +1834,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const item = document.createElement('button');
       item.className = `servers-panel-item ${idx === activeIndex ? 'active' : ''}`;
 
-      let serverLabel = `Server ${idx + 1}`;
-      const titleLower = (s.title || '').toLowerCase();
-      const nameLower = (s.name || '').toLowerCase();
-      if (titleLower.includes('vidlink') || nameLower.includes('vidlink')) serverLabel = 'Server 1 (VidLink)';
-      else if (titleLower.includes('2embed') || nameLower.includes('2embed')) serverLabel = 'Server 2 (2Embed)';
-      else if (titleLower.includes('autoembed') || nameLower.includes('autoembed')) serverLabel = 'Server 3 (AutoEmbed)';
-      else if (titleLower.includes('vidsrc') || nameLower.includes('vidsrc')) serverLabel = 'Server 4 (VidSrc)';
-      else if (s.name) serverLabel = `Server ${idx + 1} (${s.name})`;
+      const serverLabel = serverLabelFor(s, idx);
 
       item.innerHTML = `
         <span class="servers-panel-name">${serverLabel}</span>
@@ -1573,13 +1862,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let playUrl = stream.browser_url || stream.url;
     if (!playUrl) return;
 
-    let serverLabel = `Server ${index + 1}`;
-    const titleLower = (stream.title || '').toLowerCase();
-    if (titleLower.includes('vidlink')) serverLabel = 'Server 1 (VidLink)';
-    else if (titleLower.includes('2embed')) serverLabel = 'Server 2 (2Embed)';
-    else if (titleLower.includes('autoembed')) serverLabel = 'Server 3 (AutoEmbed)';
-    else if (titleLower.includes('vidsrc')) serverLabel = 'Server 4 (VidSrc)';
+    // Remember this choice per-title so the next play starts on this server.
+    rememberServerChoice(index);
 
+    const serverLabel = serverLabelFor(stream, index);
     playerSub.textContent = `${serverLabel} • ${stream.quality || '1080p'}`;
 
     // Carry the current session position into the new provider's URL so
@@ -1619,6 +1905,7 @@ document.addEventListener('DOMContentLoaded', () => {
       htmlVideo.play().catch(() => {});
     }
 
+    renderPlayerServerPills(index);
     showToast(`Switched to ${serverLabel}`);
   }
 

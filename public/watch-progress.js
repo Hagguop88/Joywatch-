@@ -143,6 +143,15 @@
     return typeof limit === 'number' ? items.slice(0, limit) : items;
   }
 
+  /** All entries (including completed), newest first by updatedAt. */
+  function listRecent(limit) {
+    var map = readStore();
+    var items = Object.keys(map).map(function (k) { return map[k]; })
+      .filter(function (e) { return e.currentTime > 0 || e.completed; })
+      .sort(function (a, b) { return b.updatedAt - a.updatedAt; });
+    return typeof limit === 'number' ? items.slice(0, limit) : items;
+  }
+
   function saveEntry(entry) {
     entry.updatedAt = Date.now();
     var map = readStore();
@@ -402,6 +411,7 @@
     getEntry: getEntry,
     getResumeTime: getResumeTime,
     listActive: listActive,
+    listRecent: listRecent,
     startSession: startSession,
     formatClock: formatClock
   };

@@ -107,6 +107,25 @@ document.addEventListener('DOMContentLoaded', () => {
   let isPlayerAnimating = false;
   let cachedCatalogPool = [];
 
+  // Playback-resume state (wired to JoywatchProviders + JoywatchProgress).
+  let activeSeason = 1;
+  let activeEpisode = 1;
+  let activePlaybackSession = null;
+
+  function hasPlaybackEngine() {
+    return typeof window.JoywatchProviders !== 'undefined' &&
+      typeof window.JoywatchProgress !== 'undefined';
+  }
+
+  function endActivePlaybackSession() {
+    if (activePlaybackSession) {
+      try {
+        activePlaybackSession.close();
+      } catch (e) { /* never break player teardown */ }
+      activePlaybackSession = null;
+    }
+  }
+
   // Search & Filter State
   const filterState = {
     platform: 'all',
@@ -948,6 +967,25 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
 
+    // Continue Watching resume affordance: thin progress rail + timestamp,
+    // rendered only when this card carries a stored progress entry.
+    if (item._progress && typeof item._progress.currentTime === 'number') {
+      try {
+        const rail = document.createElement('div');
+        rail.className = 'card-progress-rail';
+        const fill = document.createElement('div');
+        fill.className = 'card-progress-fill';
+        const dur = item._progress.duration > 0 ? item._progress.duration : 0;
+        const pct = dur > 0
+          ? Math.min(100, Math.max(0, (item._progress.currentTime / dur) * 100))
+          : 0;
+        fill.style.width = pct + '%';
+        rail.appendChild(fill);
+        const wrapper = card.querySelector('.card-poster-wrapper');
+        if (wrapper) wrapper.appendChild(rail);
+      } catch (e) { /* progress rail is cosmetic only */ }
+    }
+
     card.addEventListener('click', () => openDetailModal(item));
 
     const playBtn = card.querySelector('.overlay-center-play');
@@ -1194,8 +1232,12 @@ document.addEventListener('DOMContentLoaded', () => {
       // Populate "You May Also Like"
       populateRelatedTitles(item);
 
-      // Pre-load streams silently
-      loadStreams(item.type || 'movie', item.id, 1, 1, autoPlay);
+      // Pre-load streams silently. Continue Watching cards carry their
+      // stored season/episode on item._progress — resume that episode,
+      // not S1E1.
+      const resumeSeason = (item._progress && item._progress.season) || 1;
+      const resumeEpisode = (item._progress && item._progress.episode) || 1;
+      loadStreams(item.type || 'movie', item.id, resumeSeason, resumeEpisode, autoPlay);
     } catch (err) {
       console.error('Error fetching details:', err);
     }
@@ -1282,6 +1324,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // STREAMING & DIRECT IN-BROWSER VIDEO PLAYER
   // =========================================================================
   async function loadStreams(type, id, season = 1, episode = 1, autoPlay = false) {
+    activeSeason = parseInt(season, 10) || 1;
+    activeEpisode = parseInt(episode, 10) || 1;
     try {
       const itemTitle = activeModalItem ? (activeModalItem.name || '') : '';
       const data = await fetchStreams(type, id, itemTitle, season, episode);
@@ -1356,6 +1400,54 @@ document.addEventListener('DOMContentLoaded', () => {
     launchVideoPlayer(directUrl, itemTitle, 'Server 1 (VidLink) • 1080p Ultra HD', true, 0);
   });
 
+  // Resolve the resume timestamp for a new player session and build the
+  // provider URL *before* the iframe boots (seek-after-boot is unreliable
+  // for cross-origin embeds). Returns { url, resumeBase }.
+  function resolveResumeUrl(url, index = 0) {
+    let resumeBase = 0;
+    if (hasPlaybackEngine() && activeModalItem && activeModalItem.id) {
+      try {
+        const mediaType = activeModalItem.type === 'series' ? 'series' : 'movie';
+        resumeBase = window.JoywatchProgress.getResumeTime(
+          activeModalItem.id, mediaType, activeSeason, activeEpisode);
+        url = window.JoywatchProviders.withResumeUrl(url, resumeBase);
+      } catch (e) { /* fall back to the raw provider URL */ }
+    }
+    return { url, resumeBase };
+  }
+
+  // Start (or restart) the tracked playback session for the active media.
+  function beginPlaybackSession(streamUrl, index = 0) {
+    endActivePlaybackSession();
+    if (!hasPlaybackEngine() || !activeModalItem || !activeModalItem.id) return;
+    try {
+      const providerId = window.JoywatchProviders.identify(streamUrl);
+      activePlaybackSession = window.JoywatchProgress.startSession({
+        mediaId: activeModalItem.id,
+        type: activeModalItem.type === 'series' ? 'series' : 'movie',
+        season: activeSeason,
+        episode: activeEpisode,
+        title: activeModalItem.name || '',
+        poster: activeModalItem.poster || activeModalItem.background || '',
+        year: activeModalItem.year || '',
+        providerId: providerId
+      });
+    } catch (e) {
+      activePlaybackSession = null;
+    }
+  }
+
+  // If a completed title resumes from 0, the stored completion marker is
+  // intentional — keep it. Otherwise surface a subtle resume hint.
+  function updateResumeHint(resumeBase) {
+    if (resumeBase > 0 && hasPlaybackEngine()) {
+      try {
+        const label = window.JoywatchProgress.formatClock(resumeBase);
+        playerSub.textContent = (playerSub.textContent ? playerSub.textContent + '  •  ' : '') + `Resumed from ${label}`;
+      } catch (e) { /* hint is cosmetic only */ }
+    }
+  }
+
   function launchVideoPlayer(url, title, subtitle, isEmbed = false, activeIndex = 0) {
     if (isPlayerAnimating) return;
     closeServersPanel();
@@ -1371,7 +1463,15 @@ document.addEventListener('DOMContentLoaded', () => {
     playerSub.textContent = subtitle || '';
     renderPlayerServerPills(activeIndex);
 
-    const isWebEmbed = isEmbed || url.includes('/embed') || url.includes('vidlink.pro') || url.includes('2embed') || url.includes('autoembed') || url.includes('vidsrc');
+    // Fresh session: force a clean iframe instance so resume params take
+    // effect and no stale provider state survives a re-launch.
+    playerIframe.src = 'about:blank';
+
+    const resolved = resolveResumeUrl(url, activeIndex);
+    beginPlaybackSession(resolved.url, activeIndex);
+    if (resolved.resumeBase > 0) updateResumeHint(resolved.resumeBase);
+
+    const isWebEmbed = isEmbed || url.includes('/embed') || url.includes('vidlink.pro') || url.includes('2embed') || url.includes('autoembed') || url.includes('vidsrc') || url.includes('codespecters') || url.includes('vidjoy');
 
     if (isWebEmbed) {
       htmlVideo.pause();
@@ -1379,13 +1479,18 @@ document.addEventListener('DOMContentLoaded', () => {
       htmlVideo.style.display = 'none';
 
       playerIframe.style.display = 'block';
-      playerIframe.src = url;
+      playerIframe.src = resolved.url;
     } else {
       playerIframe.src = 'about:blank';
       playerIframe.style.display = 'none';
 
       htmlVideo.style.display = 'block';
-      htmlVideo.src = url;
+      htmlVideo.src = resolved.url;
+      if (activePlaybackSession) {
+        try {
+          activePlaybackSession.attachVideo(htmlVideo);
+        } catch (e) { /* playback must not depend on tracking */ }
+      }
       htmlVideo.play().catch(() => {});
     }
   }
@@ -1394,6 +1499,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!videoPlayer.classList.contains('open') || isPlayerAnimating) return;
     closeServersPanel();
     isPlayerAnimating = true;
+    endActivePlaybackSession();
     videoPlayer.classList.remove('open');
 
     setTimeout(() => {
@@ -1464,7 +1570,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!activeModalStreams || !activeModalStreams[index]) return;
     currentServerIndex = index;
     const stream = activeModalStreams[index];
-    const playUrl = stream.browser_url || stream.url;
+    let playUrl = stream.browser_url || stream.url;
     if (!playUrl) return;
 
     let serverLabel = `Server ${index + 1}`;
@@ -1476,13 +1582,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     playerSub.textContent = `${serverLabel} • ${stream.quality || '1080p'}`;
 
-    const isWebEmbed = stream.is_embed || playUrl.includes('/embed') || playUrl.includes('vidlink.pro') || playUrl.includes('2embed') || playUrl.includes('autoembed') || playUrl.includes('vidsrc');
+    // Carry the current session position into the new provider's URL so
+    // switching servers does not restart playback from 0:00.
+    if (hasPlaybackEngine()) {
+      try {
+        const pos = activePlaybackSession ? activePlaybackSession.getPosition() : 0;
+        if (activePlaybackSession && Number.isFinite(pos) && pos > 0) {
+          activePlaybackSession.setExactPosition(pos, activePlaybackSession.getDuration());
+        }
+        playUrl = window.JoywatchProviders.withResumeUrl(playUrl, pos);
+      } catch (e) { /* keep the raw provider URL */ }
+    }
+    beginPlaybackSession(playUrl, index);
+
+    const isWebEmbed = stream.is_embed || playUrl.includes('/embed') || playUrl.includes('vidlink.pro') || playUrl.includes('2embed') || playUrl.includes('autoembed') || playUrl.includes('vidsrc') || playUrl.includes('codespecters') || playUrl.includes('vidjoy');
 
     if (isWebEmbed) {
       htmlVideo.pause();
       htmlVideo.src = '';
       htmlVideo.style.display = 'none';
 
+      playerIframe.src = 'about:blank';
       playerIframe.style.display = 'block';
       playerIframe.src = playUrl;
     } else {
@@ -1491,6 +1611,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       htmlVideo.style.display = 'block';
       htmlVideo.src = playUrl;
+      if (activePlaybackSession) {
+        try {
+          activePlaybackSession.attachVideo(htmlVideo);
+        } catch (e) { /* playback must not depend on tracking */ }
+      }
       htmlVideo.play().catch(() => {});
     }
 
@@ -1607,8 +1732,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (filter === 'all' || filter === 'series' || filter === 'anime') {
         fetches.push(fetchCatalog('series', 'Animation'));
       }
-      // 7. Watch History (from backend)
-      fetches.push(safeFetchJson('/api/history', () => ({ recent: [] })).then(r => r || { recent: [] }));
 
       // Fetch category catalog concurrently
       const [catResults] = await Promise.all([
@@ -1618,21 +1741,26 @@ document.addEventListener('DOMContentLoaded', () => {
       rowsContainer.innerHTML = '';
       let featuredSet = false;
 
-      // 1. Continue Watching Row (if user has viewing history)
-      const historyData = results[results.length - 1];
-      const historyItems = (historyData && historyData.recent) ? historyData.recent.map(h => ({
-        id: h.subject_id,
-        name: h.title,
-        poster: h.cover_url,
-        background: h.cover_url,
-        year: h.release_year || '2025',
-        type: h.stype === 2 ? 'series' : 'movie',
-        imdbRating: '8.8'
-      })) : [];
-
-      if (historyItems.length > 0 && filter === 'all') {
-        const historyRow = createRowElement('Continue Watching', historyItems);
-        if (historyRow) rowsContainer.appendChild(historyRow);
+      // 1. Continue Watching Row (local watch-progress store).
+      // Clicking a card opens the detail modal; Play resumes from the saved
+      // position via the provider adapter (see launchVideoPlayer).
+      if (filter === 'all' && hasPlaybackEngine()) {
+        try {
+          const progressItems = window.JoywatchProgress.listActive(20).map(e => ({
+            id: String(e.mediaId),
+            name: e.title || 'Untitled',
+            poster: e.poster || '',
+            background: e.poster || '',
+            year: e.year || '2025',
+            type: e.type || 'movie',
+            imdbRating: '8.8',
+            _progress: e
+          }));
+          if (progressItems.length > 0) {
+            const historyRow = createRowElement('Continue Watching', progressItems);
+            if (historyRow) rowsContainer.appendChild(historyRow);
+          }
+        } catch (e) { /* Continue Watching is best-effort; never break home */ }
       }
 
       // 2. Trending Now

@@ -992,6 +992,23 @@ body.joywatch-body {
   filter: brightness(1.04);
 }
 
+/* Continue Watching Progress Rail (solid colors only, pill corners) */
+.card-progress-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
+.card-progress-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 9999px;
+  background-color: var(--joy-accent);
+}
+
 /* Top Rating Pill on Poster */
 .card-top-pill {
   position: absolute;

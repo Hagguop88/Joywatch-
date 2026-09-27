@@ -21,8 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const joylistCounter = document.getElementById('joylist-counter');
   const mobileJoylistCounter = document.getElementById('mobile-joylist-counter');
   const allNavButtons = document.querySelectorAll('.nav-pill, .bottom-nav-pill');
-  const navSearchBtn = document.getElementById('nav-search-btn');
-  const mobileSearchTab = document.getElementById('mobile-search-tab');
+  void document.getElementById('nav-search-btn');
+  void document.getElementById('mobile-search-tab');
 
   // Main Views & Sections
   const billboard = document.getElementById('billboard');
@@ -530,13 +530,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, { passive: true });
 
-  // Top Nav Search Box Trigger (Opens separate search page)
+  // Header search box: first click/focus jumps straight to the search section.
+  let searchOpenedOnce = false;
+  function openSearchFromHeader() {
+    if (!searchOpenedOnce) {
+      searchOpenedOnce = true;
+      openDedicatedSearch(searchInput ? searchInput.value.trim() : '');
+      if (dedicatedSearchInput) dedicatedSearchInput.focus();
+    }
+  }
+  function resetSearchOpened() {
+    searchOpenedOnce = false;
+  }
+
   if (searchBox) {
-    searchBox.addEventListener('click', (e) => {
-      if (e.target !== clearSearchBtn && !clearSearchBtn.contains(e.target)) {
-        openDedicatedSearch(searchInput ? searchInput.value.trim() : '');
-      }
+    searchBox.addEventListener('pointerdown', openSearchFromHeader);
+    searchBox.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') openSearchFromHeader();
     });
+  }
+  if (searchInput) {
+    searchInput.addEventListener('focus', openSearchFromHeader);
+    searchInput.addEventListener('click', openSearchFromHeader);
   }
 
   searchInput.addEventListener('input', () => {
@@ -546,7 +561,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dedicatedClearBtn) dedicatedClearBtn.style.display = query ? 'flex' : 'none';
 
     if (searchTimeout) clearTimeout(searchTimeout);
-    openDedicatedSearch(query);
+    if (searchView.style.display === 'block') {
+      if (query) {
+        searchTimeout = setTimeout(() => executeSearchQuery(query), 240);
+      } else {
+        renderRecommendationsInSearch();
+      }
+    }
   });
 
   clearSearchBtn.addEventListener('click', (e) => {
@@ -598,21 +619,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Nav Search Button
-  if (navSearchBtn) {
-    navSearchBtn.addEventListener('click', () => {
-      openDedicatedSearch('');
-      if (dedicatedSearchInput) dedicatedSearchInput.focus();
-    });
-  }
-
-  // Mobile Bottom Nav Search Tab
-  if (mobileSearchTab) {
-    mobileSearchTab.addEventListener('click', () => {
-      openDedicatedSearch('');
-      if (dedicatedSearchInput) dedicatedSearchInput.focus();
-    });
-  }
+  // Reset the header-search jump when navigating back via nav pills or logo.
+  allNavButtons.forEach(btn => {
+    btn.addEventListener('click', resetSearchOpened);
+  });
+  const logoLink = document.getElementById('logo-link');
+  if (logoLink) logoLink.addEventListener('click', resetSearchOpened);
 
   // =========================================================================
   // SEPARATE DEDICATED SEARCH PAGE WITH PRE-SEARCH RECOMMENDATIONS
@@ -622,11 +634,8 @@ document.addEventListener('DOMContentLoaded', () => {
     hideAllViews();
     searchView.style.display = 'block';
 
-    // Synchronize active nav button
-    allNavButtons.forEach(b => {
-      if (b.dataset.filter === 'search' || b.id === 'mobile-search-tab') b.classList.add('active');
-      else b.classList.remove('active');
-    });
+    // No Search tab in the nav anymore; clear active nav state on search.
+    allNavButtons.forEach(b => b.classList.remove('active'));
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -920,12 +929,6 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => {
       const filter = btn.dataset.filter;
       if (!filter) return;
-
-      if (filter === 'search') {
-        openDedicatedSearch('');
-        if (dedicatedSearchInput) dedicatedSearchInput.focus();
-        return;
-      }
 
       allNavButtons.forEach(b => {
         if (b.dataset.filter === filter) b.classList.add('active');

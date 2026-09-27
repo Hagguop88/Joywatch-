@@ -308,6 +308,19 @@ body.joywatch-body {
   display: none;
 }
 
+/* Small browse tablet grouping Home, Movies, TV Shows, Anime */
+.joy-nav-tablet {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: var(--radius-round);
+  background-color: var(--joy-bg-card);
+  border: 1px solid var(--joy-border);
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
 .nav-pill {
   display: inline-flex;
   align-items: center;
@@ -341,7 +354,6 @@ body.joywatch-body {
 
 .nav-pill:hover {
   color: var(--joy-text-primary);
-  background-color: rgba(255, 255, 255, 0.05);
   transform: translateY(-1px);
 }
 
@@ -353,11 +365,11 @@ body.joywatch-body {
   transform: scale(0.96) translateY(0);
 }
 
-/* Active Nav Item: White text, subtle lime-green accent, NO purple */
+/* Active Nav Item: White text only, NO background box, NO purple */
 .nav-pill.active {
   color: #FFFFFF;
-  background-color: var(--joy-accent-tint);
-  border-color: var(--joy-accent-border);
+  background-color: transparent;
+  border-color: transparent;
   font-weight: 600;
 }
 

@@ -28,7 +28,7 @@
       }
     } catch (e) { window.__joywatchEarlyTheme = 'obsidian'; }
   </script>
-  <link rel="stylesheet" href="style.css?v=1.3.0">
+  <link rel="stylesheet" href="style.css?v=1.3.2">
 </head>
 <body class="joywatch-body">
 
@@ -59,6 +59,10 @@
           <button class="nav-pill" data-filter="series">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
             <span>TV Shows</span>
+          </button>
+          <button class="nav-pill" data-filter="anime">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4M12 2l8 8v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V10L4 12v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V12l-2-2M12 2v8M12 12l-4 4M12 12l4-4"></path></svg>
+            <span>Anime</span>
           </button>
           <button class="nav-pill" data-filter="search" id="nav-search-btn">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -488,7 +492,7 @@
     </div>
   </div>
 
-  <!-- Mobile Floating Bottom Navigation (5 Thumb-Friendly Tabs) -->
+  <!-- Mobile Floating Bottom Navigation (6 Thumb-Friendly Tabs) -->
   <nav class="joy-bottom-nav" id="bottom-nav" aria-label="Mobile Navigation">
     <button class="bottom-nav-pill active" data-filter="all">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -501,6 +505,10 @@
     <button class="bottom-nav-pill" data-filter="series">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
       <span>TV Shows</span>
+    </button>
+    <button class="bottom-nav-pill" data-filter="anime">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4M12 2l8 8v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V10L4 12v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V12l-2-2M12 2v8M12 12l-4 4M12 12l4-4"></path></svg>
+      <span>Anime</span>
     </button>
     <button class="bottom-nav-pill" data-filter="search" id="mobile-search-tab">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -519,11 +527,11 @@
     </button>
   </nav>
 
-  <script src="ott-data.js?v=1.3.0"></script>
-  <script src="playback-providers.js?v=1.3.0"></script>
-  <script src="watch-progress.js?v=1.3.0"></script>
-  <script src="settings-store.js?v=1.3.0"></script>
-  <script src="app.js?v=1.3.0"></script>
+  <script src="ott-data.js?v=1.3.1"></script>
+  <script src="playback-providers.js?v=1.3.1"></script>
+  <script src="watch-progress.js?v=1.3.1"></script>
+  <script src="settings-store.js?v=1.3.1"></script>
+  <script src="app.js?v=1.3.1"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

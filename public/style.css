@@ -233,13 +233,16 @@ body.joywatch-body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 28px;
+  gap: 20px;
+  min-width: 0;
 }
 
 .nav-left {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 28px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 /* Brand Logo (Small icon & Small refined text) */
@@ -294,13 +297,24 @@ body.joywatch-body {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: nowrap;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.joy-nav-pills::-webkit-scrollbar {
+  display: none;
 }
 
 .nav-pill {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 6px 14px;
+  padding: 6px 12px;
+  flex: 0 0 auto;
+  white-space: nowrap;
   border-radius: var(--radius-round);
   background: transparent;
   border: 1px solid transparent;
@@ -377,8 +391,10 @@ body.joywatch-body {
   display: flex;
   align-items: center;
   height: 42px;
-  min-width: 290px;
-  max-width: 360px;
+  min-width: 200px;
+  max-width: 290px;
+  width: 100%;
+  flex: 0 1 290px;
   background-color: var(--joy-bg-card);
   border: 1px solid var(--joy-border);
   border-radius: var(--radius-round);

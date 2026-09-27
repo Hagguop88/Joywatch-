@@ -2019,7 +2019,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (filter === 'all' || filter === 'series' || filter === 'anime') {
         fetches.push(fetchCatalog('series', 'Animation'));
       }
-
       // Fetch category catalog concurrently
       const [catResults] = await Promise.all([
         Promise.all(fetches)
@@ -2158,6 +2157,10 @@ document.addEventListener('DOMContentLoaded', () => {
       // 13. Popular Animation & Anime
       if (filter === 'all' || filter === 'series' || filter === 'anime') {
         const animeShows = results[idx++].items || [];
+        if (filter === 'anime' && animeShows.length > 0 && !featuredSet) {
+          setBillboard(animeShows[0]);
+          featuredSet = true;
+        }
         const row = createRowElement('Popular Animation & Anime', animeShows, 'Animation');
         if (row) rowsContainer.appendChild(row);
       }

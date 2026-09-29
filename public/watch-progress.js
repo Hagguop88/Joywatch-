@@ -134,22 +134,43 @@
     return e.currentTime || 0;
   }
 
-  /** Non-completed entries with a real position, newest first. */
+  /** Non-completed entries, newest first. */
   function listActive(limit) {
     var map = readStore();
     var items = Object.keys(map).map(function (k) { return map[k]; })
-      .filter(function (e) { return !e.completed && e.currentTime > MIN_PERSIST_SECONDS; })
-      .sort(function (a, b) { return b.updatedAt - a.updatedAt; });
+      .filter(function (e) { return e && e.mediaId && !e.completed; })
+      .sort(function (a, b) { return (b.updatedAt || 0) - (a.updatedAt || 0); });
     return typeof limit === 'number' ? items.slice(0, limit) : items;
   }
 
-  /** All entries (including completed), newest first by updatedAt. */
+  /** All entries (including completed and in-progress), newest first by updatedAt. */
   function listRecent(limit) {
     var map = readStore();
     var items = Object.keys(map).map(function (k) { return map[k]; })
-      .filter(function (e) { return e.currentTime > 0 || e.completed; })
-      .sort(function (a, b) { return b.updatedAt - a.updatedAt; });
+      .filter(function (e) { return e && e.mediaId; })
+      .sort(function (a, b) { return (b.updatedAt || 0) - (a.updatedAt || 0); });
     return typeof limit === 'number' ? items.slice(0, limit) : items;
+  }
+
+  function recordWatch(info) {
+    if (!info || !info.mediaId) return null;
+    var existing = getEntry(info.mediaId, info.type, info.season, info.episode);
+    var entry = {
+      mediaId: String(info.mediaId),
+      type: info.type === 'series' ? 'series' : 'movie',
+      season: Math.max(0, Math.floor(sanitizeNumber(info.season, 0))),
+      episode: Math.max(0, Math.floor(sanitizeNumber(info.episode, 0))),
+      title: info.title || (existing ? existing.title : ''),
+      poster: info.poster || (existing ? existing.poster : ''),
+      year: info.year || (existing ? existing.year : ''),
+      currentTime: existing ? existing.currentTime : 0,
+      duration: existing ? existing.duration : 0,
+      completed: existing ? existing.completed : false,
+      estimated: existing ? existing.estimated : true,
+      updatedAt: Date.now()
+    };
+    saveEntry(entry);
+    return entry;
   }
 
   function saveEntry(entry) {
@@ -338,17 +359,13 @@
       return duration > 0 && finalTime >= duration * COMPLETION_RATIO;
     }
 
-    /** Flush latest validated position to localStorage. No-op for trivial sessions. */
+    /** Flush latest validated position to localStorage. */
     function flush() {
       if (session.closed || !session.mediaId) return null;
       stampVisible();
       var hadExact = session.exactTime !== null;
       var finalTime = hadExact ? session.exactTime : (session.resumeBase + session.visibleMs / 1000);
       var duration = session.exactDuration || 0;
-      if (!hadExact && finalTime <= Math.max(session.resumeBase, MIN_PERSIST_SECONDS)) {
-        // Brand-new session with ~no watch time: nothing worth persisting.
-        if (session.resumeBase <= MIN_PERSIST_SECONDS) return null;
-      }
       var completed = markCompletedIfDone(finalTime, duration);
       var entry = {
         mediaId: session.mediaId,
@@ -372,8 +389,18 @@
       session.providerId = providerId || session.providerId;
     }
 
+    var flushInterval = setInterval(function () {
+      if (!session.closed) {
+        flush();
+      }
+    }, 4000);
+
     function close() {
       if (session.closed) return null;
+      if (flushInterval) {
+        clearInterval(flushInterval);
+        flushInterval = null;
+      }
       session.closed = true;
       var entry = flush();
       if (session.detachMessage) { try { session.detachMessage(); } catch (e) {} session.detachMessage = null; }
@@ -381,6 +408,23 @@
       if (session.detachVisibility) { try { session.detachVisibility(); } catch (e) {} session.detachVisibility = null; }
       return entry;
     }
+
+    // Immediately record session in watch history upon start
+    var existingEntry = getEntry(session.mediaId, session.type, session.season, session.episode);
+    saveEntry({
+      mediaId: session.mediaId,
+      type: session.type,
+      season: session.season,
+      episode: session.episode,
+      title: session.title || (existingEntry ? existingEntry.title : ''),
+      poster: session.poster || (existingEntry ? existingEntry.poster : ''),
+      year: session.year || (existingEntry ? existingEntry.year : ''),
+      currentTime: existingEntry ? existingEntry.currentTime : (resumeBase || 0),
+      duration: existingEntry ? existingEntry.duration : 0,
+      completed: existingEntry ? existingEntry.completed : false,
+      estimated: existingEntry ? existingEntry.estimated : true,
+      updatedAt: Date.now()
+    });
 
     attachMessageListener();
     log({ op: 'session-start', mediaId: session.mediaId, resumeBase: Math.floor(session.resumeBase) });
@@ -483,6 +527,7 @@
     listRecent: listRecent,
     startSession: startSession,
     formatClock: formatClock,
+    recordWatch: recordWatch,
     removeEntry: removeEntry,
     removeMedia: removeMedia,
     markCompleted: markCompleted,

@@ -984,6 +984,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleFilterChange(filter) {
+    if (videoPlayer && videoPlayer.classList.contains('open')) {
+      closeVideoPlayer();
+    }
     if (filter === 'mylist') {
       hideAllViews();
       if (mylistView) mylistView.style.display = 'block';
@@ -2047,6 +2050,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const resolved = resolveResumeUrl(url, activeIndex);
     beginPlaybackSession(resolved.url, activeIndex);
+    if (hasPlaybackEngine() && activeModalItem && activeModalItem.id) {
+      try {
+        window.JoywatchProgress.recordWatch({
+          mediaId: activeModalItem.id,
+          type: activeModalItem.type === 'series' ? 'series' : 'movie',
+          season: activeSeason,
+          episode: activeEpisode,
+          title: activeModalItem.name || title || '',
+          poster: activeModalItem.poster || activeModalItem.background || '',
+          year: activeModalItem.year || ''
+        });
+      } catch (e) { /* best-effort */ }
+    }
     if (resolved.resumeBase > 0) updateResumeHint(resolved.resumeBase);
 
     const isWebEmbed = isEmbed || url.includes('/embed') || url.includes('vidlink.pro') || url.includes('2embed') || url.includes('autoembed') || url.includes('vidsrc') || url.includes('codespecters') || url.includes('vidjoy');
@@ -2458,6 +2474,13 @@ document.addEventListener('DOMContentLoaded', () => {
       rowsContainer.innerHTML = `<div class="shelf-loader"><span>Failed to load Joywatch catalog: ${err.message}</span></div>`;
     }
   }
+
+  window.addEventListener('beforeunload', () => {
+    endActivePlaybackSession();
+  });
+  window.addEventListener('pagehide', () => {
+    endActivePlaybackSession();
+  });
 
   // Initial Load
   initHomeCatalog('all');

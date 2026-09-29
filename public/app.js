@@ -29,6 +29,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const rowsContainer = document.getElementById('rows-container');
   const searchView = document.getElementById('search-view');
   const mylistView = document.getElementById('mylist-view');
+  const sectionView = document.getElementById('section-view');
+  const sectionTitleEl = document.getElementById('section-title');
+  const sectionSubtitleEl = document.getElementById('section-subtitle');
+  const sectionBadgeEl = document.getElementById('section-badge');
+  const sectionCountBadgeEl = document.getElementById('section-count-badge');
+  const sectionGrid = document.getElementById('section-grid');
+  const sectionBackBtn = document.getElementById('section-back-btn');
 
   // Hero Billboard Elements
   const billboardBg = document.getElementById('billboard-bg');
@@ -967,6 +974,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function hideAllViews() {
     if (mylistView) mylistView.style.display = 'none';
     if (settingsView) settingsView.style.display = 'none';
+    if (sectionView) sectionView.style.display = 'none';
     searchView.style.display = 'none';
     billboard.style.display = 'none';
     if (ottSection) ottSection.style.display = 'none';
@@ -976,6 +984,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function showHomeViews() {
     if (mylistView) mylistView.style.display = 'none';
     if (settingsView) settingsView.style.display = 'none';
+    if (sectionView) sectionView.style.display = 'none';
     searchView.style.display = 'none';
     billboard.style.display = 'flex';
     if (ottSection) ottSection.style.display = 'flex';
@@ -1626,6 +1635,117 @@ document.addEventListener('DOMContentLoaded', () => {
     }, true);
   }
 
+  // =========================================================================
+  // DEDICATED SECTION VIEW & SHELF ROUTING (See All)
+  // =========================================================================
+  function openSectionView(title, items, options = {}) {
+    hideAllViews();
+    if (sectionView) sectionView.style.display = 'block';
+
+    allNavButtons.forEach(b => b.classList.remove('active'));
+
+    const count = (items && items.length) ? items.length : 0;
+    if (sectionTitleEl) sectionTitleEl.textContent = title;
+    if (sectionSubtitleEl) {
+      sectionSubtitleEl.textContent = options.subtitle || `Complete collection of ${count} titles in this section.`;
+    }
+    if (sectionBadgeEl) {
+      sectionBadgeEl.textContent = options.badge || 'Collection';
+    }
+    if (sectionCountBadgeEl) {
+      sectionCountBadgeEl.textContent = `${count} ${count === 1 ? 'Title' : 'Titles'}`;
+    }
+
+    if (sectionGrid) {
+      sectionGrid.innerHTML = '';
+      if (items && items.length > 0) {
+        items.forEach(item => {
+          sectionGrid.appendChild(createCardElement(item));
+        });
+      } else {
+        sectionGrid.innerHTML = '<div class="shelf-loader"><span>No titles found in this section.</span></div>';
+      }
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function closeSectionView() {
+    if (sectionView) sectionView.style.display = 'none';
+    showHomeViews();
+    allNavButtons.forEach(b => {
+      if (b.dataset.filter === 'all') b.classList.add('active');
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  if (sectionBackBtn && !sectionBackBtn.dataset.wired) {
+    sectionBackBtn.dataset.wired = '1';
+    sectionBackBtn.addEventListener('click', closeSectionView);
+  }
+
+  function openShelfSection(title, items, filterCategory = null) {
+    if (filterCategory === 'watchlist' || title.toLowerCase().includes('watchlist')) {
+      activeLibraryTab = 'watchlist';
+      allNavButtons.forEach(b => {
+        if (b.dataset.filter === 'mylist') b.classList.add('active');
+        else b.classList.remove('active');
+      });
+      handleFilterChange('mylist');
+      return;
+    }
+
+    if (filterCategory === 'continue_watching' || title.toLowerCase().includes('continue watching')) {
+      activeLibraryTab = 'history';
+      allNavButtons.forEach(b => {
+        if (b.dataset.filter === 'mylist') b.classList.add('active');
+        else b.classList.remove('active');
+      });
+      handleFilterChange('mylist');
+      return;
+    }
+
+    let badge = 'Collection';
+    let subtitle = `Complete collection of ${items ? items.length : 0} titles in this section.`;
+    let targetItems = items || [];
+
+    if (filterCategory === 'masterpiece' || title.toLowerCase().includes('masterpiece')) {
+      badge = 'Hall of Fame • Certified 9.5+';
+      subtitle = 'The highest-rated cinematic triumphs in world history with verified scores of 9.5 and above.';
+      targetItems = MASTERPIECES_DATA;
+    } else if (filterCategory === 'netflix' || filterCategory === 'prime' || filterCategory === 'disney' || filterCategory === 'crunchyroll' || filterCategory === 'paramount') {
+      const pName = getPlatformDisplayName(filterCategory);
+      badge = `${pName} Catalog`;
+      subtitle = `Explore all verified movies and series streaming on ${pName} via TMDb.`;
+      if (OTT_DATA[filterCategory] && OTT_DATA[filterCategory].length > 0) {
+        targetItems = OTT_DATA[filterCategory];
+      }
+    } else if (filterCategory === 'series' || title.toLowerCase().includes('tv shows')) {
+      badge = 'Binge-Worthy Series';
+      subtitle = 'Top-rated television series, prestige dramas, and serialized epics.';
+    } else if (filterCategory === 'Animation' || filterCategory === 'anime' || title.toLowerCase().includes('anime')) {
+      badge = 'Animation & Anime';
+      subtitle = 'Acclaimed animated masterworks, shonen sagas, and visual wonders.';
+    } else if (filterCategory === 'Action') {
+      badge = 'Action Collection';
+      subtitle = 'High-octane thrill rides, martial arts combat, and pulse-pounding spectacles.';
+    } else if (filterCategory === 'Sci-Fi') {
+      badge = 'Sci-Fi Universe';
+      subtitle = 'Futuristic epics, space exploration, dystopian sagas, and cyberpunk realities.';
+    } else if (filterCategory === 'Thriller') {
+      badge = 'Thrillers & Mystery';
+      subtitle = 'Mind-bending plots, psychological tension, neo-noir, and detective mysteries.';
+    } else if (filterCategory === 'trending' || title.toLowerCase().includes('trending')) {
+      badge = 'Trending Worldwide';
+      subtitle = 'The most popular feature films and blockbusters streaming globally right now.';
+    } else if (filterCategory === 'top_rated') {
+      badge = 'Certified 8.5+';
+      subtitle = 'Critically acclaimed masterworks with IMDb scores of 8.5 and above.';
+    }
+
+    openSectionView(title, targetItems, { badge, subtitle });
+  }
+
   // Create Horizontal Shelf Row
   function createRowElement(title, items, filterCategory = null) {
     if (!items || items.length === 0) return null;
@@ -1674,29 +1794,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const seeAllBtn = rowHeader.querySelector('.shelf-see-all');
-    seeAllBtn.addEventListener('click', () => {
-      if (filterCategory) {
-        if (filterCategory === 'netflix' || filterCategory === 'prime' || filterCategory === 'disney' || filterCategory === 'crunchyroll' || filterCategory === 'paramount') {
-          filterState.platform = filterCategory;
-          document.querySelectorAll('#ott-filters .filter-pill').forEach(b => {
-            if (b.dataset.ott === filterCategory) b.classList.add('active');
-            else b.classList.remove('active');
-          });
-        } else if (filterCategory === 'movie' || filterCategory === 'series') {
-          filterState.type = filterCategory;
-          document.querySelectorAll('#type-filters .filter-pill').forEach(b => {
-            if (b.dataset.type === filterCategory) b.classList.add('active');
-            else b.classList.remove('active');
-          });
-        } else {
-          filterState.genre = filterCategory;
-          document.querySelectorAll('#genre-filters .filter-pill').forEach(b => {
-            if (b.dataset.genre === filterCategory) b.classList.add('active');
-            else b.classList.remove('active');
-          });
-        }
-      }
-      openDedicatedSearch('');
+    seeAllBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openShelfSection(title, items, filterCategory);
     });
 
     row.appendChild(rowHeader);
@@ -1791,11 +1891,275 @@ document.addEventListener('DOMContentLoaded', () => {
       genres: ['Crime', 'Drama'],
       description: 'The lives of two mob hitmen, a boxer, a gangster and his wife intertwine in four tales of violence and redemption.',
       _isMasterpiece: true
+    },
+    {
+      id: 'tt0071562',
+      name: 'The Godfather Part II',
+      poster: 'https://images.metahub.space/poster/medium/tt0071562/img',
+      background: 'https://images.metahub.space/background/medium/tt0071562/img',
+      year: '1974',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Crime', 'Drama'],
+      description: 'The early life and career of Vito Corleone in 1920s New York City is portrayed, while his son, Michael, expands and tightens his grip on the family crime syndicate.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0120737',
+      name: 'The Lord of the Rings: The Fellowship of the Ring',
+      poster: 'https://images.metahub.space/poster/medium/tt0120737/img',
+      background: 'https://images.metahub.space/background/medium/tt0120737/img',
+      year: '2001',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Action', 'Adventure', 'Drama'],
+      description: 'A meek Hobbit from the Shire and eight companions set out on a journey to destroy the powerful One Ring and save Middle-earth from the Dark Lord Sauron.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0137523',
+      name: 'Fight Club',
+      poster: 'https://images.metahub.space/poster/medium/tt0137523/img',
+      background: 'https://images.metahub.space/background/medium/tt0137523/img',
+      year: '1999',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Drama'],
+      description: 'An insomniac office worker and a devil-may-care soap maker form an underground fight club that evolves into much more.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0109830',
+      name: 'Forrest Gump',
+      poster: 'https://images.metahub.space/poster/medium/tt0109830/img',
+      background: 'https://images.metahub.space/background/medium/tt0109830/img',
+      year: '1994',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Drama', 'Romance'],
+      description: 'The history of the United States from the 1950s to the \'70s unfolds from the perspective of an Alabama man with an IQ of 75.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0060196',
+      name: 'The Good, the Bad and the Ugly',
+      poster: 'https://images.metahub.space/poster/medium/tt0060196/img',
+      background: 'https://images.metahub.space/background/medium/tt0060196/img',
+      year: '1966',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Adventure', 'Western'],
+      description: 'A bounty hunting scam joins two men in an uneasy alliance against a third in a race to find a fortune in gold buried in a remote cemetery.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0167261',
+      name: 'The Lord of the Rings: The Two Towers',
+      poster: 'https://images.metahub.space/poster/medium/tt0167261/img',
+      background: 'https://images.metahub.space/background/medium/tt0167261/img',
+      year: '2002',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Action', 'Adventure', 'Drama'],
+      description: 'While Frodo and Sam edge closer to Mordor with the help of the shifty Gollum, the divided fellowship makes a stand against Sauron\'s new ally, Saruman.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0133093',
+      name: 'The Matrix',
+      poster: 'https://images.metahub.space/poster/medium/tt0133093/img',
+      background: 'https://images.metahub.space/background/medium/tt0133093/img',
+      year: '1999',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Action', 'Sci-Fi'],
+      description: 'When a beautiful stranger leads computer hacker Neo to a forbidding underworld, he discovers the shocking truth--the life he knows is the elaborate deception of an evil cyber-intelligence.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0099685',
+      name: 'Goodfellas',
+      poster: 'https://images.metahub.space/poster/medium/tt0099685/img',
+      background: 'https://images.metahub.space/background/medium/tt0099685/img',
+      year: '1990',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Biography', 'Crime', 'Drama'],
+      description: 'The story of Henry Hill and his life in the mafia, covering his relationship with his wife Karen and his mob partners Jimmy Conway and Tommy DeVito.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0080684',
+      name: 'Star Wars: Episode V - The Empire Strikes Back',
+      poster: 'https://images.metahub.space/poster/medium/tt0080684/img',
+      background: 'https://images.metahub.space/background/medium/tt0080684/img',
+      year: '1980',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Action', 'Adventure', 'Fantasy'],
+      description: 'After the Empire overpowers the Rebel Alliance, Luke Skywalker begins his Jedi training with Yoda, while his friends are pursued across the galaxy by Darth Vader.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0073486',
+      name: 'One Flew Over the Cuckoo\'s Nest',
+      poster: 'https://images.metahub.space/poster/medium/tt0073486/img',
+      background: 'https://images.metahub.space/background/medium/tt0073486/img',
+      year: '1975',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Drama'],
+      description: 'In the Fall of 1963, a Korean War veteran and criminal pleads insanity and is admitted to a mental institution, where he rallies the scared patients against the tyrannical nurse.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0047478',
+      name: 'Seven Samurai',
+      poster: 'https://images.metahub.space/poster/medium/tt0047478/img',
+      background: 'https://images.metahub.space/background/medium/tt0047478/img',
+      year: '1954',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Action', 'Drama'],
+      description: 'Farmers from a village exploited by bandits hire a veteran samurai for protection, who gathers six other samurai to join him.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0245429',
+      name: 'Spirited Away',
+      poster: 'https://images.metahub.space/poster/medium/tt0245429/img',
+      background: 'https://images.metahub.space/background/medium/tt0245429/img',
+      year: '2001',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Animation', 'Adventure', 'Family'],
+      description: 'During her family\'s move to the suburbs, a sullen 10-year-old girl wanders into a world ruled by gods, witches, and spirits, a world where humans are changed into beasts.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0120815',
+      name: 'Saving Private Ryan',
+      poster: 'https://images.metahub.space/poster/medium/tt0120815/img',
+      background: 'https://images.metahub.space/background/medium/tt0120815/img',
+      year: '1998',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Drama', 'War'],
+      description: 'Following the Normandy Landings, a group of U.S. soldiers go behind enemy lines to retrieve a paratrooper whose brothers have been killed in action.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0120689',
+      name: 'The Green Mile',
+      poster: 'https://images.metahub.space/poster/medium/tt0120689/img',
+      background: 'https://images.metahub.space/background/medium/tt0120689/img',
+      year: '1999',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Crime', 'Drama', 'Fantasy'],
+      description: 'A tale set on death row in a Southern prison, where gentle giant John Coffey possesses the mysterious power to heal people\'s ailments and touch souls.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt6751668',
+      name: 'Parasite',
+      poster: 'https://images.metahub.space/poster/medium/tt6751668/img',
+      background: 'https://images.metahub.space/background/medium/tt6751668/img',
+      year: '2019',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Drama', 'Thriller'],
+      description: 'Greed and class discrimination threaten the newly formed symbiotic relationship between the wealthy Park family and the destitute Kim clan.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0110413',
+      name: 'Léon: The Professional',
+      poster: 'https://images.metahub.space/poster/medium/tt0110413/img',
+      background: 'https://images.metahub.space/background/medium/tt0110413/img',
+      year: '1994',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Action', 'Crime', 'Drama'],
+      description: '12-year-old Mathilda is reluctantly taken in by Léon, a professional assassin, after her family is murdered by an unhinged DEA agent.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0172495',
+      name: 'Gladiator',
+      poster: 'https://images.metahub.space/poster/medium/tt0172495/img',
+      background: 'https://images.metahub.space/background/medium/tt0172495/img',
+      year: '2000',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Action', 'Adventure', 'Drama'],
+      description: 'A former Roman General sets out to exact vengeance against the corrupt emperor who murdered his family and sent him into slavery.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0482499',
+      name: 'The Prestige',
+      poster: 'https://images.metahub.space/poster/medium/tt0482499/img',
+      background: 'https://images.metahub.space/background/medium/tt0482499/img',
+      year: '2006',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Drama', 'Mystery', 'Sci-Fi'],
+      description: 'After a tragic accident, two stage magicians in 1890s London engage in a battle to create the ultimate illusion while sacrificing everything they have to outwit each other.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt2582802',
+      name: 'Whiplash',
+      poster: 'https://images.metahub.space/poster/medium/tt2582802/img',
+      background: 'https://images.metahub.space/background/medium/tt2582802/img',
+      year: '2014',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Drama', 'Music'],
+      description: 'A promising young drummer enrolls at a cut-throat music conservatory where his dreams of greatness are mentored by an instructor who will stop at nothing to realize a student\'s potential.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0407887',
+      name: 'The Departed',
+      poster: 'https://images.metahub.space/poster/medium/tt0407887/img',
+      background: 'https://images.metahub.space/background/medium/tt0407887/img',
+      year: '2006',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Crime', 'Drama', 'Thriller'],
+      description: 'An undercover cop and a mole in the police attempt to identify each other while infiltrating an Irish gang in South Boston.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0078788',
+      name: 'Apocalypse Now',
+      poster: 'https://images.metahub.space/poster/medium/tt0078788/img',
+      background: 'https://images.metahub.space/background/medium/tt0078788/img',
+      year: '1979',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Drama', 'Mystery', 'War'],
+      description: 'A U.S. Army officer serving in Vietnam is tasked with assassinating a renegade Special Forces Colonel who sees himself as a god.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0034583',
+      name: 'Casablanca',
+      poster: 'https://images.metahub.space/poster/medium/tt0034583/img',
+      background: 'https://images.metahub.space/background/medium/tt0034583/img',
+      year: '1942',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Drama', 'Romance', 'War'],
+      description: 'A cynical expatriate American cafe owner struggles to decide whether or not to help his former lover and her fugitive husband escape the Nazis in French Morocco.',
+      _isMasterpiece: true
     }
   ];
 
   function createMasterpiecesShelf() {
-    return createRowElement('Masterpieces • Rated 9.5 & Above', MASTERPIECES_DATA, 'movie');
+    return createRowElement('Masterpieces • Rated 9.5 & Above', MASTERPIECES_DATA, 'masterpiece');
   }
 
   // =========================================================================
@@ -2040,7 +2404,23 @@ document.addEventListener('DOMContentLoaded', () => {
     titleGroup.innerHTML = `
       <h2 class="shelf-title">Recommended For You</h2>
       <span class="hero-chip chip-match" style="font-size: 0.72rem; padding: 2px 10px;">Smart Taste Engine</span>
+      <button class="shelf-see-all" id="rec-see-all-btn" title="View all recommendations">
+        <span>See All</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
     `;
+
+    const recSeeAll = titleGroup.querySelector('.shelf-see-all');
+    if (recSeeAll) {
+      recSeeAll.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const activeSeed = TASTE_SEEDS[activeTasteSeed] || TASTE_SEEDS.dune;
+        openSectionView(`Recommended for You • Based on ${activeSeed.title}`, activeSeed.recommendations, {
+          badge: 'Smart Taste Engine',
+          subtitle: `Curated cinematic recommendations derived from your watch affinity for ${activeSeed.title}.`
+        });
+      });
+    }
 
     const chipsRow = document.createElement('div');
     chipsRow.className = 'taste-chips-row';
@@ -2756,7 +3136,7 @@ document.addEventListener('DOMContentLoaded', () => {
             _progress: e
           }));
           if (progressItems.length > 0) {
-            const historyRow = createRowElement('Continue Watching', progressItems);
+            const historyRow = createRowElement('Continue Watching', progressItems, 'continue_watching');
             if (historyRow) rowsContainer.appendChild(historyRow);
           }
         } catch (e) { /* Continue Watching is best-effort; never break home */ }
@@ -2786,7 +3166,7 @@ document.addEventListener('DOMContentLoaded', () => {
           setBillboard(trendingMovies[0]);
           featuredSet = true;
         }
-        const row = createRowElement('Trending Now', trendingMovies, 'movie');
+        const row = createRowElement('Trending Now', trendingMovies, 'trending');
         if (row) rowsContainer.appendChild(row);
       }
 
@@ -2829,7 +3209,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (filter === 'all' || filter === 'movie') {
         const masterpieces = cachedCatalogPool.filter(c => parseFloat(c.imdbRating) >= 8.5).slice(0, 15);
         if (masterpieces.length > 0) {
-          const row = createRowElement('Top Rated Masterpieces (IMDb 8.5+)', masterpieces);
+          const row = createRowElement('Top Rated Masterpieces (IMDb 8.5+)', masterpieces, 'top_rated');
           if (row) rowsContainer.appendChild(row);
         }
       }
@@ -2880,7 +3260,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // 14. From Your Watchlist (if user has saved items)
       const mylistItems = getJoyList();
       if (mylistItems.length > 0 && filter === 'all') {
-        const row = createRowElement('From Your Watchlist', mylistItems);
+        const row = createRowElement('From Your Watchlist', mylistItems, 'watchlist');
         if (row) rowsContainer.appendChild(row);
       }
 

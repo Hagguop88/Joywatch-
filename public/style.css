@@ -1510,6 +1510,104 @@ body.joywatch-body {
 }
 
 /* ==========================================================================
+   DEDICATED SECTION VIEW (See All for any shelf/collection)
+   ========================================================================== */
+.section-view {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 36px 48px 84px;
+  animation: fadeIn 0.3s var(--ease-smooth) both;
+}
+
+.section-header {
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.section-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: var(--radius-round);
+  background-color: var(--joy-bg-card);
+  border: 1px solid var(--joy-border);
+  color: var(--joy-text-secondary);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-smooth);
+}
+
+.section-back-btn:hover {
+  background-color: var(--joy-bg-card-hover);
+  color: var(--joy-text-primary);
+  border-color: var(--joy-border-hover);
+  transform: translateX(-2px);
+}
+
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--radius-round);
+  background-color: var(--joy-accent-tint);
+  border: 1px solid var(--joy-accent-border);
+  color: var(--joy-accent);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.section-meta-wrap {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.section-title-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--joy-text-primary);
+  letter-spacing: -0.01em;
+}
+
+.section-subtitle {
+  font-size: 0.86rem;
+  color: var(--joy-text-muted);
+  max-width: 680px;
+  line-height: 1.5;
+}
+
+.section-count-pill {
+  padding: 5px 14px;
+  border-radius: var(--radius-round);
+  background-color: var(--joy-bg-card);
+  border: 1px solid var(--joy-border);
+  color: var(--joy-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+/* ==========================================================================
    WATCHLIST / MY LIST PAGE (Clean Grid + Empty State)
    ========================================================================== */
 .mylist-view {
@@ -2347,7 +2445,8 @@ html.reduce-motion {
   }
   .media-shelves,
   .search-view,
-  .mylist-view {
+  .mylist-view,
+  .section-view {
     padding: 24px 28px 60px;
   }
   .movie-card {
@@ -2528,7 +2627,8 @@ html.reduce-motion {
 
   /* Search & Watchlist Grid Mobile */
   .search-view,
-  .mylist-view {
+  .mylist-view,
+  .section-view {
     padding: 16px 16px 40px;
   }
   .search-hero-bar {

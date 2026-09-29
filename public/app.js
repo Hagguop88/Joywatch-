@@ -2344,23 +2344,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const historyRow = createRowElement('Continue Watching', progressItems);
             if (historyRow) rowsContainer.appendChild(historyRow);
           }
-
-          // 1b. Recently Watched (includes completed titles).
-          // Shows last 10 watched items regardless of completion state.
-          const recentItems = window.JoywatchProgress.listRecent(10).map(e => ({
-            id: String(e.mediaId),
-            name: e.title || 'Untitled',
-            poster: e.poster || '',
-            background: e.poster || '',
-            year: e.year || '2025',
-            type: e.type || 'movie',
-            imdbRating: '8.8',
-            _progress: e
-          }));
-          if (recentItems.length > 0) {
-            const recentRow = createRowElement('Recently Watched', recentItems);
-            if (recentRow) rowsContainer.appendChild(recentRow);
-          }
         } catch (e) { /* Continue Watching is best-effort; never break home */ }
       }
 

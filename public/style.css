@@ -1146,6 +1146,75 @@ body.joywatch-body {
   fill: var(--joy-accent);
 }
 
+/* Status badge (e.g. Watched in history) */
+.card-status-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 3px 8px;
+  border-radius: var(--radius-round);
+  background-color: var(--joy-accent-tint);
+  border: 1px solid var(--joy-accent-border);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--joy-accent);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 4;
+}
+
+.card-status-badge svg {
+  width: 10px;
+  height: 10px;
+}
+
+/* Card Dismiss Button (Continue Watching / History) */
+.card-dismiss-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-round);
+  background-color: rgba(5, 5, 5, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--joy-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity var(--duration-fast) var(--ease-smooth),
+              transform var(--duration-fast) var(--ease-spring),
+              color var(--duration-fast) var(--ease-smooth),
+              border-color var(--duration-fast) var(--ease-smooth),
+              background-color var(--duration-fast) var(--ease-smooth);
+  z-index: 6;
+}
+
+.movie-card:hover .card-dismiss-btn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.card-dismiss-btn:hover {
+  color: #FFFFFF;
+  border-color: var(--joy-accent-border);
+  background-color: #11131A;
+}
+
+.card-dismiss-btn:active {
+  transform: scale(0.92);
+}
+
+.card-dismiss-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
 /* Subtle Dark Overlay Revealed on Hover (Play Icon, Title, Rating, Year) */
 .card-hover-overlay {
   position: absolute;
@@ -1445,6 +1514,15 @@ body.joywatch-body {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.mylist-title-group {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
 .mylist-title {
@@ -1452,6 +1530,83 @@ body.joywatch-body {
   font-size: 1.6rem;
   font-weight: 700;
   color: var(--joy-text-primary);
+}
+
+.library-subnav {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background-color: var(--joy-bg-card);
+  border: 1px solid var(--joy-border);
+  border-radius: var(--radius-round);
+}
+
+.library-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: var(--radius-round);
+  background-color: transparent;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--joy-text-secondary);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-smooth),
+              background-color var(--duration-fast) var(--ease-smooth);
+}
+
+.library-tab:hover {
+  color: var(--joy-text-primary);
+}
+
+.library-tab.active {
+  background-color: var(--joy-accent-tint);
+  color: var(--joy-accent);
+  font-weight: 600;
+}
+
+.lib-tab-count {
+  font-size: 0.7rem;
+  padding: 1px 7px;
+  border-radius: var(--radius-round);
+  background-color: rgba(255, 255, 255, 0.08);
+  color: inherit;
+}
+
+.mylist-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-joy-glass-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-round);
+  background-color: var(--joy-bg-card);
+  border: 1px solid var(--joy-border);
+  color: var(--joy-text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.btn-joy-glass-sm:hover {
+  border-color: var(--joy-border-hover);
+  color: var(--joy-text-primary);
+  background-color: var(--joy-bg-card-hover);
+}
+
+.btn-joy-glass-sm:active {
+  transform: scale(0.96);
 }
 
 .mylist-empty-state {
@@ -1760,6 +1915,8 @@ body.joywatch-body {
 }
 
 .episode-btn {
+  position: relative;
+  overflow: hidden;
   padding: 10px 14px;
   border-radius: var(--radius-round);
   background-color: var(--joy-bg-card);
@@ -1770,6 +1927,11 @@ body.joywatch-body {
   font-weight: 500;
   text-align: center;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all var(--duration-fast) var(--ease-smooth);
 }
 
 .episode-btn:hover {
@@ -1788,6 +1950,33 @@ body.joywatch-body {
   color: var(--joy-text-inverse);
   border-color: var(--joy-accent);
   font-weight: 700;
+}
+
+.episode-btn.completed {
+  border-color: var(--joy-accent-border);
+  color: var(--joy-text-primary);
+}
+
+.episode-btn.completed .episode-btn-check {
+  color: var(--joy-accent);
+  display: inline-flex;
+  align-items: center;
+}
+
+.episode-progress-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.episode-progress-fill {
+  height: 100%;
+  width: 0;
+  background-color: var(--joy-accent);
+  border-radius: var(--radius-round);
 }
 
 /* You May Also Like Shelf */

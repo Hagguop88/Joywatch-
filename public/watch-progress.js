@@ -397,6 +397,75 @@
     };
   }
 
+  function removeEntry(mediaId, type, season, episode) {
+    try {
+      var map = readStore();
+      var key = sessionKey(mediaId, type, season, episode);
+      if (map[key]) {
+        delete map[key];
+        writeStore(map);
+        return true;
+      }
+    } catch (e) { /* best-effort */ }
+    return false;
+  }
+
+  function removeMedia(mediaId, type) {
+    try {
+      var map = readStore();
+      var prefix = (type || 'movie') + ':' + String(mediaId) + ':';
+      var altered = false;
+      Object.keys(map).forEach(function (k) {
+        if (k.indexOf(prefix) === 0 || k === sessionKey(mediaId, type, 0, 0)) {
+          delete map[k];
+          altered = true;
+        }
+      });
+      if (altered) writeStore(map);
+      return altered;
+    } catch (e) { /* best-effort */ }
+    return false;
+  }
+
+  function markCompleted(mediaId, type, season, episode, completed) {
+    try {
+      var map = readStore();
+      var key = sessionKey(mediaId, type, season, episode);
+      var entry = map[key];
+      if (!entry) {
+        entry = {
+          mediaId: String(mediaId),
+          type: type === 'series' ? 'series' : 'movie',
+          season: Math.max(0, Math.floor(sanitizeNumber(season, 0))),
+          episode: Math.max(0, Math.floor(sanitizeNumber(episode, 0))),
+          title: '',
+          poster: '',
+          year: '',
+          currentTime: 0,
+          duration: 0,
+          completed: completed !== false,
+          estimated: false,
+          updatedAt: Date.now()
+        };
+      } else {
+        entry.completed = completed !== false;
+        if (entry.completed) entry.currentTime = 0;
+        entry.updatedAt = Date.now();
+      }
+      map[key] = entry;
+      writeStore(map);
+      return entry;
+    } catch (e) { /* best-effort */ }
+    return null;
+  }
+
+  function clearStore() {
+    try {
+      window.localStorage.removeItem(STORE_KEY);
+      return true;
+    } catch (e) { return false; }
+  }
+
   function formatClock(totalSeconds) {
     var s = Math.max(0, Math.floor(totalSeconds || 0));
     var h = Math.floor(s / 3600);
@@ -413,6 +482,10 @@
     listActive: listActive,
     listRecent: listRecent,
     startSession: startSession,
-    formatClock: formatClock
+    formatClock: formatClock,
+    removeEntry: removeEntry,
+    removeMedia: removeMedia,
+    markCompleted: markCompleted,
+    clearStore: clearStore
   };
 })();

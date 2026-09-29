@@ -53,11 +53,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchSubheading = document.getElementById('search-subheading');
   const searchCountBadge = document.getElementById('search-count-badge');
 
-  // Watchlist View Elements
+  // Watchlist & Library View Elements
   const mylistGrid = document.getElementById('mylist-grid');
   const mylistCountBadge = document.getElementById('mylist-count-badge');
   const mylistEmpty = document.getElementById('mylist-empty');
+  const mylistEmptyTitle = document.getElementById('mylist-empty-title');
+  const mylistEmptySubtext = document.getElementById('mylist-empty-subtext');
+  const mylistEmptyIcon = document.getElementById('mylist-empty-icon');
   const browseCatalogBtn = document.getElementById('browse-catalog-btn');
+  const libTabWatchlist = document.getElementById('lib-tab-watchlist');
+  const libTabHistory = document.getElementById('lib-tab-history');
+  const libClearHistoryBtn = document.getElementById('lib-clear-history-btn');
+  const libWatchlistCount = document.getElementById('lib-watchlist-count');
+  const libHistoryCount = document.getElementById('lib-history-count');
+  let activeLibraryTab = 'watchlist'; // 'watchlist' | 'history'
 
   // Settings View Elements
   const settingsView = document.getElementById('settings-view');
@@ -65,6 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const serverList = document.getElementById('server-list');
   const clearHistoryBtn = document.getElementById('clear-history-btn');
   const resetSettingsBtn = document.getElementById('reset-settings-btn');
+  const exportBackupBtn = document.getElementById('export-backup-btn');
+  const importBackupBtn = document.getElementById('import-backup-btn');
+  const importBackupFile = document.getElementById('import-backup-file');
 
   // Cinema Detail Modal Elements
   const detailModal = document.getElementById('detail-modal');
@@ -270,11 +282,24 @@ document.addEventListener('DOMContentLoaded', () => {
     saveJoyList(list);
   }
 
+  function updateLibraryCounters() {
+    const count = getJoyList().length;
+    if (libWatchlistCount) libWatchlistCount.textContent = count;
+    let histLen = 0;
+    if (hasPlaybackEngine()) {
+      try {
+        histLen = window.JoywatchProgress.listRecent().length;
+      } catch (e) { histLen = 0; }
+    }
+    if (libHistoryCount) libHistoryCount.textContent = histLen;
+  }
+
   function updateJoylistCounter() {
     const count = getJoyList().length;
     if (joylistCounter) joylistCounter.textContent = count;
     if (mobileJoylistCounter) mobileJoylistCounter.textContent = count;
-    if (mylistCountBadge) mylistCountBadge.textContent = `${count} saved`;
+    if (mylistCountBadge && activeLibraryTab === 'watchlist') mylistCountBadge.textContent = `${count} saved`;
+    updateLibraryCounters();
   }
 
   function updateMyListBtn(isSaved) {
@@ -978,20 +1003,104 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderMyListView() {
     if (!mylistView) return;
-    const list = getJoyList();
-    mylistGrid.innerHTML = '';
-    mylistCountBadge.textContent = `${list.length} saved`;
+    updateLibraryCounters();
 
-    if (list.length === 0) {
-      mylistEmpty.style.display = 'flex';
-      mylistGrid.style.display = 'none';
-    } else {
-      mylistEmpty.style.display = 'none';
-      mylistGrid.style.display = 'grid';
-      list.forEach(item => {
-        mylistGrid.appendChild(createCardElement(item));
-      });
+    if (libTabWatchlist && libTabHistory) {
+      if (activeLibraryTab === 'history') {
+        libTabWatchlist.classList.remove('active');
+        libTabWatchlist.setAttribute('aria-selected', 'false');
+        libTabHistory.classList.add('active');
+        libTabHistory.setAttribute('aria-selected', 'true');
+      } else {
+        libTabWatchlist.classList.add('active');
+        libTabWatchlist.setAttribute('aria-selected', 'true');
+        libTabHistory.classList.remove('active');
+        libTabHistory.setAttribute('aria-selected', 'false');
+      }
     }
+
+    mylistGrid.innerHTML = '';
+
+    if (activeLibraryTab === 'history') {
+      let recent = [];
+      if (hasPlaybackEngine()) {
+        try {
+          recent = window.JoywatchProgress.listRecent(50);
+        } catch (e) { recent = []; }
+      }
+      if (mylistCountBadge) mylistCountBadge.textContent = `${recent.length} watched`;
+      if (libClearHistoryBtn) libClearHistoryBtn.style.display = recent.length > 0 ? 'inline-flex' : 'none';
+
+      if (recent.length === 0) {
+        mylistEmpty.style.display = 'flex';
+        mylistGrid.style.display = 'none';
+        if (mylistEmptyTitle) mylistEmptyTitle.textContent = 'No watch history yet';
+        if (mylistEmptySubtext) mylistEmptySubtext.textContent = 'Titles you start watching will appear here with your watch progress.';
+        if (mylistEmptyIcon) mylistEmptyIcon.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';
+      } else {
+        mylistEmpty.style.display = 'none';
+        mylistGrid.style.display = 'grid';
+        recent.forEach(e => {
+          const item = {
+            id: String(e.mediaId),
+            name: e.title || 'Untitled',
+            poster: e.poster || '',
+            background: e.poster || '',
+            year: e.year || '2025',
+            type: e.type || 'movie',
+            imdbRating: '8.8',
+            _progress: e,
+            _isHistory: true
+          };
+          mylistGrid.appendChild(createCardElement(item));
+        });
+      }
+    } else {
+      const list = getJoyList();
+      if (mylistCountBadge) mylistCountBadge.textContent = `${list.length} saved`;
+      if (libClearHistoryBtn) libClearHistoryBtn.style.display = 'none';
+
+      if (list.length === 0) {
+        mylistEmpty.style.display = 'flex';
+        mylistGrid.style.display = 'none';
+        if (mylistEmptyTitle) mylistEmptyTitle.textContent = 'Your Watchlist is empty';
+        if (mylistEmptySubtext) mylistEmptySubtext.textContent = 'Bookmark movies and TV series you want to watch later by clicking "+ My List" on any title.';
+        if (mylistEmptyIcon) mylistEmptyIcon.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>';
+      } else {
+        mylistEmpty.style.display = 'none';
+        mylistGrid.style.display = 'grid';
+        list.forEach(item => {
+          mylistGrid.appendChild(createCardElement(item));
+        });
+      }
+    }
+  }
+
+  if (libTabWatchlist && !libTabWatchlist.dataset.wired) {
+    libTabWatchlist.dataset.wired = '1';
+    libTabWatchlist.addEventListener('click', () => {
+      activeLibraryTab = 'watchlist';
+      renderMyListView();
+    });
+  }
+  if (libTabHistory && !libTabHistory.dataset.wired) {
+    libTabHistory.dataset.wired = '1';
+    libTabHistory.addEventListener('click', () => {
+      activeLibraryTab = 'history';
+      renderMyListView();
+    });
+  }
+  if (libClearHistoryBtn && !libClearHistoryBtn.dataset.wired) {
+    libClearHistoryBtn.dataset.wired = '1';
+    libClearHistoryBtn.addEventListener('click', () => {
+      if (!window.confirm('Clear all watch history and progress entries?')) return;
+      try {
+        if (hasPlaybackEngine()) window.JoywatchProgress.clearStore();
+        if (hasSettingsEngine()) window.JoywatchSettings.clearServerPrefs();
+        renderMyListView();
+        showToast('Watch history cleared');
+      } catch (e) { showToast('Could not clear history'); }
+    });
   }
 
   if (browseCatalogBtn) {
@@ -1177,12 +1286,119 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function wireSettingsDataButtons() {
+    if (exportBackupBtn && !exportBackupBtn.dataset.wired) {
+      exportBackupBtn.dataset.wired = '1';
+      exportBackupBtn.addEventListener('click', () => {
+        try {
+          let recentProgress = [];
+          if (hasPlaybackEngine()) {
+            try { recentProgress = window.JoywatchProgress.listRecent(500); } catch (e) { recentProgress = []; }
+          }
+          let currentSettings = {};
+          if (hasSettingsEngine()) {
+            try { currentSettings = window.JoywatchSettings.getAll(); } catch (e) { currentSettings = {}; }
+          }
+          let serverPrefs = {};
+          if (hasSettingsEngine()) {
+            try { serverPrefs = window.JoywatchSettings.getServerPrefs(); } catch (e) { serverPrefs = {}; }
+          }
+
+          const backupData = {
+            app: 'joywatch',
+            version: 1,
+            exportedAt: new Date().toISOString(),
+            joywatch_list: getJoyList(),
+            joywatch_progress_v1: recentProgress,
+            joywatch_settings_v1: currentSettings,
+            joywatch_server_pref_v1: serverPrefs
+          };
+
+          const jsonStr = JSON.stringify(backupData, null, 2);
+          const blob = new Blob([jsonStr], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          const dateStr = new Date().toISOString().slice(0, 10);
+          a.href = url;
+          a.download = `joywatch-backup-${dateStr}.json`;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, 100);
+          showToast('Library and settings backup exported');
+        } catch (e) {
+          showToast('Could not export backup');
+        }
+      });
+    }
+
+    if (importBackupBtn && importBackupFile && !importBackupBtn.dataset.wired) {
+      importBackupBtn.dataset.wired = '1';
+      importBackupBtn.addEventListener('click', () => {
+        importBackupFile.value = '';
+        importBackupFile.click();
+      });
+
+      importBackupFile.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const data = JSON.parse(event.target.result);
+            if (!data || typeof data !== 'object') throw new Error('Invalid JSON');
+
+            // 1. Restore Watchlist
+            if (Array.isArray(data.joywatch_list)) {
+              localStorage.setItem('joywatch_list', JSON.stringify(data.joywatch_list));
+              updateJoylistCounter();
+            }
+
+            // 2. Restore Watch Progress
+            if (data.joywatch_progress_v1) {
+              let progressMap = {};
+              if (Array.isArray(data.joywatch_progress_v1)) {
+                data.joywatch_progress_v1.forEach(entry => {
+                  if (entry && entry.mediaId) {
+                    const key = `${entry.type || 'movie'}:${entry.mediaId}:${entry.season || 0}:${entry.episode || 0}`;
+                    progressMap[key] = entry;
+                  }
+                });
+              } else if (typeof data.joywatch_progress_v1 === 'object') {
+                progressMap = data.joywatch_progress_v1;
+              }
+              localStorage.setItem('joywatch_progress_v1', JSON.stringify(progressMap));
+            }
+
+            // 3. Restore Settings
+            if (data.joywatch_settings_v1 && hasSettingsEngine()) {
+              window.JoywatchSettings.setAll(data.joywatch_settings_v1);
+              window.JoywatchSettings.applyTheme(data.joywatch_settings_v1.theme || 'obsidian');
+            }
+
+            // 4. Restore Server Preferences
+            if (data.joywatch_server_pref_v1) {
+              localStorage.setItem('joywatch_server_pref_v1', JSON.stringify(data.joywatch_server_pref_v1));
+            }
+
+            applySettingsToggles();
+            renderSettingsView();
+            showToast('Backup restored successfully');
+          } catch (err) {
+            showToast('Could not restore backup: invalid file');
+          }
+        };
+        reader.readAsText(file);
+      });
+    }
+
     if (clearHistoryBtn && !clearHistoryBtn.dataset.wired) {
       clearHistoryBtn.dataset.wired = '1';
       clearHistoryBtn.addEventListener('click', () => {
         if (!window.confirm('Clear all watch history and Continue Watching entries?')) return;
         try {
-          localStorage.removeItem('joywatch_progress_v1');
+          if (hasPlaybackEngine()) window.JoywatchProgress.clearStore();
           if (typeof window.JoywatchSettings !== 'undefined') window.JoywatchSettings.clearServerPrefs();
           showToast('Watch history cleared');
         } catch (e) { showToast('Could not clear history'); }
@@ -1260,22 +1476,63 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
 
-    // Continue Watching resume affordance: thin progress rail + timestamp,
-    // rendered only when this card carries a stored progress entry.
-    if (item._progress && typeof item._progress.currentTime === 'number') {
+    // Continue Watching & Watch History affordances:
+    // Progress rail, Watched badge, and quick Dismiss / Remove button
+    if (item._progress) {
       try {
-        const rail = document.createElement('div');
-        rail.className = 'card-progress-rail';
-        const fill = document.createElement('div');
-        fill.className = 'card-progress-fill';
-        const dur = item._progress.duration > 0 ? item._progress.duration : 0;
-        const pct = dur > 0
-          ? Math.min(100, Math.max(0, (item._progress.currentTime / dur) * 100))
-          : 0;
-        fill.style.width = pct + '%';
-        rail.appendChild(fill);
         const wrapper = card.querySelector('.card-poster-wrapper');
-        if (wrapper) wrapper.appendChild(rail);
+        if (item._progress.completed) {
+          const badge = document.createElement('div');
+          badge.className = 'card-status-badge';
+          badge.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Watched</span>';
+          if (wrapper) wrapper.appendChild(badge);
+        } else if (typeof item._progress.currentTime === 'number') {
+          const rail = document.createElement('div');
+          rail.className = 'card-progress-rail';
+          const fill = document.createElement('div');
+          fill.className = 'card-progress-fill';
+          const dur = item._progress.duration > 0 ? item._progress.duration : 0;
+          const pct = dur > 0
+            ? Math.min(100, Math.max(0, (item._progress.currentTime / dur) * 100))
+            : 0;
+          fill.style.width = pct + '%';
+          rail.appendChild(fill);
+          if (wrapper) wrapper.appendChild(rail);
+        }
+
+        // Dismiss button: removes entry from stored progress
+        const dismissBtn = document.createElement('button');
+        dismissBtn.className = 'card-dismiss-btn';
+        dismissBtn.title = item._isHistory ? 'Remove from history' : 'Remove from Continue Watching';
+        dismissBtn.setAttribute('aria-label', dismissBtn.title);
+        dismissBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+        dismissBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          if (hasPlaybackEngine()) {
+            window.JoywatchProgress.removeEntry(
+              item._progress.mediaId, item._progress.type, item._progress.season, item._progress.episode
+            );
+          }
+          card.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+          card.style.opacity = '0';
+          card.style.transform = 'scale(0.9)';
+          setTimeout(() => {
+            if (card.parentNode) {
+              const parentTrack = card.closest('.shelf-cards-track');
+              card.remove();
+              if (parentTrack && parentTrack.children.length === 0) {
+                const parentRow = parentTrack.closest('.media-shelf-row');
+                if (parentRow) parentRow.remove();
+              }
+            }
+            if (mylistView && mylistView.style.display !== 'none') {
+              renderMyListView();
+            }
+          }, 200);
+          showToast(item._isHistory ? 'Removed from history' : 'Removed from Continue Watching');
+        });
+        if (wrapper) wrapper.appendChild(dismissBtn);
       } catch (e) { /* progress rail is cosmetic only */ }
     }
 
@@ -1597,16 +1854,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderSeasonEpisodes(episodes) {
     episodesList.innerHTML = '';
+    const currentSeasonNum = parseInt(seasonSelect ? seasonSelect.value : 1, 10) || 1;
     episodes.forEach(ep => {
       const btn = document.createElement('button');
       btn.className = 'episode-btn';
       const num = ep.episode || 1;
-      btn.textContent = `Episode ${num}`;
+      const s = ep.season || currentSeasonNum;
+
+      let entry = null;
+      if (hasPlaybackEngine() && activeModalItem && activeModalItem.id) {
+        try {
+          entry = window.JoywatchProgress.getEntry(activeModalItem.id, 'series', s, num);
+        } catch (e) { entry = null; }
+      }
+
+      if (entry && entry.completed) {
+        btn.classList.add('completed');
+        btn.innerHTML = `<span>Episode ${num}</span><span class="episode-btn-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg></span>`;
+        btn.title = `Episode ${num} (Watched)`;
+      } else if (entry && entry.currentTime > 0) {
+        btn.classList.add('in-progress');
+        const dur = entry.duration > 0 ? entry.duration : 0;
+        const pct = dur > 0 ? Math.min(100, Math.max(0, (entry.currentTime / dur) * 100)) : 0;
+        btn.innerHTML = `<span>Episode ${num}</span><div class="episode-progress-rail"><div class="episode-progress-fill" style="width: ${pct}%"></div></div>`;
+        btn.title = `Episode ${num} (Resumes at ${window.JoywatchProgress.formatClock(entry.currentTime)})`;
+      } else {
+        btn.textContent = `Episode ${num}`;
+      }
 
       btn.addEventListener('click', () => {
         episodesList.querySelectorAll('.episode-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        loadStreams(activeModalItem.type, activeModalItem.id, ep.season || 1, num, true);
+        loadStreams(activeModalItem.type, activeModalItem.id, s, num, true);
       });
 
       episodesList.appendChild(btn);

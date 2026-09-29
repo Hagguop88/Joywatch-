@@ -282,16 +282,34 @@
     <!-- Watchlist Dedicated View -->
     <section class="mylist-view" id="mylist-view" style="display: none;">
       <div class="mylist-header">
-        <h2 class="mylist-title">My List</h2>
-        <span class="search-count-pill" id="mylist-count-badge">0 saved</span>
+        <div class="mylist-title-group">
+          <h2 class="mylist-title">Library</h2>
+          <div class="library-subnav" role="tablist" aria-label="Library Sections">
+            <button class="library-tab active" id="lib-tab-watchlist" role="tab" aria-selected="true">
+              <span>Watchlist</span>
+              <span class="lib-tab-count" id="lib-watchlist-count">0</span>
+            </button>
+            <button class="library-tab" id="lib-tab-history" role="tab" aria-selected="false">
+              <span>Watch History</span>
+              <span class="lib-tab-count" id="lib-history-count">0</span>
+            </button>
+          </div>
+        </div>
+        <div class="mylist-actions">
+          <button class="btn-joy-glass-sm" id="lib-clear-history-btn" style="display: none;" title="Clear watch history">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            <span>Clear History</span>
+          </button>
+          <span class="search-count-pill" id="mylist-count-badge">0 saved</span>
+        </div>
       </div>
       <div class="joy-grid" id="mylist-grid"></div>
       <div class="mylist-empty-state" id="mylist-empty" style="display: none;">
-        <div class="empty-icon-circle">
+        <div class="empty-icon-circle" id="mylist-empty-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
         </div>
-        <h3 class="empty-heading">Your Watchlist is empty</h3>
-        <p class="empty-subtext">Bookmark movies and TV series you want to watch later by clicking "+ My List" on any title.</p>
+        <h3 class="empty-heading" id="mylist-empty-title">Your Watchlist is empty</h3>
+        <p class="empty-subtext" id="mylist-empty-subtext">Bookmark movies and TV series you want to watch later by clicking "+ My List" on any title.</p>
         <button class="btn-joy-lime" id="browse-catalog-btn">
           <span>Discover Titles</span>
         </button>
@@ -337,8 +355,17 @@
 
       <!-- Data -->
       <div class="settings-group">
-        <h3 class="settings-group-title">Data</h3>
+        <h3 class="settings-group-title">Data & Backups</h3>
         <div class="settings-data-rows">
+          <button class="btn-joy-glass" id="export-backup-btn" title="Download backup of watchlist, progress, and settings">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <span>Export backup (JSON)</span>
+          </button>
+          <button class="btn-joy-glass" id="import-backup-btn" title="Restore watchlist, progress, and settings from JSON">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <span>Import backup file</span>
+          </button>
+          <input type="file" id="import-backup-file" accept=".json,application/json" style="display: none;">
           <button class="btn-joy-glass" id="clear-history-btn">
             <span>Clear watch history</span>
           </button>

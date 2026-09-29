@@ -1437,14 +1437,24 @@ document.addEventListener('DOMContentLoaded', () => {
   function createCardElement(item) {
     const card = document.createElement('div');
     card.className = 'movie-card';
-    const poster = item.poster || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&q=85';
+    
+    // Always prioritize official canonical IMDb movie poster
+    let poster = item.poster;
+    if ((!poster || poster.includes('unsplash.com')) && item.id && item.id.startsWith('tt')) {
+      poster = `https://images.metahub.space/poster/medium/${item.id}/img`;
+    }
+    if (!poster) {
+      poster = (item.id && item.id.startsWith('tt'))
+        ? `https://images.metahub.space/poster/medium/${item.id}/img`
+        : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="210" height="315" viewBox="0 0 210 315"><rect width="210" height="315" fill="%2317140B"/></svg>';
+    }
     const rating = item.imdbRating || '8.4';
     const year = item.year || '2025';
     const mediaType = item.type === 'series' ? 'TV Series' : 'Movie';
 
     card.innerHTML = `
       <div class="card-poster-wrapper">
-        <img class="card-poster" src="${poster}" alt="${item.name}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&q=85'; this.classList.add('loaded');">
+        <img class="card-poster" src="${poster}" alt="${item.name}" loading="lazy" onload="this.classList.add('loaded')" onerror="if (!this.dataset.triedFallback && '${item.id}'.startsWith('tt')) { this.dataset.triedFallback = '1'; this.src = 'https://images.metahub.space/poster/medium/${item.id}/img'; } else { this.classList.add('loaded'); }">
         
         <div class="card-top-pill">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="#EAB308">
@@ -1701,8 +1711,8 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       id: 'tt0111161',
       name: 'The Shawshank Redemption',
-      poster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&q=85',
-      background: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1600&q=85',
+      poster: 'https://images.metahub.space/poster/medium/tt0111161/img',
+      background: 'https://images.metahub.space/background/medium/tt0111161/img',
       year: '1994',
       type: 'movie',
       imdbRating: '9.8',
@@ -1713,8 +1723,8 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       id: 'tt0068646',
       name: 'The Godfather',
-      poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&q=85',
-      background: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&q=85',
+      poster: 'https://images.metahub.space/poster/medium/tt0068646/img',
+      background: 'https://images.metahub.space/background/medium/tt0068646/img',
       year: '1972',
       type: 'movie',
       imdbRating: '9.6',
@@ -1725,8 +1735,8 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       id: 'tt0468569',
       name: 'The Dark Knight',
-      poster: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=500&q=85',
-      background: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=1600&q=85',
+      poster: 'https://images.metahub.space/poster/medium/tt0468569/img',
+      background: 'https://images.metahub.space/background/medium/tt0468569/img',
       year: '2008',
       type: 'movie',
       imdbRating: '9.5',
@@ -1737,8 +1747,8 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       id: 'tt0050083',
       name: '12 Angry Men',
-      poster: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500&q=85',
-      background: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=1600&q=85',
+      poster: 'https://images.metahub.space/poster/medium/tt0050083/img',
+      background: 'https://images.metahub.space/background/medium/tt0050083/img',
       year: '1957',
       type: 'movie',
       imdbRating: '9.5',
@@ -1749,8 +1759,8 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       id: 'tt0108052',
       name: "Schindler's List",
-      poster: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=500&q=85',
-      background: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=1600&q=85',
+      poster: 'https://images.metahub.space/poster/medium/tt0108052/img',
+      background: 'https://images.metahub.space/background/medium/tt0108052/img',
       year: '1993',
       type: 'movie',
       imdbRating: '9.5',
@@ -1761,8 +1771,8 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       id: 'tt0167260',
       name: 'The Lord of the Rings: The Return of the King',
-      poster: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&q=85',
-      background: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1600&q=85',
+      poster: 'https://images.metahub.space/poster/medium/tt0167260/img',
+      background: 'https://images.metahub.space/background/medium/tt0167260/img',
       year: '2003',
       type: 'movie',
       imdbRating: '9.5',
@@ -1773,8 +1783,8 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       id: 'tt0110912',
       name: 'Pulp Fiction',
-      poster: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=500&q=85',
-      background: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=1600&q=85',
+      poster: 'https://images.metahub.space/poster/medium/tt0110912/img',
+      background: 'https://images.metahub.space/background/medium/tt0110912/img',
       year: '1994',
       type: 'movie',
       imdbRating: '9.5',
@@ -1799,8 +1809,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
           id: 'tt1856101',
           name: 'Blade Runner 2049',
-          poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&q=85',
-          background: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&q=85',
+          poster: 'https://images.metahub.space/poster/medium/tt1856101/img',
+          background: 'https://images.metahub.space/background/medium/tt1856101/img',
           year: '2017',
           type: 'movie',
           imdbRating: '8.5',
@@ -1812,8 +1822,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
           id: 'tt0816692',
           name: 'Interstellar',
-          poster: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=500&q=85',
-          background: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=1600&q=85',
+          poster: 'https://images.metahub.space/poster/medium/tt0816692/img',
+          background: 'https://images.metahub.space/background/medium/tt0816692/img',
           year: '2014',
           type: 'movie',
           imdbRating: '8.7',
@@ -1825,8 +1835,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
           id: 'tt2543164',
           name: 'Arrival',
-          poster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&q=85',
-          background: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1600&q=85',
+          poster: 'https://images.metahub.space/poster/medium/tt2543164/img',
+          background: 'https://images.metahub.space/background/medium/tt2543164/img',
           year: '2016',
           type: 'movie',
           imdbRating: '8.0',
@@ -1838,8 +1848,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
           id: 'tt0206634',
           name: 'Children of Men',
-          poster: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500&q=85',
-          background: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=1600&q=85',
+          poster: 'https://images.metahub.space/poster/medium/tt0206634/img',
+          background: 'https://images.metahub.space/background/medium/tt0206634/img',
           year: '2006',
           type: 'movie',
           imdbRating: '8.0',
@@ -1851,8 +1861,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
           id: 'tt1392190',
           name: 'Mad Max: Fury Road',
-          poster: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=500&q=85',
-          background: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=1600&q=85',
+          poster: 'https://images.metahub.space/poster/medium/tt1392190/img',
+          background: 'https://images.metahub.space/background/medium/tt1392190/img',
           year: '2015',
           type: 'movie',
           imdbRating: '8.1',
@@ -1870,8 +1880,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
           id: 'tt1877830',
           name: 'The Batman',
-          poster: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=500&q=85',
-          background: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=1600&q=85',
+          poster: 'https://images.metahub.space/poster/medium/tt1877830/img',
+          background: 'https://images.metahub.space/background/medium/tt1877830/img',
           year: '2022',
           type: 'movie',
           imdbRating: '8.0',
@@ -1883,8 +1893,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
           id: 'tt0113277',
           name: 'Heat',
-          poster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&q=85',
-          background: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1600&q=85',
+          poster: 'https://images.metahub.space/poster/medium/tt0113277/img',
+          background: 'https://images.metahub.space/background/medium/tt0113277/img',
           year: '1995',
           type: 'movie',
           imdbRating: '8.3',
@@ -1896,8 +1906,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
           id: 'tt0114369',
           name: 'Se7en',
-          poster: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=500&q=85',
-          background: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=1600&q=85',
+          poster: 'https://images.metahub.space/poster/medium/tt0114369/img',
+          background: 'https://images.metahub.space/background/medium/tt0114369/img',
           year: '1995',
           type: 'movie',
           imdbRating: '8.6',
@@ -1909,8 +1919,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
           id: 'tt1375666',
           name: 'Inception',
-          poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&q=85',
-          background: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&q=85',
+          poster: 'https://images.metahub.space/poster/medium/tt1375666/img',
+          background: 'https://images.metahub.space/background/medium/tt1375666/img',
           year: '2010',
           type: 'movie',
           imdbRating: '8.8',
@@ -1928,8 +1938,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
           id: 'tt0118884',
           name: 'Contact',
-          poster: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=500&q=85',
-          background: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=1600&q=85',
+          poster: 'https://images.metahub.space/poster/medium/tt0118884/img',
+          background: 'https://images.metahub.space/background/medium/tt0118884/img',
           year: '1997',
           type: 'movie',
           imdbRating: '7.5',
@@ -1941,8 +1951,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
           id: 'tt3659388',
           name: 'The Martian',
-          poster: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&q=85',
-          background: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1600&q=85',
+          poster: 'https://images.metahub.space/poster/medium/tt3659388/img',
+          background: 'https://images.metahub.space/background/medium/tt3659388/img',
           year: '2015',
           type: 'movie',
           imdbRating: '8.0',
@@ -1954,8 +1964,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
           id: 'tt0062622',
           name: '2001: A Space Odyssey',
-          poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&q=85',
-          background: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&q=85',
+          poster: 'https://images.metahub.space/poster/medium/tt0062622/img',
+          background: 'https://images.metahub.space/background/medium/tt0062622/img',
           year: '1968',
           type: 'movie',
           imdbRating: '8.3',
@@ -1973,8 +1983,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
           id: 'tt2084970',
           name: 'The Imitation Game',
-          poster: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500&q=85',
-          background: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=1600&q=85',
+          poster: 'https://images.metahub.space/poster/medium/tt2084970/img',
+          background: 'https://images.metahub.space/background/medium/tt2084970/img',
           year: '2014',
           type: 'movie',
           imdbRating: '8.0',
@@ -1986,8 +1996,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
           id: 'tt0469494',
           name: 'There Will Be Blood',
-          poster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&q=85',
-          background: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1600&q=85',
+          poster: 'https://images.metahub.space/poster/medium/tt0469494/img',
+          background: 'https://images.metahub.space/background/medium/tt0469494/img',
           year: '2007',
           type: 'movie',
           imdbRating: '8.2',
@@ -1999,8 +2009,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
           id: 'tt0268978',
           name: 'A Beautiful Mind',
-          poster: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=500&q=85',
-          background: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=1600&q=85',
+          poster: 'https://images.metahub.space/poster/medium/tt0268978/img',
+          background: 'https://images.metahub.space/background/medium/tt0268978/img',
           year: '2001',
           type: 'movie',
           imdbRating: '8.2',

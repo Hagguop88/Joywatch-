@@ -3,18 +3,17 @@
 
 ## Visual Style: Aurora Cinematic Glassmorphism (Liquid Glass & Bento)
 - **Palette**:
-  - Base Obsidian: `#08090D` (Page background)
-  - Surface Glass: `rgba(255, 255, 255, 0.035)`
-  - Surface Glass Elevated: `rgba(255, 255, 255, 0.07)`
-  - Surface Glass Hover: `rgba(255, 255, 255, 0.1)`
+  - Base Obsidian: `#0C0A06` (Page background)
+  - Surface Glass: `rgba(23, 20, 11, 0.78)`
+  - Surface Glass Elevated: `rgba(34, 29, 16, 0.88)`
+  - Surface Glass Hover: `rgba(44, 37, 22, 0.85)`
   - Border Glass: `rgba(255, 255, 255, 0.08)`
-  - Border Glass Glowing: `rgba(99, 102, 241, 0.4)`
-  - Accent Primary: `#6366F1` (Electric Indigo)
-  - Accent Joy / Gradient: `linear-gradient(135deg, #6366F1 0%, #EC4899 50%, #F59E0B 100%)`
-  - Accent Secondary: `#06B6D4` (Luminous Cyan)
-  - Text Primary: `#F8FAFC`
-  - Text Secondary: `#94A3B8`
-  - Text Muted: `#64748B`
+  - Border Glass Glowing: `rgba(234, 179, 8, 0.35)`
+  - Accent Primary: `#EAB308` (Warm Cinema Amber)
+  - Accent Secondary: `#FACC15` (Bright Amber)
+  - Text Primary: `#FFFFFF`
+  - Text Secondary: `rgba(255, 255, 255, 0.75)`
+  - Text Muted: `rgba(255, 255, 255, 0.45)`
 
 ## Typography:
 - **Display & Headings**: `Outfit`, sans-serif (Weights: 600, 700, 800)

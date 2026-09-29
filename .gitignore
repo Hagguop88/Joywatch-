@@ -35,3 +35,7 @@ desktop.ini
 .idea/
 *.swp
 *.swo
+
+# External tools
+tools/
+

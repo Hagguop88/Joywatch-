@@ -6,8 +6,7 @@
  * - Zero Purple Anywhere
  * - Zero Gradients (Pure solid tints and layered smooth box-shadows)
  * - Zero Emojis (Delicate SVGs and clean text)
- * - Round Corner Buttons (border-radius: 9999px)
- * - Primary Accent: Lime Green (#95FF50)
+ * - Primary Accent: Pure Warm Cinema Amber (#EAB308)
  * - Direct In-Browser Playback with Multi-Server Failover
  * - OTT Platforms: Netflix, Prime Video, Disney+, Crunchyroll, Paramount+
  */
@@ -520,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const nexKey = "nx_7247f0dac882d0590776fb442d30a667";
       if (type === 'series') {
         streams.push(
-          { name: "VidLink Pro", title: `Server 1 • VidLink 1080p Ultra HD (S${s}:E${e})`, quality: "1080p Ultra HD", url: `https://vidlink.pro/tv/${id}/${s}/${e}?primaryColor=95FF50`, browser_url: `https://vidlink.pro/tv/${id}/${s}/${e}?primaryColor=95FF50`, direct_playable: true, is_embed: true },
+          { name: "VidLink Pro", title: `Server 1 • VidLink 1080p Ultra HD (S${s}:E${e})`, quality: "1080p Ultra HD", url: `https://vidlink.pro/tv/${id}/${s}/${e}?primaryColor=EAB308`, browser_url: `https://vidlink.pro/tv/${id}/${s}/${e}?primaryColor=EAB308`, direct_playable: true, is_embed: true },
           { name: "NexStream VIP", title: `Server 2 • NexStream VIP 1080p (S${s}:E${e})`, quality: "1080p Ultra HD", url: `https://api.codespecters.com/embed/tv/${id}/${s}/${e}?apikey=${nexKey}`, browser_url: `https://api.codespecters.com/embed/tv/${id}/${s}/${e}?apikey=${nexKey}`, direct_playable: true, is_embed: true },
           { name: "AutoEmbed Cloud", title: `Server 3 • AutoEmbed High-Speed (S${s}:E${e})`, quality: "1080p HD", url: `https://autoembed.co/tv/imdb/${id}/${s}/${e}`, browser_url: `https://autoembed.co/tv/imdb/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
           { name: "VidSrc PM", title: `Server 4 • VidSrc Dedicated (S${s}:E${e})`, quality: "1080p HD", url: `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`, browser_url: `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
@@ -530,7 +529,7 @@ document.addEventListener('DOMContentLoaded', () => {
         );
       } else {
         streams.push(
-          { name: "VidLink Pro", title: `Server 1 • ${cleanTitle} - 1080p Ultra HD`, quality: "1080p Ultra HD", url: `https://vidlink.pro/movie/${id}?primaryColor=95FF50`, browser_url: `https://vidlink.pro/movie/${id}?primaryColor=95FF50`, direct_playable: true, is_embed: true },
+          { name: "VidLink Pro", title: `Server 1 • ${cleanTitle} - 1080p Ultra HD`, quality: "1080p Ultra HD", url: `https://vidlink.pro/movie/${id}?primaryColor=EAB308`, browser_url: `https://vidlink.pro/movie/${id}?primaryColor=EAB308`, direct_playable: true, is_embed: true },
           { name: "NexStream VIP", title: `Server 2 • ${cleanTitle} - NexStream VIP 1080p`, quality: "1080p Ultra HD", url: `https://api.codespecters.com/embed/movie/${id}?apikey=${nexKey}`, browser_url: `https://api.codespecters.com/embed/movie/${id}?apikey=${nexKey}`, direct_playable: true, is_embed: true },
           { name: "AutoEmbed Cloud", title: `Server 3 • ${cleanTitle} - 1080p High-Speed`, quality: "1080p HD", url: `https://autoembed.co/movie/imdb/${id}`, browser_url: `https://autoembed.co/movie/imdb/${id}`, direct_playable: true, is_embed: true },
           { name: "VidSrc PM", title: `Server 4 • ${cleanTitle} - VidSrc Dedicated`, quality: "1080p HD", url: `https://vidsrc.pm/embed/movie/${id}`, browser_url: `https://vidsrc.pm/embed/movie/${id}`, direct_playable: true, is_embed: true },
@@ -1134,7 +1133,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.JoywatchSettings.THEMES.forEach(theme => {
       const btn = document.createElement('button');
       btn.className = `theme-swatch ${settings.theme === theme.id ? 'active' : ''}`;
-      const dotColor = (theme.vars && theme.vars['--joy-accent']) ? theme.vars['--joy-accent'] : '#95FF50';
+      const dotColor = (theme.vars && theme.vars['--joy-accent']) ? theme.vars['--joy-accent'] : '#EAB308';
       const dotBg = theme.id === 'slate' ? '#0F172A' : dotColor;
       btn.innerHTML = `
         <span class="theme-swatch-dot" style="background-color: ${dotBg};"></span>
@@ -1448,7 +1447,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <img class="card-poster" src="${poster}" alt="${item.name}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&q=85'; this.classList.add('loaded');">
         
         <div class="card-top-pill">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="#95FF50">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="#EAB308">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
           </svg>
           <span>${rating}</span>
@@ -1461,7 +1460,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="overlay-bottom-info">
             <span class="overlay-title">${item.name}</span>
             <div class="overlay-subline">
-              <span>★ ${rating}</span>
+              <span>IMDb ${rating}</span>
               <span>•</span>
               <span>${year}</span>
             </div>
@@ -1478,6 +1477,30 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </div>
     `;
+
+    const posterWrapper = card.querySelector('.card-poster-wrapper');
+    if (item._isMasterpiece) {
+      card.classList.add('masterpiece-card');
+      const mb = document.createElement('span');
+      mb.className = 'card-masterpiece-badge';
+      mb.textContent = 'Masterpiece';
+      if (posterWrapper) posterWrapper.appendChild(mb);
+    }
+    if (item._matchScore) {
+      const mp = document.createElement('span');
+      mp.className = 'card-match-pill';
+      mp.innerHTML = `<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>${item._matchScore}</span>`;
+      if (posterWrapper) posterWrapper.appendChild(mp);
+    }
+    if (item._recReason) {
+      const metaBox = card.querySelector('.card-meta-box');
+      if (metaBox) {
+        const rr = document.createElement('div');
+        rr.className = 'card-rec-reason';
+        rr.textContent = item._recReason;
+        metaBox.appendChild(rr);
+      }
+    }
 
     // Continue Watching & Watch History affordances:
     // Progress rail, Watched badge, and quick Dismiss / Remove button
@@ -1669,6 +1692,388 @@ document.addEventListener('DOMContentLoaded', () => {
     row.appendChild(rowHeader);
     row.appendChild(track);
     return row;
+  }
+
+  // =========================================================================
+  // HALL OF FAME MASTERPIECES (IMDb 9.5+)
+  // =========================================================================
+  const MASTERPIECES_DATA = [
+    {
+      id: 'tt0111161',
+      name: 'The Shawshank Redemption',
+      poster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&q=85',
+      background: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1600&q=85',
+      year: '1994',
+      type: 'movie',
+      imdbRating: '9.8',
+      genres: ['Drama', 'Hope'],
+      description: 'Over the course of several years, two convicts form a friendship, seeking solace and eventual redemption through basic compassion.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0068646',
+      name: 'The Godfather',
+      poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&q=85',
+      background: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&q=85',
+      year: '1972',
+      type: 'movie',
+      imdbRating: '9.6',
+      genres: ['Crime', 'Drama'],
+      description: 'The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant youngest son.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0468569',
+      name: 'The Dark Knight',
+      poster: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=500&q=85',
+      background: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=1600&q=85',
+      year: '2008',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Action', 'Crime', 'Drama'],
+      description: 'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0050083',
+      name: '12 Angry Men',
+      poster: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500&q=85',
+      background: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=1600&q=85',
+      year: '1957',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Crime', 'Drama'],
+      description: 'The jury in a New York City murder trial is frustrated by a single member whose skeptical caution forces them to more carefully consider the evidence before jumping to a hasty verdict.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0108052',
+      name: "Schindler's List",
+      poster: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=500&q=85',
+      background: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=1600&q=85',
+      year: '1993',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Biography', 'Drama', 'History'],
+      description: 'In German-occupied Poland during World War II, industrialist Oskar Schindler gradually becomes concerned for his Jewish workforce after witnessing their persecution by the Nazis.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0167260',
+      name: 'The Lord of the Rings: The Return of the King',
+      poster: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&q=85',
+      background: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1600&q=85',
+      year: '2003',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Action', 'Adventure', 'Drama'],
+      description: 'Gandalf and Aragorn lead the World of Men against Sauron\'s army to draw his gaze from Frodo and Sam as they approach Mount Doom with the One Ring.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0110912',
+      name: 'Pulp Fiction',
+      poster: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=500&q=85',
+      background: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=1600&q=85',
+      year: '1994',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Crime', 'Drama'],
+      description: 'The lives of two mob hitmen, a boxer, a gangster and his wife intertwine in four tales of violence and redemption.',
+      _isMasterpiece: true
+    }
+  ];
+
+  function createMasterpiecesShelf() {
+    return createRowElement('Masterpieces • Rated 9.5 & Above', MASTERPIECES_DATA, 'movie');
+  }
+
+  // =========================================================================
+  // SMART RECOMMENDATION TASTE ENGINE
+  // =========================================================================
+  const TASTE_SEEDS = {
+    dune: {
+      id: 'dune',
+      title: 'Dune: Part Two',
+      recommendations: [
+        {
+          id: 'tt1856101',
+          name: 'Blade Runner 2049',
+          poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&q=85',
+          background: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&q=85',
+          year: '2017',
+          type: 'movie',
+          imdbRating: '8.5',
+          genres: ['Neo-Noir', 'Sci-Fi'],
+          description: 'Young Blade Runner K\'s discovery of a long-buried secret leads him to track down former Blade Runner Rick Deckard.',
+          _matchScore: '99% Match',
+          _recReason: 'Matches director Denis Villeneuve’s vast atmosphere & worldbuilding'
+        },
+        {
+          id: 'tt0816692',
+          name: 'Interstellar',
+          poster: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=500&q=85',
+          background: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=1600&q=85',
+          year: '2014',
+          type: 'movie',
+          imdbRating: '8.7',
+          genres: ['Sci-Fi', 'Space Drama'],
+          description: 'A team of explorers travel through a wormhole in space in an attempt to ensure humanity\'s survival.',
+          _matchScore: '97% Match',
+          _recReason: 'Shares towering Hans Zimmer symphonies & awe-inspiring cosmic scale'
+        },
+        {
+          id: 'tt2543164',
+          name: 'Arrival',
+          poster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&q=85',
+          background: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1600&q=85',
+          year: '2016',
+          type: 'movie',
+          imdbRating: '8.0',
+          genres: ['Sci-Fi', 'Mystery'],
+          description: 'A linguist works with the military to communicate with alien lifeforms after twelve mysterious spacecraft appear around the world.',
+          _matchScore: '96% Match',
+          _recReason: 'Profound atmospheric extraterrestrial contact and temporal narrative'
+        },
+        {
+          id: 'tt0206634',
+          name: 'Children of Men',
+          poster: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500&q=85',
+          background: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=1600&q=85',
+          year: '2006',
+          type: 'movie',
+          imdbRating: '8.0',
+          genres: ['Sci-Fi', 'Thriller'],
+          description: 'In 2027, in a chaotic world in which women have become somehow infertile, a former activist agrees to help transport a miraculously pregnant woman to a sanctuary at sea.',
+          _matchScore: '93% Match',
+          _recReason: 'Visceral camera choreography and bleak, believable dystopian survival'
+        },
+        {
+          id: 'tt1392190',
+          name: 'Mad Max: Fury Road',
+          poster: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=500&q=85',
+          background: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=1600&q=85',
+          year: '2015',
+          type: 'movie',
+          imdbRating: '8.1',
+          genres: ['Action', 'Desert Odyssey'],
+          description: 'In a post-apocalyptic wasteland, a woman rebels against a tyrannical ruler in search for her homeland with the aid of a group of female prisoners, a psychotic worshiper, and a drifter named Max.',
+          _matchScore: '91% Match',
+          _recReason: 'Desert wasteland survival, practical kinetic effects & relentless momentum'
+        }
+      ]
+    },
+    darkknight: {
+      id: 'darkknight',
+      title: 'The Dark Knight',
+      recommendations: [
+        {
+          id: 'tt1877830',
+          name: 'The Batman',
+          poster: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=500&q=85',
+          background: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=1600&q=85',
+          year: '2022',
+          type: 'movie',
+          imdbRating: '8.0',
+          genres: ['Crime', 'Neo-Noir'],
+          description: 'When a sadistic serial killer begins murdering key political figures in Gotham, Batman is forced to investigate the city\'s hidden corruption.',
+          _matchScore: '98% Match',
+          _recReason: 'Gritty detective investigation, rainfall-drenched Gotham & institutional rot'
+        },
+        {
+          id: 'tt0113277',
+          name: 'Heat',
+          poster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&q=85',
+          background: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1600&q=85',
+          year: '1995',
+          type: 'movie',
+          imdbRating: '8.3',
+          genres: ['Crime', 'Heist'],
+          description: 'A group of high-end professional thieves start to feel the heat from the LAPD when a robbery goes awry.',
+          _matchScore: '96% Match',
+          _recReason: 'Christopher Nolan’s explicit cinematic blueprint for Gotham\'s heist duel'
+        },
+        {
+          id: 'tt0114369',
+          name: 'Se7en',
+          poster: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=500&q=85',
+          background: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=1600&q=85',
+          year: '1995',
+          type: 'movie',
+          imdbRating: '8.6',
+          genres: ['Crime', 'Psychological'],
+          description: 'Two detectives, a rookie and a veteran, hunt a serial killer who uses the seven deadly sins as his motives.',
+          _matchScore: '94% Match',
+          _recReason: 'Relentless grim investigation matching Joker’s philosophical nihilism'
+        },
+        {
+          id: 'tt1375666',
+          name: 'Inception',
+          poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&q=85',
+          background: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&q=85',
+          year: '2010',
+          type: 'movie',
+          imdbRating: '8.8',
+          genres: ['Sci-Fi', 'Action'],
+          description: 'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea.',
+          _matchScore: '93% Match',
+          _recReason: 'Signature Christopher Nolan puzzle-box structure and towering tension'
+        }
+      ]
+    },
+    interstellar: {
+      id: 'interstellar',
+      title: 'Interstellar',
+      recommendations: [
+        {
+          id: 'tt0118884',
+          name: 'Contact',
+          poster: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=500&q=85',
+          background: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=1600&q=85',
+          year: '1997',
+          type: 'movie',
+          imdbRating: '7.5',
+          genres: ['Sci-Fi', 'Drama'],
+          description: 'Dr. Ellie Arroway, after years of searching, finds conclusive radio proof of extraterrestrial intelligence.',
+          _matchScore: '98% Match',
+          _recReason: 'Emotional core grounded in human love against the terrifying infinity of space'
+        },
+        {
+          id: 'tt3659388',
+          name: 'The Martian',
+          poster: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&q=85',
+          background: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1600&q=85',
+          year: '2015',
+          type: 'movie',
+          imdbRating: '8.0',
+          genres: ['Sci-Fi', 'Adventure'],
+          description: 'An astronaut becomes stranded on Mars after his team assume him dead, and must rely on his ingenuity to find a way to signal to Earth.',
+          _matchScore: '95% Match',
+          _recReason: 'Scientific optimism, Martian planetary survival, and triumphant orbital physics'
+        },
+        {
+          id: 'tt0062622',
+          name: '2001: A Space Odyssey',
+          poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&q=85',
+          background: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&q=85',
+          year: '1968',
+          type: 'movie',
+          imdbRating: '8.3',
+          genres: ['Sci-Fi', 'Mystery'],
+          description: 'After uncovering a mysterious artifact buried beneath the Lunar surface, a spacecraft is sent to Jupiter to find its origins.',
+          _matchScore: '94% Match',
+          _recReason: 'The definitive philosophical space journey and forefather to Interstellar’s tesseract'
+        }
+      ]
+    },
+    oppenheimer: {
+      id: 'oppenheimer',
+      title: 'Oppenheimer',
+      recommendations: [
+        {
+          id: 'tt2084970',
+          name: 'The Imitation Game',
+          poster: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500&q=85',
+          background: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=1600&q=85',
+          year: '2014',
+          type: 'movie',
+          imdbRating: '8.0',
+          genres: ['Biography', 'War Drama'],
+          description: 'During World War II, the English mathematical genius Alan Turing tries to crack the German Enigma code with help from fellow mathematicians.',
+          _matchScore: '98% Match',
+          _recReason: 'Wartime mathematical brilliance, top-secret isolation & state betrayal'
+        },
+        {
+          id: 'tt0469494',
+          name: 'There Will Be Blood',
+          poster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&q=85',
+          background: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1600&q=85',
+          year: '2007',
+          type: 'movie',
+          imdbRating: '8.2',
+          genres: ['Drama', 'Historical'],
+          description: 'A story of family, religion, hatred, oil and madness, focusing on a turn-of-the-century prospector in the early days of the business.',
+          _matchScore: '94% Match',
+          _recReason: 'Relentless monomaniacal ambition and the brutal birth of a modern superpower'
+        },
+        {
+          id: 'tt0268978',
+          name: 'A Beautiful Mind',
+          poster: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=500&q=85',
+          background: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=1600&q=85',
+          year: '2001',
+          type: 'movie',
+          imdbRating: '8.2',
+          genres: ['Biography', 'Drama'],
+          description: 'After John Nash, a brilliant but asocial mathematician, accepts secret work in cryptography, his life takes a turn for the nightmarish.',
+          _matchScore: '92% Match',
+          _recReason: 'The burden of genius, psychological breakdown, and government cryptography'
+        }
+      ]
+    }
+  };
+
+  let activeTasteSeed = 'dune';
+
+  function createRecommendedShelf() {
+    const row = document.createElement('div');
+    row.className = 'shelf-row taste-shelf-wrapper';
+
+    const rowHeader = document.createElement('div');
+    rowHeader.className = 'shelf-header';
+    rowHeader.style.flexDirection = 'column';
+    rowHeader.style.alignItems = 'flex-start';
+    rowHeader.style.gap = '8px';
+
+    const titleGroup = document.createElement('div');
+    titleGroup.className = 'shelf-title-group';
+    titleGroup.innerHTML = `
+      <h2 class="shelf-title">Recommended For You</h2>
+      <span class="hero-chip chip-match" style="font-size: 0.72rem; padding: 2px 10px;">Smart Taste Engine</span>
+    `;
+
+    const chipsRow = document.createElement('div');
+    chipsRow.className = 'taste-chips-row';
+    chipsRow.innerHTML = '<span class="taste-label">Based on what you watched:</span>';
+
+    const seedKeys = Object.keys(TASTE_SEEDS);
+    seedKeys.forEach(k => {
+      const s = TASTE_SEEDS[k];
+      const chip = document.createElement('button');
+      chip.className = `taste-chip ${k === activeTasteSeed ? 'active' : ''}`;
+      chip.innerHTML = `
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <span>${s.title}</span>
+      `;
+      chip.addEventListener('click', () => {
+        activeTasteSeed = k;
+        chipsRow.querySelectorAll('.taste-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        renderTasteRecommendations(track);
+      });
+      chipsRow.appendChild(chip);
+    });
+
+    rowHeader.appendChild(titleGroup);
+    rowHeader.appendChild(chipsRow);
+
+    const track = document.createElement('div');
+    track.className = 'shelf-cards-track';
+
+    renderTasteRecommendations(track);
+    attachSmoothDragScroll(track);
+
+    row.appendChild(rowHeader);
+    row.appendChild(track);
+    return row;
+  }
+
+  function renderTasteRecommendations(track) {
+    track.innerHTML = '';
+    const active = TASTE_SEEDS[activeTasteSeed] || TASTE_SEEDS.dune;
+    active.recommendations.forEach(item => {
+      track.appendChild(createCardElement(item));
+    });
   }
 
   // =========================================================================
@@ -2347,7 +2752,23 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { /* Continue Watching is best-effort; never break home */ }
       }
 
-      // 2. Trending Now
+      // 2. Smart Taste Engine • Recommended For You
+      if (filter === 'all' || filter === 'movie') {
+        try {
+          const recShelf = createRecommendedShelf();
+          if (recShelf) rowsContainer.appendChild(recShelf);
+        } catch (e) { /* Taste engine best-effort */ }
+      }
+
+      // 3. Certified IMDb 9.5+ Masterpieces
+      if (filter === 'all' || filter === 'movie') {
+        try {
+          const mpShelf = createMasterpiecesShelf();
+          if (mpShelf) rowsContainer.appendChild(mpShelf);
+        } catch (e) { /* Masterpieces best-effort */ }
+      }
+
+      // 4. Trending Now
       let idx = 0;
       if (filter === 'all' || filter === 'movie') {
         const trendingMovies = results[idx++].items || [];

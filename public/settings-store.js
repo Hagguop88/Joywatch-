@@ -127,7 +127,7 @@
     }
   ];
 
-  var DEFAULT_THEME_ID = 'obsidian';
+  var DEFAULT_THEME_ID = 'amber';
 
   var DEFAULT_SERVER_ORDER = [
     'vidlink', 'nexstream', 'autoembed', 'vidsrc-pm', 'vidsrc-su', 'vidjoy', '2embed'

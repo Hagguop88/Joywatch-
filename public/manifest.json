@@ -6,10 +6,16 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#090A0E",
-  "theme_color": "#090A0E",
+  "background_color": "#0C0A06",
+  "theme_color": "#0C0A06",
   "categories": ["entertainment", "movies", "video"],
   "icons": [
+    {
+      "src": "/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",

@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Joywatch • Ambient Cinema UI Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ==========================================================================
+       JOYWATCH PROTOTYPE: AMBIENT CINEMA & INTENSE GLASSMORPHISM
+       STRICT INVARIANTS ENFORCED:
+       - Strictly 0 Gradients (All solid hex & pure rgba alpha tints)
+       - Strictly 0 Purple or Indigo
+       - Strictly 0 Emojis (Delicate SVGs and clean typography only)
+       - Pill Geometry: border-radius: 9999px for interactive elements
+       - Primary Accent: Warm Cinema Amber (#EAB308) & Midnight Obsidian Carbon
+       ========================================================================== */
+
+    :root {
+      --joy-bg: #0C0A06;
+      --joy-surface-card: #17140B;
+      --joy-surface-elevated: #221D10;
+      
+      /* Glassmorphism Solid Alpha Tints (Zero Gradients) */
+      --glass-base: rgba(23, 20, 11, 0.78);
+      --glass-card: rgba(32, 27, 16, 0.65);
+      --glass-card-hover: rgba(44, 37, 22, 0.85);
+      --glass-pill: rgba(255, 255, 255, 0.06);
+      --glass-pill-hover: rgba(255, 255, 255, 0.12);
+      --glass-modal: rgba(18, 15, 8, 0.94);
+      --glass-hud: rgba(12, 10, 6, 0.85);
+      
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-border-light: rgba(255, 255, 255, 0.14);
+      --glass-border-accent: rgba(234, 179, 8, 0.35);
+
+      --joy-accent: #EAB308;
+      --joy-accent-tint: rgba(234, 179, 8, 0.12);
+      --joy-accent-glow: rgba(234, 179, 8, 0.35);
+      --joy-rating: #EAB308;
+      --joy-text-primary: #FFFFFF;
+      --joy-text-secondary: rgba(255, 255, 255, 0.75);
+      --joy-text-muted: rgba(255, 255, 255, 0.45);
+      --joy-text-inverse: #050505;
+
+      --font-display: 'Outfit', -apple-system, sans-serif;
+      --font-body: 'Inter', -apple-system, sans-serif;
+      --radius-pill: 9999px;
+      --radius-card: 16px;
+      --radius-modal: 24px;
+      
+      --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.15);
+    }
+
+    /* Media Unit, Match Scoring, and Masterpiece Styles */
+    .proto-media-unit {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex-shrink: 0;
+      width: 210px;
+      cursor: pointer;
+    }
+
+    .proto-media-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .proto-media-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--joy-text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color 0.2s var(--ease-smooth);
+    }
+
+    .proto-media-unit:hover .proto-media-title {
+      color: var(--joy-accent);
+    }
+
+    .proto-media-sub {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.74rem;
+      color: var(--joy-text-muted);
+    }
+
+    .proto-rec-reason {
+      font-size: 0.72rem;
+      color: var(--joy-accent);
+      font-weight: 500;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .proto-match-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 9px;
+      border-radius: var(--radius-pill);
+      background-color: var(--glass-hud);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border-accent);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--joy-accent);
+      z-index: 3;
+    }
+
+    .proto-masterpiece-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 4px 8px;
+      border-radius: var(--radius-pill);
+      background-color: var(--joy-accent);
+      color: var(--joy-text-inverse);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      z-index: 3;
+    }
+
+    .proto-card.masterpiece-card {
+      border-color: rgba(234, 179, 8, 0.25);
+    }
+
+    .proto-card.masterpiece-card:hover {
+      border-color: var(--joy-accent);
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.9), 0 0 20px rgba(234, 179, 8, 0.15);
+    }
+
+    .proto-taste-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .proto-taste-label {
+      font-size: 0.74rem;
+      color: var(--joy-text-muted);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .proto-taste-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      background-color: var(--glass-pill);
+      border: 1px solid var(--glass-border);
+      color: var(--joy-text-secondary);
+      font-size: 0.74rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-smooth);
+    }
+
+    .proto-taste-chip:hover {
+      color: #FFFFFF;
+      background-color: var(--glass-pill-hover);
+      border-color: var(--glass-border-light);
+    }
+
+    .proto-taste-chip.active {
+      background-color: var(--joy-accent-tint);
+      color: var(--joy-accent);
+      border-color: var(--glass-border-accent);
+      font-weight: 600;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--joy-bg);
+      color: var(--joy-text-primary);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+    }
+
+    /* ==========================================================================
+       1. AMBIENT FROSTED NAVBAR
+       ========================================================================== */
+    .proto-navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 44px;
+      z-index: 100;
+      background-color: var(--glass-base);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border-bottom: 1px solid var(--glass-border);
+      transition: all 0.3s var(--ease-smooth);
+    }
+
+    .proto-nav-left {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+    }
+
+    .proto-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--joy-text-primary);
+    }
+
+    .proto-brand-gem {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-pill);
+      background-color: var(--joy-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px var(--joy-accent-glow);
+    }
+
+    .proto-brand-title {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .proto-nav-tablet {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px;
+      border-radius: var(--radius-pill);
+      background-color: var(--glass-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+    }
+
+    .proto-nav-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 16px;
+      border-radius: var(--radius-pill);
+      background-color: transparent;
+      border: none;
+      color: var(--joy-text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-smooth);
+    }
+
+    .proto-nav-pill:hover {
+      color: var(--joy-text-primary);
+      background-color: var(--glass-pill);
+    }
+
+    .proto-nav-pill.active {
+      background-color: var(--joy-accent-tint);
+      border: 1px solid var(--glass-border-accent);
+      color: var(--joy-accent);
+      font-weight: 600;
+    }
+
+    .proto-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .proto-search-trigger {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 42px;
+      padding: 0 18px;
+      border-radius: var(--radius-pill);
+      background-color: var(--glass-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      color: var(--joy-text-muted);
+      cursor: pointer;
+      transition: all 0.2s var(--ease-smooth);
+      min-width: 280px;
+    }
+
+    .proto-search-trigger:hover {
+      border-color: var(--glass-border-light);
+      background-color: var(--glass-card-hover);
+      color: var(--joy-text-primary);
+    }
+
+    .proto-search-shortcut {
+      margin-left: auto;
+      font-size: 0.72rem;
+      padding: 2px 7px;
+      border-radius: var(--radius-pill);
+      background-color: var(--glass-pill);
+      border: 1px solid var(--glass-border);
+      color: var(--joy-text-muted);
+    }
+
+    /* ==========================================================================
+       2. EDITORIAL HERO LETTERBOX CANVAS
+       ========================================================================== */
+    .proto-hero {
+      position: relative;
+      margin: 92px 44px 56px;
+      height: 580px;
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      border: 1px solid var(--glass-border);
+      display: flex;
+      align-items: flex-end;
+      padding: 56px;
+      background-color: #0B0D13;
+    }
+
+    .proto-hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&q=80');
+      background-size: cover;
+      background-position: center 30%;
+      filter: brightness(0.65) contrast(1.05);
+      transform: scale(1.02);
+      transition: transform 0.8s var(--ease-smooth);
+    }
+
+    .proto-hero-vignette {
+      position: absolute;
+      inset: 0;
+      background-color: rgba(5, 5, 5, 0.55);
+      box-shadow: inset 0 0 160px 40px #050505;
+    }
+
+    .proto-hero-glass-card {
+      position: relative;
+      z-index: 2;
+      max-width: 660px;
+      padding: 36px 40px;
+      border-radius: var(--radius-card);
+      background-color: var(--glass-base);
+      backdrop-filter: blur(32px) saturate(180%);
+      -webkit-backdrop-filter: blur(32px) saturate(180%);
+      border: 1px solid var(--glass-border-light);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      animation: heroCardEntrance 0.8s var(--ease-smooth) both;
+    }
+
+    @keyframes heroCardEntrance {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .proto-hero-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .proto-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .proto-tag-accent {
+      background-color: var(--joy-accent-tint);
+      color: var(--joy-accent);
+      border: 1px solid var(--glass-border-accent);
+    }
+
+    .proto-tag-glass {
+      background-color: var(--glass-pill);
+      color: var(--joy-text-secondary);
+      border: 1px solid var(--glass-border);
+    }
+
+    .proto-hero-title {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: #FFFFFF;
+    }
+
+    .proto-hero-synopsis {
+      font-size: 0.9rem;
+      color: var(--joy-text-secondary);
+      line-height: 1.6;
+      max-height: 4.8em;
+      overflow: hidden;
+    }
+
+    .proto-hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .proto-btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: var(--radius-pill);
+      background-color: var(--joy-accent);
+      color: var(--joy-text-inverse);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 20px var(--joy-accent-glow);
+      transition: all 0.2s var(--ease-spring);
+    }
+
+    .proto-btn-primary:hover {
+      transform: scale(1.03);
+    }
+
+    .proto-btn-primary:active {
+      transform: scale(0.96);
+    }
+
+    .proto-btn-glass {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: var(--radius-pill);
+      background-color: var(--glass-pill);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      color: var(--joy-text-primary);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-smooth);
+    }
+
+    .proto-btn-glass:hover {
+      background-color: var(--glass-pill-hover);
+      border-color: var(--glass-border-light);
+      transform: translateY(-1px);
+    }
+
+    /* ==========================================================================
+       3. SHELVES & TOP 10 CRITERION GALLERY
+       ========================================================================== */
+    .proto-shelf {
+      margin-bottom: 52px;
+      padding: 0 44px;
+    }
+
+    .proto-shelf-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px;
+    }
+
+    .proto-shelf-title-box {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .proto-shelf-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--joy-accent);
+    }
+
+    .proto-shelf-title {
+      font-family: var(--font-display);
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--joy-text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .proto-shelf-scroll {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      padding-bottom: 16px;
+      scrollbar-width: none;
+    }
+
+    .proto-shelf-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Top 10 Card Unit: Hairline Numeral + Poster */
+    .proto-top-unit {
+      display: flex;
+      align-items: flex-end;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .proto-top-numeral {
+      font-family: var(--font-display);
+      font-size: 130px;
+      font-weight: 300;
+      line-height: 0.8;
+      color: rgba(255, 255, 255, 0.18);
+      letter-spacing: -0.06em;
+      margin-right: -28px;
+      z-index: 1;
+      pointer-events: none;
+      user-select: none;
+      transition: color 0.3s var(--ease-smooth);
+    }
+
+    .proto-top-unit:hover .proto-top-numeral {
+      color: var(--joy-accent);
+    }
+
+    /* Poster Card with Frosted Quick Capsule */
+    .proto-card {
+      position: relative;
+      width: 210px;
+      height: 315px;
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      flex-shrink: 0;
+      background-color: var(--joy-surface-card);
+      border: 1px solid var(--glass-border);
+      transition: transform 0.3s var(--ease-smooth),
+                  box-shadow 0.3s var(--ease-smooth),
+                  border-color 0.3s var(--ease-smooth);
+      cursor: pointer;
+    }
+
+    .proto-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: var(--glass-border-light);
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7);
+    }
+
+    .proto-card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s var(--ease-smooth);
+    }
+
+    .proto-card:hover .proto-card-img {
+      transform: scale(1.06);
+    }
+
+    /* Rating Pill on Poster */
+    .proto-card-rating {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      background-color: var(--glass-hud);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--joy-rating);
+      z-index: 3;
+    }
+
+    /* Hover Frosted Capsule Bar */
+    .proto-card-capsule {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+      padding: 8px;
+      border-radius: var(--radius-pill);
+      background-color: var(--glass-base);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--glass-border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.25s var(--ease-spring);
+      z-index: 4;
+    }
+
+    .proto-card:hover .proto-card-capsule {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .proto-capsule-action {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-pill);
+      background-color: transparent;
+      border: 1px solid transparent;
+      color: var(--joy-text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-smooth);
+    }
+
+    .proto-capsule-action:hover {
+      background-color: var(--glass-pill-hover);
+      color: #FFFFFF;
+      border-color: var(--glass-border-light);
+    }
+
+    .proto-capsule-action.play-action {
+      background-color: var(--joy-accent);
+      color: var(--joy-text-inverse);
+      box-shadow: 0 0 12px var(--joy-accent-glow);
+    }
+
+    /* ==========================================================================
+       4. COMMAND PALETTE / SPOTLIGHT SEARCH OVERLAY
+       ========================================================================== */
+    .proto-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(5, 5, 5, 0.85);
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .proto-modal-backdrop.open {
+      display: flex;
+    }
+
+    .proto-spotlight {
+      width: 100%;
+      max-width: 680px;
+      border-radius: var(--radius-modal);
+      background-color: var(--glass-modal);
+      backdrop-filter: blur(40px) saturate(190%);
+      -webkit-backdrop-filter: blur(40px) saturate(190%);
+      border: 1px solid var(--glass-border-light);
+      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.9);
+      overflow: hidden;
+      animation: modalPop 0.25s var(--ease-spring) both;
+    }
+
+    @keyframes modalPop {
+      from { opacity: 0; transform: scale(0.94) translateY(12px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .proto-spotlight-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .proto-spotlight-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #FFFFFF;
+      font-family: var(--font-body);
+      font-size: 1.15rem;
+    }
+
+    .proto-spotlight-input::placeholder {
+      color: var(--joy-text-muted);
+    }
+
+    .proto-spotlight-pills {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--glass-border);
+      overflow-x: auto;
+    }
+
+    .proto-spotlight-results {
+      max-height: 380px;
+      overflow-y: auto;
+      padding: 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .proto-result-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 14px;
+      border-radius: var(--radius-card);
+      background-color: transparent;
+      border: 1px solid transparent;
+      color: var(--joy-text-primary);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s var(--ease-smooth);
+    }
+
+    .proto-result-row:hover {
+      background-color: var(--glass-pill-hover);
+      border-color: var(--glass-border);
+      transform: translateX(4px);
+    }
+
+    .proto-result-thumb {
+      width: 44px;
+      height: 60px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .proto-result-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .proto-result-title {
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+
+    .proto-result-meta {
+      font-size: 0.76rem;
+      color: var(--joy-text-muted);
+    }
+
+    /* ==========================================================================
+       5. CINEMA DOSSIER DETAIL MODAL (Split View)
+       ========================================================================== */
+    .proto-dossier {
+      width: 100%;
+      max-width: 980px;
+      border-radius: var(--radius-modal);
+      background-color: var(--glass-modal);
+      backdrop-filter: blur(40px) saturate(200%);
+      -webkit-backdrop-filter: blur(40px) saturate(200%);
+      border: 1px solid var(--glass-border-light);
+      box-shadow: 0 40px 90px rgba(0, 0, 0, 0.95);
+      overflow: hidden;
+      display: flex;
+      max-height: 85vh;
+    }
+
+    .proto-dossier-left {
+      width: 320px;
+      padding: 36px;
+      border-right: 1px solid var(--glass-border);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      background-color: rgba(5, 5, 5, 0.4);
+    }
+
+    .proto-dossier-poster {
+      width: 100%;
+      aspect-ratio: 2/3;
+      border-radius: var(--radius-card);
+      object-fit: cover;
+      border: 1px solid var(--glass-border);
+    }
+
+    .proto-dossier-right {
+      flex: 1;
+      padding: 36px 40px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .proto-tabs-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px;
+      border-radius: var(--radius-pill);
+      background-color: var(--glass-card);
+      border: 1px solid var(--glass-border);
+      width: fit-content;
+    }
+
+    .proto-tab-item {
+      padding: 6px 18px;
+      border-radius: var(--radius-pill);
+      background: transparent;
+      border: none;
+      color: var(--joy-text-secondary);
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .proto-tab-item.active {
+      background-color: var(--joy-accent-tint);
+      color: var(--joy-accent);
+      border: 1px solid var(--glass-border-accent);
+      font-weight: 600;
+    }
+
+    .proto-episode-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 12px;
+    }
+
+    .proto-ep-pill {
+      position: relative;
+      overflow: hidden;
+      padding: 10px 14px;
+      border-radius: var(--radius-pill);
+      background-color: var(--glass-pill);
+      border: 1px solid var(--glass-border);
+      color: var(--joy-text-primary);
+      font-size: 0.78rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-smooth);
+    }
+
+    .proto-ep-pill:hover {
+      background-color: var(--glass-pill-hover);
+      border-color: var(--glass-border-light);
+    }
+
+    .proto-ep-pill.watched {
+      border-color: var(--glass-border-accent);
+      color: var(--joy-accent);
+    }
+
+    .proto-ep-progress-rail {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .proto-ep-progress-fill {
+      height: 100%;
+      background-color: var(--joy-accent);
+    }
+
+    /* ==========================================================================
+       6. FLOATING INVISIBLE PLAYER HUD PREVIEW
+       ========================================================================== */
+    .proto-hud-preview {
+      position: relative;
+      margin: 0 44px 72px;
+      height: 360px;
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      border: 1px solid var(--glass-border);
+      background-color: #000000;
+    }
+
+    .proto-hud-backdrop {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.45;
+    }
+
+    .proto-floating-bar {
+      position: absolute;
+      top: 24px;
+      left: 24px;
+      right: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      border-radius: var(--radius-pill);
+      background-color: var(--glass-hud);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid var(--glass-border-light);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
+    }
+
+    .proto-player-tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      background-color: var(--joy-accent-tint);
+      color: var(--joy-accent);
+      border: 1px solid var(--glass-border-accent);
+    }
+
+    .proto-binge-pill {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      border-radius: var(--radius-pill);
+      background-color: var(--glass-base);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid var(--glass-border-accent);
+      color: var(--joy-text-primary);
+      font-size: 0.8rem;
+      font-weight: 600;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
+      cursor: pointer;
+    }
+
+    /* Modal Close Button */
+    .proto-modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-pill);
+      background-color: var(--glass-pill);
+      border: 1px solid var(--glass-border);
+      color: var(--joy-text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .proto-modal-close:hover {
+      color: #FFFFFF;
+      background-color: var(--glass-pill-hover);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. Ambient Frosted Glass Navbar -->
+  <header class="proto-navbar">
+    <div class="proto-nav-left">
+      <a href="#" class="proto-brand">
+        <div class="proto-brand-gem">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polygon points="6 3 20 12 6 21 6 3" fill="#050505"/></svg>
+        </div>
+        <span class="proto-brand-title">JOYWATCH</span>
+      </a>
+
+      <nav class="proto-nav-tablet">
+        <button class="proto-nav-pill active">Discover</button>
+        <button class="proto-nav-pill">Movies</button>
+        <button class="proto-nav-pill">TV Series</button>
+        <button class="proto-nav-pill">Anime</button>
+        <button class="proto-nav-pill">Library</button>
+      </nav>
+    </div>
+
+    <div class="proto-nav-right">
+      <div class="proto-search-trigger" id="search-trigger">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <span>Search universe, OTT, titles...</span>
+        <span class="proto-search-shortcut">/</span>
+      </div>
+      <button class="proto-btn-glass" id="open-dossier-btn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <span>Preview Dossier</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 2. Editorial Hero Canvas with Frosted Glass Panel -->
+  <section class="proto-hero">
+    <div class="proto-hero-bg"></div>
+    <div class="proto-hero-vignette"></div>
+
+    <div class="proto-hero-glass-card">
+      <div class="proto-hero-meta">
+        <span class="proto-tag proto-tag-accent">Ambient Spotlight</span>
+        <span class="proto-tag proto-tag-glass">4K Ultra HD</span>
+        <span class="proto-tag proto-tag-glass">IMDb 8.9</span>
+        <span class="proto-tag proto-tag-glass">2026</span>
+      </div>
+
+      <h1 class="proto-hero-title">Dune: Part Two</h1>
+      
+      <p class="proto-hero-synopsis">
+        Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family. Facing a choice between the love of his life and the fate of the universe.
+      </p>
+
+      <div class="proto-hero-actions">
+        <button class="proto-btn-primary" onclick="alert('Launching pure in-browser stream...')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+          <span>Watch Film</span>
+        </button>
+        <button class="proto-btn-glass" onclick="document.getElementById('dossier-modal').classList.add('open')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          <span>Film Dossier</span>
+        </button>
+        <button class="proto-btn-glass" title="Add to Library">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Smart Recommendation Engine Shelf (Recommended For You) -->
+  <section class="proto-shelf" id="recommended-shelf">
+    <div class="proto-shelf-header">
+      <div class="proto-shelf-title-box">
+        <span class="proto-shelf-tag">Smart Taste Engine</span>
+        <h2 class="proto-shelf-title">Recommended For You</h2>
+        <div class="proto-taste-row" id="taste-profile-chips">
+          <span class="proto-taste-label">Based on what you watched:</span>
+          <!-- Dynamic taste chips rendered via JS -->
+        </div>
+      </div>
+    </div>
+
+    <div class="proto-shelf-scroll" id="recommended-scroll">
+      <!-- Dynamic recommendations rendered via JS -->
+    </div>
+  </section>
+
+  <!-- 4. Hall of Fame Masterpiece Shelf (IMDb 9.5+) -->
+  <section class="proto-shelf" id="masterpiece-shelf">
+    <div class="proto-shelf-header">
+      <div class="proto-shelf-title-box">
+        <span class="proto-shelf-tag">Hall of Fame • Certified 9.5+</span>
+        <h2 class="proto-shelf-title">Masterpieces</h2>
+        <div style="font-size: 0.78rem; color: var(--joy-text-muted); margin-top: 4px;">
+          The highest-rated cinematic triumphs in world history with verified scores of 9.5 and above.
+        </div>
+      </div>
+    </div>
+
+    <div class="proto-shelf-scroll">
+      <!-- Masterpiece 1: The Shawshank Redemption -->
+      <div class="proto-media-unit" onclick="document.getElementById('dossier-modal').classList.add('open')">
+        <div class="proto-card masterpiece-card">
+          <img class="proto-card-img" src="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&q=80" alt="The Shawshank Redemption">
+          <div class="proto-card-rating">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="#EAB308"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>9.8</span>
+          </div>
+          <span class="proto-masterpiece-badge">Masterpiece</span>
+          <div class="proto-card-capsule">
+            <button class="proto-capsule-action play-action" title="Play"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg></button>
+            <button class="proto-capsule-action" title="Watchlist"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+            <button class="proto-capsule-action" title="Dossier"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button>
+          </div>
+        </div>
+        <div class="proto-media-meta">
+          <span class="proto-media-title">The Shawshank Redemption</span>
+          <span class="proto-media-sub">1994 • Drama, Hope • IMDb 9.8</span>
+        </div>
+      </div>
+
+      <!-- Masterpiece 2: The Godfather -->
+      <div class="proto-media-unit" onclick="document.getElementById('dossier-modal').classList.add('open')">
+        <div class="proto-card masterpiece-card">
+          <img class="proto-card-img" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80" alt="The Godfather">
+          <div class="proto-card-rating">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="#EAB308"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>9.6</span>
+          </div>
+          <span class="proto-masterpiece-badge">Masterpiece</span>
+          <div class="proto-card-capsule">
+            <button class="proto-capsule-action play-action" title="Play"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg></button>
+            <button class="proto-capsule-action" title="Watchlist"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+            <button class="proto-capsule-action" title="Dossier"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button>
+          </div>
+        </div>
+        <div class="proto-media-meta">
+          <span class="proto-media-title">The Godfather</span>
+          <span class="proto-media-sub">1972 • Crime, Epic Drama • IMDb 9.6</span>
+        </div>
+      </div>
+
+      <!-- Masterpiece 3: The Dark Knight -->
+      <div class="proto-media-unit" onclick="document.getElementById('dossier-modal').classList.add('open')">
+        <div class="proto-card masterpiece-card">
+          <img class="proto-card-img" src="https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=600&q=80" alt="The Dark Knight">
+          <div class="proto-card-rating">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="#EAB308"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>9.5</span>
+          </div>
+          <span class="proto-masterpiece-badge">Masterpiece</span>
+          <div class="proto-card-capsule">
+            <button class="proto-capsule-action play-action" title="Play"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg></button>
+            <button class="proto-capsule-action" title="Watchlist"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+            <button class="proto-capsule-action" title="Dossier"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button>
+          </div>
+        </div>
+        <div class="proto-media-meta">
+          <span class="proto-media-title">The Dark Knight</span>
+          <span class="proto-media-sub">2008 • Action, Crime, Thriller • IMDb 9.5</span>
+        </div>
+      </div>
+
+      <!-- Masterpiece 4: 12 Angry Men -->
+      <div class="proto-media-unit" onclick="document.getElementById('dossier-modal').classList.add('open')">
+        <div class="proto-card masterpiece-card">
+          <img class="proto-card-img" src="https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&q=80" alt="12 Angry Men">
+          <div class="proto-card-rating">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="#EAB308"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>9.5</span>
+          </div>
+          <span class="proto-masterpiece-badge">Masterpiece</span>
+          <div class="proto-card-capsule">
+            <button class="proto-capsule-action play-action" title="Play"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg></button>
+            <button class="proto-capsule-action" title="Watchlist"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+            <button class="proto-capsule-action" title="Dossier"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button>
+          </div>
+        </div>
+        <div class="proto-media-meta">
+          <span class="proto-media-title">12 Angry Men</span>
+          <span class="proto-media-sub">1957 • Courtroom, Drama • IMDb 9.5</span>
+        </div>
+      </div>
+
+      <!-- Masterpiece 5: Schindler's List -->
+      <div class="proto-media-unit" onclick="document.getElementById('dossier-modal').classList.add('open')">
+        <div class="proto-card masterpiece-card">
+          <img class="proto-card-img" src="https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=600&q=80" alt="Schindler's List">
+          <div class="proto-card-rating">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="#EAB308"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>9.5</span>
+          </div>
+          <span class="proto-masterpiece-badge">Masterpiece</span>
+          <div class="proto-card-capsule">
+            <button class="proto-capsule-action play-action" title="Play"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg></button>
+            <button class="proto-capsule-action" title="Watchlist"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+            <button class="proto-capsule-action" title="Dossier"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button>
+          </div>
+        </div>
+        <div class="proto-media-meta">
+          <span class="proto-media-title">Schindler's List</span>
+          <span class="proto-media-sub">1993 • Biography, Historical • IMDb 9.5</span>
+        </div>
+      </div>
+
+      <!-- Masterpiece 6: The Return of the King -->
+      <div class="proto-media-unit" onclick="document.getElementById('dossier-modal').classList.add('open')">
+        <div class="proto-card masterpiece-card">
+          <img class="proto-card-img" src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=600&q=80" alt="The Return of the King">
+          <div class="proto-card-rating">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="#EAB308"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>9.5</span>
+          </div>
+          <span class="proto-masterpiece-badge">Masterpiece</span>
+          <div class="proto-card-capsule">
+            <button class="proto-capsule-action play-action" title="Play"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg></button>
+            <button class="proto-capsule-action" title="Watchlist"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+            <button class="proto-capsule-action" title="Dossier"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button>
+          </div>
+        </div>
+        <div class="proto-media-meta">
+          <span class="proto-media-title">The Lord of the Rings: The Return of the King</span>
+          <span class="proto-media-sub">2003 • Fantasy, Epic Adventure • IMDb 9.5</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Top 10 Criterion Gallery Shelf -->
+  <section class="proto-shelf">
+    <div class="proto-shelf-header">
+      <div class="proto-shelf-title-box">
+        <span class="proto-shelf-tag">Curated Ranking</span>
+        <h2 class="proto-shelf-title">Top 10 Masterpieces Trending Today</h2>
+      </div>
+    </div>
+
+    <div class="proto-shelf-scroll">
+      <!-- Item 1 -->
+      <div class="proto-top-unit" onclick="document.getElementById('dossier-modal').classList.add('open')">
+        <span class="proto-top-numeral">1</span>
+        <div class="proto-card">
+          <img class="proto-card-img" src="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&q=80" alt="Title">
+          <div class="proto-card-rating">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="#EAB308"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>9.1</span>
+          </div>
+          <div class="proto-card-capsule">
+            <button class="proto-capsule-action play-action" title="Play">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+            </button>
+            <button class="proto-capsule-action" title="Save to Watchlist">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </button>
+            <button class="proto-capsule-action" title="Info">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item 2 -->
+      <div class="proto-top-unit" onclick="document.getElementById('dossier-modal').classList.add('open')">
+        <span class="proto-top-numeral">2</span>
+        <div class="proto-card">
+          <img class="proto-card-img" src="https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=600&q=80" alt="Title">
+          <div class="proto-card-rating">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="#EAB308"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>8.8</span>
+          </div>
+          <div class="proto-card-capsule">
+            <button class="proto-capsule-action play-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg></button>
+            <button class="proto-capsule-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+            <button class="proto-capsule-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item 3 -->
+      <div class="proto-top-unit" onclick="document.getElementById('dossier-modal').classList.add('open')">
+        <span class="proto-top-numeral">3</span>
+        <div class="proto-card">
+          <img class="proto-card-img" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80" alt="Title">
+          <div class="proto-card-rating">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="#EAB308"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>8.7</span>
+          </div>
+          <div class="proto-card-capsule">
+            <button class="proto-capsule-action play-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg></button>
+            <button class="proto-capsule-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+            <button class="proto-capsule-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item 4 -->
+      <div class="proto-top-unit" onclick="document.getElementById('dossier-modal').classList.add('open')">
+        <span class="proto-top-numeral">4</span>
+        <div class="proto-card">
+          <img class="proto-card-img" src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=600&q=80" alt="Title">
+          <div class="proto-card-rating">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="#EAB308"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>8.5</span>
+          </div>
+          <div class="proto-card-capsule">
+            <button class="proto-capsule-action play-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg></button>
+            <button class="proto-capsule-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+            <button class="proto-capsule-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Invisible Cinema Mode HUD Simulation Preview -->
+  <section class="proto-shelf">
+    <div class="proto-shelf-header">
+      <div class="proto-shelf-title-box">
+        <span class="proto-shelf-tag">Player Architecture</span>
+        <h2 class="proto-shelf-title">Invisible Cinema Floating HUD Simulation</h2>
+      </div>
+    </div>
+
+    <div class="proto-hud-preview">
+      <img class="proto-hud-backdrop" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&q=80" alt="Video Feed">
+      
+      <!-- Top Floating Pill HUD -->
+      <div class="proto-floating-bar">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <button class="proto-capsule-action" title="Back">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div>
+            <div style="font-size: 0.85rem; font-weight: 600;">Dune: Part Two</div>
+            <div style="font-size: 0.72rem; color: var(--joy-text-muted);">Server 1 (VidLink Pro) • 1080p Ultra HD</div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="proto-player-tag">Mirror Fast Cloud</span>
+          <button class="proto-btn-glass" style="padding: 6px 14px; font-size: 0.75rem;">Servers ▾</button>
+        </div>
+      </div>
+
+      <!-- Next Episode Floating Pill -->
+      <div class="proto-binge-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/><line x1="19" y1="3" x2="19" y2="21" stroke="currentColor" stroke-width="2"/></svg>
+        <span>Next: S1:E2 in 10s</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Command Palette Spotlight Modal (Press '/' or Click Search) -->
+  <div class="proto-modal-backdrop" id="search-modal">
+    <div class="proto-spotlight">
+      <div class="proto-spotlight-bar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" class="proto-spotlight-input" id="spotlight-input" placeholder="Type a title, director, platform, or keyword...">
+        <span class="proto-search-shortcut">Esc to close</span>
+      </div>
+
+      <div class="proto-spotlight-pills">
+        <button class="proto-nav-pill active">All Results</button>
+        <button class="proto-nav-pill">Cyberpunk</button>
+        <button class="proto-nav-pill">Neo-Noir</button>
+        <button class="proto-nav-pill">Sci-Fi</button>
+        <button class="proto-nav-pill">Psychological</button>
+        <button class="proto-nav-pill">Anime</button>
+      </div>
+
+      <div class="proto-spotlight-results">
+        <div class="proto-result-row" onclick="alert('Opening title details...')">
+          <img class="proto-result-thumb" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=200&q=80" alt="Thumb">
+          <div class="proto-result-info">
+            <span class="proto-result-title">Dune: Part Two</span>
+            <span class="proto-result-meta">2026 • Sci-Fi, Adventure • IMDb 8.9</span>
+          </div>
+          <span class="proto-tag proto-tag-accent">Watch Now</span>
+        </div>
+
+        <div class="proto-result-row" onclick="alert('Opening title details...')">
+          <img class="proto-result-thumb" src="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=200&q=80" alt="Thumb">
+          <div class="proto-result-info">
+            <span class="proto-result-title">Blade Runner 2049</span>
+            <span class="proto-result-meta">2017 • Neo-Noir, Sci-Fi • IMDb 8.0</span>
+          </div>
+          <span class="proto-tag proto-tag-glass">Available</span>
+        </div>
+
+        <div class="proto-result-row" onclick="alert('Opening title details...')">
+          <img class="proto-result-thumb" src="https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=200&q=80" alt="Thumb">
+          <div class="proto-result-info">
+            <span class="proto-result-title">Interstellar</span>
+            <span class="proto-result-meta">2014 • Space, Drama • IMDb 8.7</span>
+          </div>
+          <span class="proto-tag proto-tag-glass">Available</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Cinema Dossier Detail Modal -->
+  <div class="proto-modal-backdrop" id="dossier-modal">
+    <div class="proto-dossier">
+      <button class="proto-modal-close" onclick="document.getElementById('dossier-modal').classList.remove('open')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+
+      <!-- Left Column: Poster + Primary Actions -->
+      <div class="proto-dossier-left">
+        <img class="proto-dossier-poster" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80" alt="Dossier Poster">
+        <button class="proto-btn-primary" style="width: 100%; justify-content: center;" onclick="alert('Streaming...')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+          <span>Play Feature Film</span>
+        </button>
+        <button class="proto-btn-glass" style="width: 100%; justify-content: center;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          <span>Save to Library</span>
+        </button>
+      </div>
+
+      <!-- Right Column: Structured Dossier -->
+      <div class="proto-dossier-right">
+        <div>
+          <div class="proto-hero-meta" style="margin-bottom: 8px;">
+            <span class="proto-tag proto-tag-accent">Verified TMDb</span>
+            <span class="proto-tag proto-tag-glass">Sci-Fi • Adventure</span>
+            <span class="proto-tag proto-tag-glass">2h 46m</span>
+          </div>
+          <h2 style="font-family: var(--font-display); font-size: 2rem; font-weight: 700;">Dune: Part Two</h2>
+        </div>
+
+        <div class="proto-tabs-header">
+          <button class="proto-tab-item active">Overview</button>
+          <button class="proto-tab-item">Episodes & Seasons</button>
+          <button class="proto-tab-item">Cast & Crew</button>
+          <button class="proto-tab-item">Streaming Servers (7)</button>
+        </div>
+
+        <div>
+          <h3 style="font-family: var(--font-display); font-size: 1rem; font-weight: 600; margin-bottom: 8px;">Synopsis</h3>
+          <p style="font-size: 0.88rem; color: var(--joy-text-secondary); line-height: 1.7;">
+            Duke Paul Atreides joins the Fremen and begins a spiritual and martial journey to become Muad'Dib, while trying to prevent the horrible yet inevitable future he's witnessed: a Holy War in his name, spreading across the known universe.
+          </p>
+        </div>
+
+        <div>
+          <h3 style="font-family: var(--font-display); font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Episodes (Tracked Progress)</h3>
+          <div class="proto-episode-grid">
+            <button class="proto-ep-pill watched">
+              <span>Episode 1</span>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+            <button class="proto-ep-pill">
+              <span>Episode 2</span>
+              <div class="proto-ep-progress-rail"><div class="proto-ep-progress-fill" style="width: 60%;"></div></div>
+            </button>
+            <button class="proto-ep-pill">
+              <span>Episode 3</span>
+            </button>
+            <button class="proto-ep-pill">
+              <span>Episode 4</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Spotlight Search Modal Triggers
+    const searchTrigger = document.getElementById('search-trigger');
+    const searchModal = document.getElementById('search-modal');
+    const spotlightInput = document.getElementById('spotlight-input');
+    const dossierModal = document.getElementById('dossier-modal');
+    const openDossierBtn = document.getElementById('open-dossier-btn');
+
+    function openSearch() {
+      searchModal.classList.add('open');
+      setTimeout(() => spotlightInput.focus(), 60);
+    }
+
+    function closeAllModals() {
+      searchModal.classList.remove('open');
+      dossierModal.classList.remove('open');
+    }
+
+    searchTrigger.addEventListener('click', openSearch);
+    openDossierBtn.addEventListener('click', () => dossierModal.classList.add('open'));
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '/' && document.activeElement !== spotlightInput) {
+        e.preventDefault();
+        openSearch();
+      } else if (e.key === 'Escape') {
+        closeAllModals();
+      }
+    });
+
+    // Close on backdrop click
+    searchModal.addEventListener('click', (e) => {
+      if (e.target === searchModal) closeAllModals();
+    });
+    dossierModal.addEventListener('click', (e) => {
+      if (e.target === dossierModal) closeAllModals();
+    });
+
+    // ==========================================================================
+    // SMART RECOMMENDATION TASTE ENGINE
+    // Recommends movies dynamically based on previous watch history and taste affinities
+    // ==========================================================================
+    const tasteCatalog = {
+      dune: {
+        id: 'dune',
+        title: 'Dune: Part Two',
+        year: '2024',
+        genres: ['Sci-Fi', 'Epic', 'Adventure'],
+        director: 'Denis Villeneuve',
+        recommendations: [
+          {
+            title: 'Blade Runner 2049',
+            match: '99%',
+            year: '2017',
+            genre: 'Neo-Noir, Sci-Fi',
+            rating: '8.5',
+            img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80',
+            reason: 'Matches director Denis Villeneuve’s vast atmosphere, philosophical depth & worldbuilding'
+          },
+          {
+            title: 'Interstellar',
+            match: '97%',
+            year: '2014',
+            genre: 'Sci-Fi, Space Drama',
+            rating: '8.7',
+            img: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=600&q=80',
+            reason: 'Shares towering Hans Zimmer symphonies & awe-inspiring cosmic scale'
+          },
+          {
+            title: 'Arrival',
+            match: '96%',
+            year: '2016',
+            genre: 'Sci-Fi, Mystery',
+            rating: '8.0',
+            img: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&q=80',
+            reason: 'Profound atmospheric extraterrestrial contact and non-linear storytelling'
+          },
+          {
+            title: 'Children of Men',
+            match: '93%',
+            year: '2006',
+            genre: 'Sci-Fi, Dystopian Thriller',
+            rating: '8.0',
+            img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&q=80',
+            reason: 'Visceral camera choreography and bleak, believable survival stakes'
+          },
+          {
+            title: 'Mad Max: Fury Road',
+            match: '91%',
+            year: '2015',
+            genre: 'Action, Desert Odyssey',
+            rating: '8.1',
+            img: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=600&q=80',
+            reason: 'Desert wasteland survival, practical kinetic effects & relentless momentum'
+          }
+        ]
+      },
+      darkknight: {
+        id: 'darkknight',
+        title: 'The Dark Knight',
+        year: '2008',
+        genres: ['Crime', 'Action', 'Thriller'],
+        director: 'Christopher Nolan',
+        recommendations: [
+          {
+            title: 'The Batman',
+            match: '98%',
+            year: '2022',
+            genre: 'Crime, Neo-Noir',
+            rating: '8.0',
+            img: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=600&q=80',
+            reason: 'Gritty detective investigation, rainfall-drenched Gotham & deep institutional rot'
+          },
+          {
+            title: 'Heat',
+            match: '96%',
+            year: '1995',
+            genre: 'Crime, Heist, Drama',
+            rating: '8.3',
+            img: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&q=80',
+            reason: 'Christopher Nolan’s explicit cinematic blueprint for the Bank Heist and duel of minds'
+          },
+          {
+            title: 'Se7en',
+            match: '94%',
+            year: '1995',
+            genre: 'Crime, Psychological Thriller',
+            rating: '8.6',
+            img: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=600&q=80',
+            reason: 'Relentless grim cat-and-mouse investigation matching Joker’s philosophical nihilism'
+          },
+          {
+            title: 'Inception',
+            match: '93%',
+            year: '2010',
+            genre: 'Sci-Fi, Heist, Action',
+            rating: '8.8',
+            img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80',
+            reason: 'Signature Christopher Nolan puzzle-box structure and towering tension'
+          },
+          {
+            title: 'Zodiac',
+            match: '91%',
+            year: '2007',
+            genre: 'Crime, Mystery, History',
+            rating: '7.7',
+            img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&q=80',
+            reason: 'Obsessive pursuit of truth through shadowy newspaper archives and police precincts'
+          }
+        ]
+      },
+      interstellar: {
+        id: 'interstellar',
+        title: 'Interstellar',
+        year: '2014',
+        genres: ['Sci-Fi', 'Space Drama'],
+        director: 'Christopher Nolan',
+        recommendations: [
+          {
+            title: 'Contact',
+            match: '98%',
+            year: '1997',
+            genre: 'Sci-Fi, Drama',
+            rating: '7.5',
+            img: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=600&q=80',
+            reason: 'Emotional core grounded in human love against the terrifying infinity of space'
+          },
+          {
+            title: 'The Martian',
+            match: '95%',
+            year: '2015',
+            genre: 'Sci-Fi, Adventure',
+            rating: '8.0',
+            img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=600&q=80',
+            reason: 'Scientific optimism, Martian planetary survival, and triumphant orbital physics'
+          },
+          {
+            title: '2001: A Space Odyssey',
+            match: '94%',
+            year: '1968',
+            genre: 'Sci-Fi, Mystery',
+            rating: '8.3',
+            img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80',
+            reason: 'The definitive philosophical space journey and forefather to Interstellar’s tesseract'
+          },
+          {
+            title: 'Gravity',
+            match: '92%',
+            year: '2013',
+            genre: 'Sci-Fi, Thriller',
+            rating: '7.7',
+            img: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&q=80',
+            reason: 'Sensory mastery of vacuum physics and edge-of-seat zero-gravity orbital survival'
+          },
+          {
+            title: 'First Man',
+            match: '90%',
+            year: '2018',
+            genre: 'Biography, Space Drama',
+            rating: '7.3',
+            img: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=600&q=80',
+            reason: 'Intimate psychological grief of space exploration wrapped in metallic claustrophobia'
+          }
+        ]
+      },
+      oppenheimer: {
+        id: 'oppenheimer',
+        title: 'Oppenheimer',
+        year: '2023',
+        genres: ['Biography', 'History', 'Drama'],
+        director: 'Christopher Nolan',
+        recommendations: [
+          {
+            title: 'The Imitation Game',
+            match: '98%',
+            year: '2014',
+            genre: 'Biography, War Drama',
+            rating: '8.0',
+            img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&q=80',
+            reason: 'Wartime mathematical brilliance, top-secret isolation & devastating betrayal'
+          },
+          {
+            title: 'Chernobyl',
+            match: '97%',
+            year: '2019',
+            genre: 'Historical Drama, Thriller',
+            rating: '9.3',
+            img: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=600&q=80',
+            reason: 'Nuclear hubris, bureaucratic secrecy, and the terrifying cost of scientific silence'
+          },
+          {
+            title: 'There Will Be Blood',
+            match: '94%',
+            year: '2007',
+            genre: 'Drama, Historical Epic',
+            rating: '8.2',
+            img: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&q=80',
+            reason: 'Relentless monomaniacal ambition and the brutal birth of a modern superpower'
+          },
+          {
+            title: 'A Beautiful Mind',
+            match: '92%',
+            year: '2001',
+            genre: 'Biography, Drama',
+            rating: '8.2',
+            img: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=600&q=80',
+            reason: 'The burden of genius, psychological breakdown, and government cryptography'
+          },
+          {
+            title: 'Bridge of Spies',
+            match: '90%',
+            year: '2015',
+            genre: 'History, Drama, Thriller',
+            rating: '7.6',
+            img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80',
+            reason: 'Cold War high-stakes diplomatic tightrope and quiet moral steadfastness'
+          }
+        ]
+      }
+    };
+
+    function getStoredWatchedSeeds() {
+      const seeds = Object.keys(tasteCatalog);
+      try {
+        const raw = localStorage.getItem('joywatch_progress_v1');
+        if (raw) {
+          const progress = JSON.parse(raw);
+          const titles = Object.values(progress).map(p => p.title || p.name).filter(Boolean);
+          console.log('[TasteEngine] Found user watch progress:', titles);
+        }
+      } catch(e) {}
+      return seeds;
+    }
+
+    let activeSeed = 'dune';
+
+    function renderTasteChips() {
+      const container = document.getElementById('taste-profile-chips');
+      if (!container) return;
+      container.innerHTML = '<span class="proto-taste-label">Based on what you watched:</span>';
+
+      const seeds = getStoredWatchedSeeds();
+      seeds.forEach(key => {
+        const seed = tasteCatalog[key];
+        if (!seed) return;
+        const chip = document.createElement('button');
+        chip.className = `proto-taste-chip ${key === activeSeed ? 'active' : ''}`;
+        chip.innerHTML = `
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <span>${seed.title}</span>
+        `;
+        chip.addEventListener('click', () => {
+          activeSeed = key;
+          renderTasteChips();
+          renderRecommendations();
+        });
+        container.appendChild(chip);
+      });
+    }
+
+    function renderRecommendations() {
+      const scroll = document.getElementById('recommended-scroll');
+      if (!scroll) return;
+      const seed = tasteCatalog[activeSeed] || tasteCatalog.dune;
+      
+      scroll.innerHTML = '';
+      seed.recommendations.forEach(item => {
+        const unit = document.createElement('div');
+        unit.className = 'proto-media-unit';
+        unit.onclick = () => document.getElementById('dossier-modal').classList.add('open');
+        unit.innerHTML = `
+          <div class="proto-card">
+            <img class="proto-card-img" src="${item.img}" alt="${item.title}">
+            <div class="proto-card-rating">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#EAB308"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <span>${item.rating}</span>
+            </div>
+            <div class="proto-match-badge">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>${item.match} Match</span>
+            </div>
+            <div class="proto-card-capsule">
+              <button class="proto-capsule-action play-action" title="Play"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg></button>
+              <button class="proto-capsule-action" title="Save to Watchlist"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+              <button class="proto-capsule-action" title="Film Dossier"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button>
+            </div>
+          </div>
+          <div class="proto-media-meta">
+            <span class="proto-media-title">${item.title}</span>
+            <span class="proto-media-sub">${item.year} • ${item.genre}</span>
+            <span class="proto-rec-reason">${item.reason}</span>
+          </div>
+        `;
+        scroll.appendChild(unit);
+      });
+    }
+
+    // Initialize Smart Recommendations
+    renderTasteChips();
+    renderRecommendations();
+  </script>
+</body>
+</html>

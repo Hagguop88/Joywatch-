@@ -1166,6 +1166,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!settingsView || !hasSettingsEngine()) return;
     renderThemeSwatches();
     renderServerRows();
+    loadPopcornStatus();
     renderSettingsToggles();
     wireSettingsDataButtons();
   }
@@ -1329,6 +1330,53 @@ document.addEventListener('DOMContentLoaded', () => {
       const s = window.JoywatchSettings.getAll();
       document.documentElement.classList.toggle('reduce-motion', !!s.reducedMotion);
     } catch (e) { /* cosmetic only */ }
+  }
+
+  async function loadPopcornStatus() {
+    const nodeEl = document.getElementById('popcorn-active-node');
+    const dotEl = document.getElementById('popcorn-status-dot');
+    const moviesEl = document.getElementById('popcorn-stat-movies');
+    const showsEl = document.getElementById('popcorn-stat-shows');
+    const statusEl = document.getElementById('popcorn-stat-status');
+    const refreshBtn = document.getElementById('popcorn-refresh-btn');
+
+    if (refreshBtn && !refreshBtn.dataset.wired) {
+      refreshBtn.dataset.wired = '1';
+      refreshBtn.addEventListener('click', async () => {
+        showToast('Verifying Popcorn API cluster...');
+        await loadPopcornStatus();
+        showToast('Popcorn API cluster verified');
+      });
+    }
+
+    if (!nodeEl) return;
+    try {
+      const res = await fetch('/api/popcorn/status');
+      if (!res.ok) throw new Error('Status HTTP error');
+      const data = await res.json();
+      if (data.connected) {
+        const cleanNode = (data.active_node || '').replace(/^https?:\/\//, '');
+        nodeEl.textContent = `Active Node: ${cleanNode}`;
+        if (dotEl) {
+          dotEl.classList.remove('offline');
+          dotEl.style.backgroundColor = '#22C55E';
+        }
+        if (data.status) {
+          if (moviesEl && data.status.totalMovies) moviesEl.textContent = Number(data.status.totalMovies).toLocaleString();
+          if (showsEl && data.status.totalShows) showsEl.textContent = Number(data.status.totalShows).toLocaleString();
+          if (statusEl) statusEl.textContent = 'Active';
+        }
+      } else {
+        nodeEl.textContent = 'Popcorn Network Node Standby';
+        if (dotEl) {
+          dotEl.classList.add('offline');
+          dotEl.style.backgroundColor = '#EF4444';
+        }
+        if (statusEl) statusEl.textContent = 'Standby';
+      }
+    } catch (e) {
+      if (nodeEl) nodeEl.textContent = 'Popcorn Network Standby';
+    }
   }
 
   function wireSettingsDataButtons() {
@@ -2735,7 +2783,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const itemTitle = activeModalItem ? (activeModalItem.name || '') : '';
       const data = await fetchStreams(type, id, itemTitle, season, episode);
       const rawStreams = data.streams || [];
-      const playableStreams = rawStreams.filter(s => s.direct_playable || s.is_embed || s.browser_url);
+      const playableStreams = rawStreams.filter(s => s.direct_playable || s.is_embed || s.browser_url || s.url);
 
       if (playableStreams.length > 0) {
         activeModalStreams = playableStreams;
@@ -2874,6 +2922,17 @@ document.addEventListener('DOMContentLoaded', () => {
     playerSub.textContent = subtitle || '';
     renderPlayerServerPills(activeIndex);
 
+    if (url && url.startsWith('magnet:')) {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).catch(() => {});
+        }
+      } catch (e) {}
+      window.location.href = url;
+      showToast(`${title}: Magnet stream opened in torrent client (link copied)`);
+      return;
+    }
+
     // Fresh session: force a clean iframe instance so resume params take
     // effect and no stale provider state survives a re-launch.
     playerIframe.src = 'about:blank';
@@ -2999,6 +3058,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const serverLabel = serverLabelFor(stream, index);
     playerSub.textContent = `${serverLabel} • ${stream.quality || '1080p'}`;
+
+    if (playUrl.startsWith('magnet:')) {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(playUrl).catch(() => {});
+        }
+      } catch (e) {}
+      window.location.href = playUrl;
+      showToast(`${serverLabel}: Magnet stream opened in torrent client (link copied)`);
+      renderPlayerServerPills(index);
+      return;
+    }
 
     // Carry the current session position into the new provider's URL so
     // switching servers does not restart playback from 0:00.

@@ -2877,6 +2877,92 @@ html.reduce-motion {
   height: 14px;
 }
 
+/* Popcorn Time API Integration Box */
+.popcorn-status-box {
+  background-color: var(--joy-bg-card);
+  border: 1px solid var(--joy-border);
+  border-radius: var(--radius-card);
+  padding: 20px 24px;
+  max-width: 640px;
+}
+
+.popcorn-status-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.popcorn-node-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.popcorn-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: var(--radius-round);
+  background-color: #22C55E;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.popcorn-status-dot.offline {
+  background-color: #EF4444;
+}
+
+.popcorn-active-node {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--joy-text-primary);
+}
+
+.popcorn-refresh-btn {
+  height: 32px;
+  padding: 0 14px;
+  font-size: 0.75rem;
+  border-radius: var(--radius-round);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.popcorn-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.popcorn-stat-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  background-color: var(--joy-bg-elevated);
+  border: 1px solid var(--joy-border);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.popcorn-stat-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--joy-accent);
+  margin-bottom: 4px;
+}
+
+.popcorn-stat-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--joy-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .settings-toggles-rows {
   display: flex;
   flex-direction: column;

@@ -130,7 +130,7 @@
   var DEFAULT_THEME_ID = 'amber';
 
   var DEFAULT_SERVER_ORDER = [
-    'vidlink', 'nexstream', 'autoembed', 'vidsrc-pm', 'vidsrc-su', 'vidjoy', '2embed'
+    'vidlink', 'nexstream', 'autoembed', 'vidsrc-pm', 'vidsrc-su', 'vidjoy', '2embed', 'popcorn'
   ];
 
   var SERVER_DISPLAY_NAMES = {
@@ -140,7 +140,8 @@
     'vidsrc-pm': 'VidSrc PM',
     'vidsrc-su': 'VidSrc SU',
     'vidjoy': 'VidJoy Cinema',
-    '2embed': '2Embed Multi-Server'
+    '2embed': '2Embed Multi-Server',
+    'popcorn': 'Popcorn Time P2P'
   };
 
   // ---------------------------------------------------------------------------
@@ -360,13 +361,16 @@
 
     var withMeta = streams.map(function (s) {
       var prov = window.JoywatchProviders ? window.JoywatchProviders.identify(s.browser_url || s.url) : null;
+      if (!prov && (s.provider === 'popcorn' || (s.name && s.name.indexOf('Popcorn') !== -1))) {
+        prov = 'popcorn';
+      }
       return {
         stream: s,
         providerId: prov,
-        orderIndex: prov ? order.indexOf(prov) : 999,
+        orderIndex: (prov && order.indexOf(prov) !== -1) ? order.indexOf(prov) : 999,
         isHidden: prov ? !!hidden[prov] : false,
         isFavorite: prov ? !!favorites[prov] : false,
-        displayName: prov ? SERVER_DISPLAY_NAMES[prov] : (s.name || 'Unknown')
+        displayName: prov ? (SERVER_DISPLAY_NAMES[prov] || s.name) : (s.name || 'Unknown')
       };
     });
 

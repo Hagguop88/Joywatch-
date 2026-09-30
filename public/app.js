@@ -187,7 +187,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let providerId = null;
     try {
       if (hasPlaybackEngine()) providerId = window.JoywatchProviders.identify(stream.browser_url || stream.url);
+      if (!providerId && (stream.provider === 'popcorn' || (stream.name && stream.name.indexOf('Popcorn') !== -1))) {
+        providerId = 'popcorn';
+      }
     } catch (e) { providerId = null; }
+    if (providerId === 'popcorn') {
+      return `Server ${index + 1} (${stream.name || 'Popcorn Time P2P'})`;
+    }
     if (providerId && hasSettingsEngine()) {
       const displayName = window.JoywatchSettings.SERVER_DISPLAY_NAMES[providerId];
       if (displayName) return `Server ${index + 1} (${displayName})`;

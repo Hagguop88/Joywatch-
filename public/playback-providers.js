@@ -228,15 +228,6 @@
           : 'https://www.2embed.cc/embed/' + t.mediaId;
       },
       extractProgress: function () { return null; }
-    },
-    {
-      id: 'popcorn',
-      name: 'Popcorn Time P2P',
-      allowedOrigins: [],
-      resumeParam: null,
-      supportsResumeParam: false,
-      buildEmbedUrl: function () { return ''; },
-      extractProgress: function () { return null; }
     }
   ];
 
@@ -247,10 +238,9 @@
     return null;
   }
 
-  /** Identify the provider for a stream URL by exact hostname match or magnet/popcorn protocol. */
+  /** Identify the provider for a stream URL by exact hostname match. */
   function identify(url) {
     if (typeof url !== 'string' || !url) return null;
-    if (url.indexOf('popcorn') !== -1) return 'popcorn';
     var host = '';
     try {
       host = new URL(url, window.location.href).hostname.toLowerCase();

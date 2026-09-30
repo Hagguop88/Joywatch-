@@ -182,75 +182,6 @@ class MovieBoxApiClient:
 
 mb_client = MovieBoxApiClient()
 
-# ==========================================
-# Popcorn API Client (Multi-Host Resilience)
-# Compatible with popcorn-official/popcorn-api
-# ==========================================
-class PopcornApiClient:
-    def __init__(self):
-        self.hosts = [
-            "https://fusme.link",
-            "https://jfper.link",
-            "https://uxert.link",
-            "https://yrkde.link"
-        ]
-        self.active_host_idx = 0
-        self.ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-
-    def request(self, path: str, timeout: int = 6):
-        num_hosts = len(self.hosts)
-        for attempt in range(num_hosts):
-            host_idx = (self.active_host_idx + attempt) % num_hosts
-            base_url = self.hosts[host_idx]
-            url = f"{base_url}{path}"
-            try:
-                req = urllib.request.Request(url, headers={"User-Agent": self.ua})
-                with urllib.request.urlopen(req, timeout=timeout) as resp:
-                    if resp.status == 200:
-                        self.active_host_idx = host_idx
-                        return json.loads(resp.read().decode("utf-8"))
-            except Exception:
-                continue
-        return None
-
-    def get_status(self):
-        return self.request("/status")
-
-    def get_movies(self, page: int = 1, sort: str = "trending", genre: str = "all", keywords: str = ""):
-        q_params = [f"sort={sort}", "order=-1"]
-        if genre and genre.lower() != "all":
-            q_params.append(f"genre={urllib.parse.quote(genre.lower())}")
-        if keywords:
-            q_params.append(f"keywords={urllib.parse.quote(keywords)}")
-        path = f"/movies/{page}?" + "&".join(q_params)
-        return self.request(path) or []
-
-    def get_movie_details(self, imdb_id: str):
-        clean_id = imdb_id if str(imdb_id).startswith("tt") else f"tt{imdb_id}"
-        return self.request(f"/movie/{clean_id}")
-
-    def get_shows(self, page: int = 1, sort: str = "trending", genre: str = "all", keywords: str = ""):
-        q_params = [f"sort={sort}", "order=-1"]
-        if genre and genre.lower() != "all":
-            q_params.append(f"genre={urllib.parse.quote(genre.lower())}")
-        if keywords:
-            q_params.append(f"keywords={urllib.parse.quote(keywords)}")
-        path = f"/shows/{page}?" + "&".join(q_params)
-        return self.request(path) or []
-
-    def get_show_details(self, imdb_id: str):
-        clean_id = imdb_id if str(imdb_id).startswith("tt") else f"tt{imdb_id}"
-        return self.request(f"/show/{clean_id}")
-
-    def get_animes(self, page: int = 1, keywords: str = ""):
-        q_params = ["sort=trending", "order=-1"]
-        if keywords:
-            q_params.append(f"keywords={urllib.parse.quote(keywords)}")
-        path = f"/animes/{page}?" + "&".join(q_params)
-        return self.request(path) or []
-
-popcorn_client = PopcornApiClient()
-
 def fetch_json(url, timeout=5):
     now = time.time()
     if url in CACHE:
@@ -585,47 +516,6 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
             except Exception as e:
                 print(f"[Warn] MovieBox search query error: {e}")
 
-            # C. Popcorn API Search (Compatible with popcorn-official/popcorn-api)
-            try:
-                pop_movies = popcorn_client.get_movies(keywords=q)
-                for pm in (pop_movies or [])[:6]:
-                    pid = pm.get("imdb_id")
-                    pname = pm.get("title")
-                    if pid and pname and not any(r.get("id") == pid or r.get("name", "").lower() == pname.lower() for r in results):
-                        imgs = pm.get("images", {})
-                        results.append({
-                            "id": pid,
-                            "name": pname,
-                            "type": "movie",
-                            "year": str(pm.get("year") or "2024"),
-                            "poster": imgs.get("poster"),
-                            "background": imgs.get("fanart") or imgs.get("banner"),
-                            "description": pm.get("synopsis", ""),
-                            "genres": pm.get("genres", ["Popcorn Cinema"]),
-                            "imdbRating": str(round(pm.get("rating", {}).get("percentage", 0) / 10, 1)) if pm.get("rating", {}).get("percentage") else "8.5",
-                            "is_popcorn": True
-                        })
-                pop_shows = popcorn_client.get_shows(keywords=q)
-                for ps in (pop_shows or [])[:6]:
-                    pid = ps.get("imdb_id")
-                    pname = ps.get("title")
-                    if pid and pname and not any(r.get("id") == pid or r.get("name", "").lower() == pname.lower() for r in results):
-                        imgs = ps.get("images", {})
-                        results.append({
-                            "id": pid,
-                            "name": pname,
-                            "type": "series",
-                            "year": str(ps.get("year") or "2024"),
-                            "poster": imgs.get("poster"),
-                            "background": imgs.get("fanart") or imgs.get("banner"),
-                            "description": ps.get("synopsis", ""),
-                            "genres": ps.get("genres", ["Popcorn Series"]),
-                            "imdbRating": str(round(ps.get("rating", {}).get("percentage", 0) / 10, 1)) if ps.get("rating", {}).get("percentage") else "8.5",
-                            "is_popcorn": True
-                        })
-            except Exception as e:
-                print(f"[Warn] Popcorn search query error: {e}")
-
             self.send_json({"items": results[:40]})
             return
 
@@ -865,97 +755,6 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
             except Exception as e:
                 print(f"[Warn] Torrentio stream resolver error: {e}")
 
-            # D. Popcorn API Stream Resolver (Official Popcorn Time Network)
-            try:
-                resolve_id = imdb_id or (item_id if item_id.startswith("tt") else None)
-                clean_title = title or "Feature Title"
-                popcorn_added = False
-
-                if resolve_id:
-                    if media_type == "movie":
-                        p_detail = popcorn_client.get_movie_details(resolve_id)
-                        if p_detail and p_detail.get("torrents"):
-                            raw_t = p_detail.get("torrents", {})
-                            p_torrents = raw_t.get("en") or raw_t if isinstance(raw_t, dict) else {}
-                            for q_key in ["2160p", "1080p", "720p"]:
-                                if q_key in p_torrents:
-                                    tor = p_torrents[q_key]
-                                    m_url = tor.get("url")
-                                    seeds = tor.get("seed") or tor.get("seeds") or 0
-                                    fsize = tor.get("filesize") or tor.get("size") or ""
-                                    q_display = "4K Ultra HD" if q_key == "2160p" else ("1080p Full HD" if q_key == "1080p" else "720p HD")
-                                    if m_url and not any(s.get("url") == m_url for s in streams):
-                                        streams.append({
-                                            "name": f"Popcorn Time ({q_key})",
-                                            "title": f"Popcorn Time • {clean_title} ({q_display}) [Seeds: {seeds}]",
-                                            "details": f"Popcorn API Stream • {q_display} • Seeds: {seeds} • Size: {fsize}",
-                                            "quality": q_display,
-                                            "url": m_url,
-                                            "browser_url": m_url,
-                                            "direct_playable": True,
-                                            "is_embed": False,
-                                            "provider": "popcorn"
-                                        })
-                                        popcorn_added = True
-                    elif media_type == "series":
-                        p_detail = popcorn_client.get_show_details(resolve_id)
-                        if p_detail and p_detail.get("episodes"):
-                            for ep in p_detail.get("episodes", []):
-                                if int(ep.get("season", 0)) == s_num and int(ep.get("episode", 0)) == e_num:
-                                    ep_torrents = ep.get("torrents", {})
-                                    for q_key in ["1080p", "720p", "480p", "0"]:
-                                        if q_key in ep_torrents:
-                                            tor = ep_torrents[q_key]
-                                            m_url = tor.get("url")
-                                            seeds = tor.get("seeds") or tor.get("seed") or 0
-                                            q_display = "1080p Full HD" if q_key == "1080p" else ("720p HD" if q_key == "720p" else "Standard HD")
-                                            if m_url and not any(s.get("url") == m_url for s in streams):
-                                                streams.append({
-                                                    "name": f"Popcorn Time ({q_key})",
-                                                    "title": f"Popcorn Time • S{s_num}:E{e_num} ({q_display}) [Seeds: {seeds}]",
-                                                    "details": f"Popcorn API Stream • {q_display} • Seeds: {seeds}",
-                                                    "quality": q_display,
-                                                    "url": m_url,
-                                                    "browser_url": m_url,
-                                                    "direct_playable": True,
-                                                    "is_embed": False,
-                                                    "provider": "popcorn"
-                                                })
-                                                popcorn_added = True
-                                    break
-
-                # Guarantee Popcorn Time stream presence in server list
-                if not popcorn_added:
-                    torrentio_match = next((s for s in streams if s.get("url", "").startswith("magnet:")), None)
-                    if torrentio_match:
-                        streams.append({
-                            "name": "Popcorn Time P2P",
-                            "title": f"Popcorn Time • {clean_title} ({torrentio_match.get('quality', '1080p')})",
-                            "details": f"Popcorn Time Swarm Stream • {torrentio_match.get('quality', '1080p')}",
-                            "quality": torrentio_match.get("quality", "1080p Full HD"),
-                            "url": torrentio_match.get("url"),
-                            "browser_url": torrentio_match.get("url"),
-                            "direct_playable": True,
-                            "is_embed": False,
-                            "provider": "popcorn"
-                        })
-                    else:
-                        clean_q = urllib.parse.quote(clean_title)
-                        p_fallback = f"magnet:?dn={clean_q}&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Fexplodie.org%3A6969%2Fannounce"
-                        streams.append({
-                            "name": "Popcorn Time P2P",
-                            "title": f"Popcorn Time • {clean_title} (P2P Stream)",
-                            "details": "Popcorn P2P Network Stream",
-                            "quality": "1080p Full HD",
-                            "url": p_fallback,
-                            "browser_url": p_fallback,
-                            "direct_playable": True,
-                            "is_embed": False,
-                            "provider": "popcorn"
-                        })
-            except Exception as e:
-                print(f"[Warn] Popcorn API stream resolver error: {e}")
-
             self.send_json({"streams": streams})
             return
 
@@ -1002,51 +801,6 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
                 filtered = [c for c in filtered if q in c.get("name", "").lower() or q in c.get("description", "").lower()]
 
             self.send_json({"channels": filtered, "total": len(filtered)})
-            return
-
-        # -------------------------------------------------------------
-        # 9. Popcorn API Status & Discovery (Official Popcorn Time Network)
-        # -------------------------------------------------------------
-        if path == "/api/popcorn/status":
-            st = popcorn_client.get_status() or {}
-            active_node = popcorn_client.hosts[popcorn_client.active_host_idx]
-            self.send_json({
-                "connected": bool(st),
-                "active_node": active_node,
-                "nodes": popcorn_client.hosts,
-                "status": st
-            })
-            return
-
-        if path == "/api/popcorn/catalog":
-            mtype = query.get("type", ["movie"])[0]
-            page = int(query.get("page", ["1"])[0]) if query.get("page", ["1"])[0].isdigit() else 1
-            genre = query.get("genre", ["all"])[0]
-            keywords = query.get("keywords", [""])[0]
-
-            if mtype == "series":
-                items_raw = popcorn_client.get_shows(page=page, genre=genre, keywords=keywords)
-            elif mtype == "anime":
-                items_raw = popcorn_client.get_animes(page=page, keywords=keywords)
-            else:
-                items_raw = popcorn_client.get_movies(page=page, genre=genre, keywords=keywords)
-
-            norm_items = []
-            for it in (items_raw or []):
-                imgs = it.get("images", {})
-                norm_items.append({
-                    "id": it.get("imdb_id") or it.get("_id"),
-                    "name": it.get("title"),
-                    "type": "series" if mtype == "series" else "movie",
-                    "year": str(it.get("year", "")),
-                    "poster": imgs.get("poster"),
-                    "background": imgs.get("fanart") or imgs.get("banner"),
-                    "description": it.get("synopsis", ""),
-                    "genres": it.get("genres", []),
-                    "imdbRating": str(round(it.get("rating", {}).get("percentage", 0) / 10, 1)) if it.get("rating", {}).get("percentage") else "8.0",
-                    "provider": "popcorn"
-                })
-            self.send_json({"items": norm_items, "page": page, "total": len(norm_items)})
             return
 
         return super().do_GET()

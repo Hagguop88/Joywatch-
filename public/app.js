@@ -187,13 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let providerId = null;
     try {
       if (hasPlaybackEngine()) providerId = window.JoywatchProviders.identify(stream.browser_url || stream.url);
-      if (!providerId && (stream.provider === 'popcorn' || (stream.name && stream.name.indexOf('Popcorn') !== -1))) {
-        providerId = 'popcorn';
-      }
     } catch (e) { providerId = null; }
-    if (providerId === 'popcorn') {
-      return `Server ${index + 1} (${stream.name || 'Popcorn Time P2P'})`;
-    }
     if (providerId && hasSettingsEngine()) {
       const displayName = window.JoywatchSettings.SERVER_DISPLAY_NAMES[providerId];
       if (displayName) return `Server ${index + 1} (${displayName})`;
@@ -566,8 +560,7 @@ document.addEventListener('DOMContentLoaded', () => {
           { name: "VidSrc PM", title: `Server 4 • VidSrc Dedicated (S${s}:E${e})`, quality: "1080p HD", url: `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`, browser_url: `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
           { name: "VidSrc SU", title: `Server 5 • VidSrc High-Speed (S${s}:E${e})`, quality: "1080p HD", url: `https://vidsrc.su/embed/tv/${id}/${s}/${e}`, browser_url: `https://vidsrc.su/embed/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
           { name: "VidJoy Cinema", title: `Server 6 • VidJoy Cinema (S${s}:E${e})`, quality: "1080p HD", url: `https://vidjoy.pro/embed/tv/${id}/${s}/${e}`, browser_url: `https://vidjoy.pro/embed/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
-          { name: "2Embed Multi-Server", title: `Server 7 • 2Embed 1080p Full HD (S${s}:E${e})`, quality: "1080p Full HD", url: `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`, browser_url: `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`, direct_playable: true, is_embed: true },
-          { name: "Popcorn Time P2P", title: `Server 8 • Popcorn Time P2P (S${s}:E${e})`, quality: "1080p Full HD", url: `magnet:?dn=${encodeURIComponent(cleanTitle)}`, browser_url: `magnet:?dn=${encodeURIComponent(cleanTitle)}`, direct_playable: true, is_embed: false, provider: "popcorn" }
+          { name: "2Embed Multi-Server", title: `Server 7 • 2Embed 1080p Full HD (S${s}:E${e})`, quality: "1080p Full HD", url: `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`, browser_url: `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`, direct_playable: true, is_embed: true }
         );
       } else {
         streams.push(
@@ -577,8 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
           { name: "VidSrc PM", title: `Server 4 • ${cleanTitle} - VidSrc Dedicated`, quality: "1080p HD", url: `https://vidsrc.pm/embed/movie/${id}`, browser_url: `https://vidsrc.pm/embed/movie/${id}`, direct_playable: true, is_embed: true },
           { name: "VidSrc SU", title: `Server 5 • ${cleanTitle} - VidSrc High-Speed`, quality: "1080p HD", url: `https://vidsrc.su/embed/movie/${id}`, browser_url: `https://vidsrc.su/embed/movie/${id}`, direct_playable: true, is_embed: true },
           { name: "VidJoy Cinema", title: `Server 6 • ${cleanTitle} - VidJoy HD`, quality: "1080p HD", url: `https://vidjoy.pro/embed/movie/${id}`, browser_url: `https://vidjoy.pro/embed/movie/${id}`, direct_playable: true, is_embed: true },
-          { name: "2Embed Multi-Server", title: `Server 7 • ${cleanTitle} - 1080p Full HD`, quality: "1080p Full HD", url: `https://www.2embed.cc/embed/${id}`, browser_url: `https://www.2embed.cc/embed/${id}`, direct_playable: true, is_embed: true },
-          { name: "Popcorn Time P2P", title: `Server 8 • ${cleanTitle} - Popcorn Time P2P`, quality: "1080p Full HD", url: `magnet:?dn=${encodeURIComponent(cleanTitle)}`, browser_url: `magnet:?dn=${encodeURIComponent(cleanTitle)}`, direct_playable: true, is_embed: false, provider: "popcorn" }
+          { name: "2Embed Multi-Server", title: `Server 7 • ${cleanTitle} - 1080p Full HD`, quality: "1080p Full HD", url: `https://www.2embed.cc/embed/${id}`, browser_url: `https://www.2embed.cc/embed/${id}`, direct_playable: true, is_embed: true }
         );
       }
       return { streams };
@@ -1174,7 +1166,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!settingsView || !hasSettingsEngine()) return;
     renderThemeSwatches();
     renderServerRows();
-    loadPopcornStatus();
     renderSettingsToggles();
     wireSettingsDataButtons();
   }
@@ -1338,53 +1329,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const s = window.JoywatchSettings.getAll();
       document.documentElement.classList.toggle('reduce-motion', !!s.reducedMotion);
     } catch (e) { /* cosmetic only */ }
-  }
-
-  async function loadPopcornStatus() {
-    const nodeEl = document.getElementById('popcorn-active-node');
-    const dotEl = document.getElementById('popcorn-status-dot');
-    const moviesEl = document.getElementById('popcorn-stat-movies');
-    const showsEl = document.getElementById('popcorn-stat-shows');
-    const statusEl = document.getElementById('popcorn-stat-status');
-    const refreshBtn = document.getElementById('popcorn-refresh-btn');
-
-    if (refreshBtn && !refreshBtn.dataset.wired) {
-      refreshBtn.dataset.wired = '1';
-      refreshBtn.addEventListener('click', async () => {
-        showToast('Verifying Popcorn API cluster...');
-        await loadPopcornStatus();
-        showToast('Popcorn API cluster verified');
-      });
-    }
-
-    if (!nodeEl) return;
-    try {
-      const res = await fetch('/api/popcorn/status');
-      if (!res.ok) throw new Error('Status HTTP error');
-      const data = await res.json();
-      if (data.connected) {
-        const cleanNode = (data.active_node || '').replace(/^https?:\/\//, '');
-        nodeEl.textContent = `Active Node: ${cleanNode}`;
-        if (dotEl) {
-          dotEl.classList.remove('offline');
-          dotEl.style.backgroundColor = '#22C55E';
-        }
-        if (data.status) {
-          if (moviesEl && data.status.totalMovies) moviesEl.textContent = Number(data.status.totalMovies).toLocaleString();
-          if (showsEl && data.status.totalShows) showsEl.textContent = Number(data.status.totalShows).toLocaleString();
-          if (statusEl) statusEl.textContent = 'Active';
-        }
-      } else {
-        nodeEl.textContent = 'Popcorn Network Node Standby';
-        if (dotEl) {
-          dotEl.classList.add('offline');
-          dotEl.style.backgroundColor = '#EF4444';
-        }
-        if (statusEl) statusEl.textContent = 'Standby';
-      }
-    } catch (e) {
-      if (nodeEl) nodeEl.textContent = 'Popcorn Network Standby';
-    }
   }
 
   function wireSettingsDataButtons() {

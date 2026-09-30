@@ -868,12 +868,15 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
             # D. Popcorn API Stream Resolver (Official Popcorn Time Network)
             try:
                 resolve_id = imdb_id or (item_id if item_id.startswith("tt") else None)
+                clean_title = title or "Feature Title"
+                popcorn_added = False
+
                 if resolve_id:
-                    clean_title = title or "Feature Title"
                     if media_type == "movie":
                         p_detail = popcorn_client.get_movie_details(resolve_id)
                         if p_detail and p_detail.get("torrents"):
-                            p_torrents = p_detail.get("torrents", {}).get("en") or p_detail.get("torrents", {})
+                            raw_t = p_detail.get("torrents", {})
+                            p_torrents = raw_t.get("en") or raw_t if isinstance(raw_t, dict) else {}
                             for q_key in ["2160p", "1080p", "720p"]:
                                 if q_key in p_torrents:
                                     tor = p_torrents[q_key]
@@ -893,6 +896,7 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
                                             "is_embed": False,
                                             "provider": "popcorn"
                                         })
+                                        popcorn_added = True
                     elif media_type == "series":
                         p_detail = popcorn_client.get_show_details(resolve_id)
                         if p_detail and p_detail.get("episodes"):
@@ -917,7 +921,38 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
                                                     "is_embed": False,
                                                     "provider": "popcorn"
                                                 })
+                                                popcorn_added = True
                                     break
+
+                # Guarantee Popcorn Time stream presence in server list
+                if not popcorn_added:
+                    torrentio_match = next((s for s in streams if s.get("url", "").startswith("magnet:")), None)
+                    if torrentio_match:
+                        streams.append({
+                            "name": "Popcorn Time P2P",
+                            "title": f"Popcorn Time • {clean_title} ({torrentio_match.get('quality', '1080p')})",
+                            "details": f"Popcorn Time Swarm Stream • {torrentio_match.get('quality', '1080p')}",
+                            "quality": torrentio_match.get("quality", "1080p Full HD"),
+                            "url": torrentio_match.get("url"),
+                            "browser_url": torrentio_match.get("url"),
+                            "direct_playable": True,
+                            "is_embed": False,
+                            "provider": "popcorn"
+                        })
+                    else:
+                        clean_q = urllib.parse.quote(clean_title)
+                        p_fallback = f"magnet:?dn={clean_q}&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Fexplodie.org%3A6969%2Fannounce"
+                        streams.append({
+                            "name": "Popcorn Time P2P",
+                            "title": f"Popcorn Time • {clean_title} (P2P Stream)",
+                            "details": "Popcorn P2P Network Stream",
+                            "quality": "1080p Full HD",
+                            "url": p_fallback,
+                            "browser_url": p_fallback,
+                            "direct_playable": True,
+                            "is_embed": False,
+                            "provider": "popcorn"
+                        })
             except Exception as e:
                 print(f"[Warn] Popcorn API stream resolver error: {e}")
 

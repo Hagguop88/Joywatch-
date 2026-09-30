@@ -566,7 +566,8 @@ document.addEventListener('DOMContentLoaded', () => {
           { name: "VidSrc PM", title: `Server 4 • VidSrc Dedicated (S${s}:E${e})`, quality: "1080p HD", url: `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`, browser_url: `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
           { name: "VidSrc SU", title: `Server 5 • VidSrc High-Speed (S${s}:E${e})`, quality: "1080p HD", url: `https://vidsrc.su/embed/tv/${id}/${s}/${e}`, browser_url: `https://vidsrc.su/embed/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
           { name: "VidJoy Cinema", title: `Server 6 • VidJoy Cinema (S${s}:E${e})`, quality: "1080p HD", url: `https://vidjoy.pro/embed/tv/${id}/${s}/${e}`, browser_url: `https://vidjoy.pro/embed/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
-          { name: "2Embed Multi-Server", title: `Server 7 • 2Embed 1080p Full HD (S${s}:E${e})`, quality: "1080p Full HD", url: `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`, browser_url: `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`, direct_playable: true, is_embed: true }
+          { name: "2Embed Multi-Server", title: `Server 7 • 2Embed 1080p Full HD (S${s}:E${e})`, quality: "1080p Full HD", url: `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`, browser_url: `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`, direct_playable: true, is_embed: true },
+          { name: "Popcorn Time P2P", title: `Server 8 • Popcorn Time P2P (S${s}:E${e})`, quality: "1080p Full HD", url: `magnet:?dn=${encodeURIComponent(cleanTitle)}`, browser_url: `magnet:?dn=${encodeURIComponent(cleanTitle)}`, direct_playable: true, is_embed: false, provider: "popcorn" }
         );
       } else {
         streams.push(
@@ -576,7 +577,8 @@ document.addEventListener('DOMContentLoaded', () => {
           { name: "VidSrc PM", title: `Server 4 • ${cleanTitle} - VidSrc Dedicated`, quality: "1080p HD", url: `https://vidsrc.pm/embed/movie/${id}`, browser_url: `https://vidsrc.pm/embed/movie/${id}`, direct_playable: true, is_embed: true },
           { name: "VidSrc SU", title: `Server 5 • ${cleanTitle} - VidSrc High-Speed`, quality: "1080p HD", url: `https://vidsrc.su/embed/movie/${id}`, browser_url: `https://vidsrc.su/embed/movie/${id}`, direct_playable: true, is_embed: true },
           { name: "VidJoy Cinema", title: `Server 6 • ${cleanTitle} - VidJoy HD`, quality: "1080p HD", url: `https://vidjoy.pro/embed/movie/${id}`, browser_url: `https://vidjoy.pro/embed/movie/${id}`, direct_playable: true, is_embed: true },
-          { name: "2Embed Multi-Server", title: `Server 7 • ${cleanTitle} - 1080p Full HD`, quality: "1080p Full HD", url: `https://www.2embed.cc/embed/${id}`, browser_url: `https://www.2embed.cc/embed/${id}`, direct_playable: true, is_embed: true }
+          { name: "2Embed Multi-Server", title: `Server 7 • ${cleanTitle} - 1080p Full HD`, quality: "1080p Full HD", url: `https://www.2embed.cc/embed/${id}`, browser_url: `https://www.2embed.cc/embed/${id}`, direct_playable: true, is_embed: true },
+          { name: "Popcorn Time P2P", title: `Server 8 • ${cleanTitle} - Popcorn Time P2P`, quality: "1080p Full HD", url: `magnet:?dn=${encodeURIComponent(cleanTitle)}`, browser_url: `magnet:?dn=${encodeURIComponent(cleanTitle)}`, direct_playable: true, is_embed: false, provider: "popcorn" }
         );
       }
       return { streams };

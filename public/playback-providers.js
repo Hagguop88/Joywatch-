@@ -250,7 +250,7 @@
   /** Identify the provider for a stream URL by exact hostname match or magnet/popcorn protocol. */
   function identify(url) {
     if (typeof url !== 'string' || !url) return null;
-    if (url.startsWith('magnet:') || url.indexOf('popcorn') !== -1) return 'popcorn';
+    if (url.indexOf('popcorn') !== -1) return 'popcorn';
     var host = '';
     try {
       host = new URL(url, window.location.href).hostname.toLowerCase();

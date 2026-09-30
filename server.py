@@ -17,6 +17,7 @@ import shutil
 import hashlib
 import hmac
 import base64
+import re
 from concurrent.futures import ThreadPoolExecutor
 
 PORT = 7680
@@ -771,6 +772,37 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
             self.send_json(data)
             return
 
+        # -------------------------------------------------------------
+        # 8. Live TV Channels Catalog
+        # -------------------------------------------------------------
+        if path == "/api/tv/channels":
+            channels_file = os.path.join(PUBLIC_DIR, "live-channels.js")
+            channels = []
+            if os.path.isfile(channels_file):
+                try:
+                    with open(channels_file, "r", encoding="utf-8") as f:
+                        content = f.read()
+                        m = re.search(r'window\.JOYWATCH_LIVE_CHANNELS\s*=\s*(\[.*?\]);', content, re.DOTALL)
+                        if m:
+                            channels = json.loads(m.group(1))
+                except Exception as e:
+                    print(f"[Warn] Failed reading live channels: {e}")
+
+            cat = query.get("category", ["all"])[0].lower()
+            country = query.get("country", ["all"])[0].upper()
+            q = query.get("q", [""])[0].strip().lower()
+
+            filtered = channels
+            if cat and cat != "all":
+                filtered = [c for c in filtered if c.get("category", "").lower() == cat]
+            if country and country != "ALL":
+                filtered = [c for c in filtered if c.get("country", "").upper() == country]
+            if q:
+                filtered = [c for c in filtered if q in c.get("name", "").lower() or q in c.get("description", "").lower()]
+
+            self.send_json({"channels": filtered, "total": len(filtered)})
+            return
+
         return super().do_GET()
 
     # -------------------------------------------------------------
@@ -791,6 +823,30 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
         try:
             with urllib.request.urlopen(req, timeout=15) as resp:
                 status = resp.status
+                content_type = str(resp.headers.get("Content-Type", "")).lower()
+                is_m3u8 = ("m3u8" in target_url.lower()) or ("mpegurl" in content_type)
+
+                if is_m3u8:
+                    raw_text = resp.read().decode("utf-8", errors="ignore")
+                    base_url = target_url.rsplit("/", 1)[0] + "/"
+                    rewritten_lines = []
+                    for line in raw_text.splitlines():
+                        trimmed = line.strip()
+                        if trimmed and not trimmed.startswith("#"):
+                            full_url = urllib.parse.urljoin(base_url, trimmed)
+                            rewritten_lines.append(f"/api/stream-proxy?url={urllib.parse.quote(full_url)}")
+                        else:
+                            rewritten_lines.append(line)
+                    body_bytes = "\n".join(rewritten_lines).encode("utf-8")
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/vnd.apple.mpegurl")
+                    self.send_header("Content-Length", str(len(body_bytes)))
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.send_header("Access-Control-Allow-Headers", "*")
+                    self.end_headers()
+                    self.wfile.write(body_bytes)
+                    return
+
                 self.send_response(status)
                 for header in ["Content-Type", "Content-Length", "Content-Range", "Accept-Ranges"]:
                     val = resp.headers.get(header)
@@ -798,6 +854,7 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
                         self.send_header(header, val)
 
                 self.send_header("Access-Control-Allow-Origin", "*")
+                self.send_header("Access-Control-Allow-Headers", "*")
                 self.end_headers()
 
                 while True:

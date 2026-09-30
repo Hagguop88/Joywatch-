@@ -37,6 +37,34 @@ document.addEventListener('DOMContentLoaded', () => {
   const sectionGrid = document.getElementById('section-grid');
   const sectionBackBtn = document.getElementById('section-back-btn');
 
+  // Live TV View Elements
+  const livetvView = document.getElementById('livetv-view');
+  const tvSearchInput = document.getElementById('tv-search-input');
+  const tvClearSearchBtn = document.getElementById('tv-clear-search-btn');
+  const tvAddStreamBtn = document.getElementById('tv-add-stream-btn');
+  const tvTotalCountBadge = document.getElementById('tv-total-count-badge');
+  const tvChannelsGrid = document.getElementById('tv-channels-grid');
+  const tvEmptyState = document.getElementById('tv-empty-state');
+  const tvResetFiltersBtn = document.getElementById('tv-reset-filters-btn');
+  const tvCategoryPills = document.getElementById('tv-category-pills');
+  const tvCountryPills = document.getElementById('tv-country-pills');
+  const tvFeaturedTitle = document.getElementById('tv-featured-title');
+  const tvFeaturedDesc = document.getElementById('tv-featured-desc');
+  const tvFeaturedCategory = document.getElementById('tv-featured-category');
+  const tvFeaturedCountry = document.getElementById('tv-featured-country');
+  const tvFeaturedQuality = document.getElementById('tv-featured-quality');
+  const tvFeaturedLogo = document.getElementById('tv-featured-logo');
+  const tvFeaturedPlayBtn = document.getElementById('tv-featured-play-btn');
+
+  // Custom Stream Modal Elements
+  const customStreamModal = document.getElementById('custom-stream-modal');
+  const customStreamCloseBtn = document.getElementById('custom-stream-close-btn');
+  const customStreamForm = document.getElementById('custom-stream-form');
+  const customStreamName = document.getElementById('custom-stream-name');
+  const customStreamUrl = document.getElementById('custom-stream-url');
+  const customStreamCategory = document.getElementById('custom-stream-category');
+  const customStreamQuality = document.getElementById('custom-stream-quality');
+
   // Hero Billboard Elements
   const billboardBg = document.getElementById('billboard-bg');
   const billboardTitle = document.getElementById('billboard-title');
@@ -975,6 +1003,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (mylistView) mylistView.style.display = 'none';
     if (settingsView) settingsView.style.display = 'none';
     if (sectionView) sectionView.style.display = 'none';
+    if (livetvView) livetvView.style.display = 'none';
     searchView.style.display = 'none';
     billboard.style.display = 'none';
     if (ottSection) ottSection.style.display = 'none';
@@ -985,6 +1014,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (mylistView) mylistView.style.display = 'none';
     if (settingsView) settingsView.style.display = 'none';
     if (sectionView) sectionView.style.display = 'none';
+    if (livetvView) livetvView.style.display = 'none';
     searchView.style.display = 'none';
     billboard.style.display = 'flex';
     if (ottSection) ottSection.style.display = 'flex';
@@ -1004,6 +1034,11 @@ document.addEventListener('DOMContentLoaded', () => {
       hideAllViews();
       if (settingsView) settingsView.style.display = 'block';
       renderSettingsView();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (filter === 'livetv') {
+      hideAllViews();
+      if (livetvView) livetvView.style.display = 'block';
+      renderLiveTvView();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       showHomeViews();
@@ -2889,6 +2924,10 @@ document.addEventListener('DOMContentLoaded', () => {
     closeServersPanel();
     isPlayerAnimating = true;
     endActivePlaybackSession();
+    if (currentLiveHlsInstance) {
+      try { currentLiveHlsInstance.destroy(); } catch (e) {}
+      currentLiveHlsInstance = null;
+    }
     videoPlayer.classList.remove('open');
 
     setTimeout(() => {
@@ -3267,6 +3306,390 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       rowsContainer.innerHTML = `<div class="shelf-loader"><span>Failed to load Joywatch catalog: ${err.message}</span></div>`;
     }
+  }
+
+  // =========================================================================
+  // LIVE TV CONTROLLER & HLS PLAYER
+  // =========================================================================
+  let tvActiveCategory = 'all';
+  let tvActiveCountry = 'all';
+  let tvSearchQuery = '';
+  let currentLiveHlsInstance = null;
+  let activeLiveChannel = null;
+
+  function getCustomChannels() {
+    try {
+      const raw = localStorage.getItem('joywatch_custom_tv_channels');
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveCustomChannel(ch) {
+    const list = getCustomChannels();
+    list.unshift(ch);
+    localStorage.setItem('joywatch_custom_tv_channels', JSON.stringify(list));
+  }
+
+  function getAllChannels() {
+    const builtIn = (typeof window.JOYWATCH_LIVE_CHANNELS !== 'undefined' && Array.isArray(window.JOYWATCH_LIVE_CHANNELS))
+      ? window.JOYWATCH_LIVE_CHANNELS
+      : [];
+    const custom = getCustomChannels();
+    return [...custom, ...builtIn];
+  }
+
+  function getFilteredChannels() {
+    const all = getAllChannels();
+    return all.filter(ch => {
+      // Category match
+      if (tvActiveCategory !== 'all' && (ch.category || '').toLowerCase() !== tvActiveCategory.toLowerCase()) {
+        return false;
+      }
+      // Country match
+      if (tvActiveCountry !== 'all') {
+        if (tvActiveCountry === 'custom') {
+          if (!ch.is_custom) return false;
+        } else if ((ch.country || '').toUpperCase() !== tvActiveCountry.toUpperCase()) {
+          return false;
+        }
+      }
+      // Search match
+      if (tvSearchQuery) {
+        const q = tvSearchQuery.toLowerCase();
+        const nameMatch = (ch.name || '').toLowerCase().includes(q);
+        const descMatch = (ch.description || '').toLowerCase().includes(q);
+        const catMatch = (ch.category || '').toLowerCase().includes(q);
+        const countryMatch = (ch.country || '').toLowerCase().includes(q);
+        if (!nameMatch && !descMatch && !catMatch && !countryMatch) return false;
+      }
+      return true;
+    });
+  }
+
+  function createLiveChannelCard(channel) {
+    const card = document.createElement('div');
+    card.className = 'tv-card';
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+
+    const words = (channel.name || 'TV').trim().split(/\s+/);
+    const monogram = words.length > 1
+      ? (words[0][0] + words[1][0]).toUpperCase()
+      : (channel.name ? channel.name.slice(0, 2).toUpperCase() : 'TV');
+
+    const logoHtml = channel.logo
+      ? `<img class="tv-card-logo-img" src="${channel.logo}" alt="${channel.name}" loading="lazy" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+         <div class="tv-card-monogram" style="display: none;">${monogram}</div>`
+      : `<div class="tv-card-monogram">${monogram}</div>`;
+
+    card.innerHTML = `
+      <div class="tv-card-top-bar">
+        <span class="tv-card-live-chip"><span class="pulse-dot"></span> LIVE</span>
+        <span class="tv-card-quality">${channel.quality || '1080p HD'}</span>
+      </div>
+      <div class="tv-card-logo-area">
+        ${logoHtml}
+        <div class="tv-card-play-overlay">
+          <div class="tv-card-play-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+          </div>
+        </div>
+      </div>
+      <h3 class="tv-card-title" title="${channel.name}">${channel.name}</h3>
+      <p class="tv-card-desc">${channel.description || `${channel.name} live broadcast.`}</p>
+      <div class="tv-card-footer">
+        <span class="tv-card-category">${channel.category || 'Live TV'}</span>
+        <span class="tv-card-country-tag">${channel.country || 'GLOBAL'}</span>
+      </div>
+    `;
+
+    card.addEventListener('click', () => {
+      playLiveChannel(channel);
+    });
+
+    return card;
+  }
+
+  function renderLiveTvView() {
+    if (!livetvView) return;
+
+    // Featured Live Channel Setup
+    const all = getAllChannels();
+    const featured = all.find(c => c.is_featured) || all[0];
+    if (featured && tvFeaturedTitle) {
+      tvFeaturedTitle.textContent = featured.name;
+      if (tvFeaturedDesc) tvFeaturedDesc.textContent = featured.description || `${featured.name} 24/7 live stream.`;
+      if (tvFeaturedCategory) tvFeaturedCategory.textContent = featured.category || 'News';
+      if (tvFeaturedCountry) tvFeaturedCountry.textContent = featured.country || 'Global';
+      if (tvFeaturedQuality) tvFeaturedQuality.textContent = featured.quality || '1080p Full HD';
+      if (tvFeaturedLogo && featured.logo) {
+        tvFeaturedLogo.src = featured.logo;
+        tvFeaturedLogo.style.display = 'block';
+      }
+      if (tvFeaturedPlayBtn) {
+        tvFeaturedPlayBtn.onclick = () => playLiveChannel(featured);
+      }
+    }
+
+    const channels = getFilteredChannels();
+    if (tvTotalCountBadge) {
+      tvTotalCountBadge.textContent = `${channels.length} ${channels.length === 1 ? 'Channel' : 'Channels'}`;
+    }
+
+    if (tvChannelsGrid) {
+      tvChannelsGrid.innerHTML = '';
+      if (channels.length === 0) {
+        if (tvEmptyState) tvEmptyState.style.display = 'flex';
+      } else {
+        if (tvEmptyState) tvEmptyState.style.display = 'none';
+        channels.forEach(ch => {
+          tvChannelsGrid.appendChild(createLiveChannelCard(ch));
+        });
+      }
+    }
+  }
+
+  function renderLiveChannelSwitcher(currentChannel) {
+    if (!playerServersContainer) return;
+    playerServersContainer.innerHTML = '';
+
+    if (serversActiveTag) {
+      serversActiveTag.textContent = `${currentChannel.name} (Live)`;
+    }
+
+    const all = getAllChannels();
+    const switcherChannels = all.slice(0, 25);
+    switcherChannels.forEach(ch => {
+      const btn = document.createElement('button');
+      btn.className = `player-server-pill ${ch.id === currentChannel.id ? 'active' : ''}`;
+      btn.innerHTML = `
+        <span class="pulse-dot"></span>
+        <span class="server-pill-name">${ch.name}</span>
+        <span class="server-pill-quality">${ch.quality || 'HD'}</span>
+      `;
+      btn.addEventListener('click', () => {
+        closeServersPanel();
+        playLiveChannel(ch);
+      });
+      playerServersContainer.appendChild(btn);
+    });
+  }
+
+  function playLiveChannel(channel) {
+    if (!channel || !channel.url) return;
+    activeLiveChannel = channel;
+
+    // Teardown previous playback
+    if (currentLiveHlsInstance) {
+      try { currentLiveHlsInstance.destroy(); } catch (e) {}
+      currentLiveHlsInstance = null;
+    }
+    htmlVideo.pause();
+    htmlVideo.src = '';
+    playerIframe.src = 'about:blank';
+    playerIframe.style.display = 'none';
+
+    // Player chrome titles
+    if (playerTitle) playerTitle.textContent = channel.name;
+    if (playerSub) playerSub.textContent = `${channel.quality || '1080p HD'} • ${channel.category ? channel.category.toUpperCase() : 'LIVE'} • ${channel.country || 'GLOBAL'}`;
+    const playerTag = document.getElementById('player-tag');
+    if (playerTag) playerTag.textContent = 'LIVE BROADCAST';
+
+    renderLiveChannelSwitcher(channel);
+
+    // Open video player overlay
+    videoPlayer.style.display = 'flex';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        videoPlayer.classList.add('open');
+      });
+    });
+
+    htmlVideo.style.display = 'block';
+
+    const directUrl = channel.url;
+    const proxyUrl = `/api/stream-proxy?url=${encodeURIComponent(directUrl)}`;
+
+    function attachHls(urlToPlay, onFail) {
+      if (htmlVideo.canPlayType('application/vnd.apple.mpegurl')) {
+        htmlVideo.src = urlToPlay;
+        htmlVideo.play().catch(() => {
+          if (onFail) onFail();
+        });
+      } else if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+        const hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: true,
+          backBufferLength: 60,
+          manifestLoadingTimeOut: 10000,
+          manifestLoadingMaxRetry: 2
+        });
+        currentLiveHlsInstance = hls;
+        hls.loadSource(urlToPlay);
+        hls.attachMedia(htmlVideo);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          htmlVideo.play().catch(() => {});
+        });
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          if (data.fatal) {
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                if (urlToPlay === directUrl && onFail) {
+                  try { hls.destroy(); } catch (e) {}
+                  currentLiveHlsInstance = null;
+                  onFail();
+                } else {
+                  hls.startLoad();
+                }
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                hls.recoverMediaError();
+                break;
+              default:
+                if (urlToPlay === directUrl && onFail) {
+                  try { hls.destroy(); } catch (e) {}
+                  currentLiveHlsInstance = null;
+                  onFail();
+                } else {
+                  try { hls.destroy(); } catch (e) {}
+                  currentLiveHlsInstance = null;
+                }
+                break;
+            }
+          }
+        });
+      } else {
+        htmlVideo.src = urlToPlay;
+        htmlVideo.play().catch(() => {});
+      }
+    }
+
+    // Try direct link first; automatically failover to Joywatch proxy if CORS or network error occurs
+    attachHls(directUrl, () => {
+      console.log('[Live TV] Direct stream failed, routing through Joywatch proxy:', proxyUrl);
+      attachHls(proxyUrl, () => {
+        showToast(`Could not connect to live broadcast for ${channel.name}`);
+      });
+    });
+  }
+
+  // Live TV Filter Listeners
+  if (tvCategoryPills) {
+    tvCategoryPills.addEventListener('click', (e) => {
+      const btn = e.target.closest('.filter-pill');
+      if (!btn) return;
+      tvCategoryPills.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      tvActiveCategory = btn.dataset.tvCat || 'all';
+      renderLiveTvView();
+    });
+  }
+
+  if (tvCountryPills) {
+    tvCountryPills.addEventListener('click', (e) => {
+      const btn = e.target.closest('.filter-pill');
+      if (!btn) return;
+      tvCountryPills.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      tvActiveCountry = btn.dataset.tvCountry || 'all';
+      renderLiveTvView();
+    });
+  }
+
+  let tvSearchDebounce = null;
+  if (tvSearchInput) {
+    tvSearchInput.addEventListener('input', (e) => {
+      clearTimeout(tvSearchDebounce);
+      tvSearchDebounce = setTimeout(() => {
+        tvSearchQuery = e.target.value.trim();
+        renderLiveTvView();
+      }, 100);
+    });
+  }
+
+  if (tvClearSearchBtn) {
+    tvClearSearchBtn.addEventListener('click', () => {
+      if (tvSearchInput) tvSearchInput.value = '';
+      tvSearchQuery = '';
+      renderLiveTvView();
+    });
+  }
+
+  if (tvResetFiltersBtn) {
+    tvResetFiltersBtn.addEventListener('click', () => {
+      tvActiveCategory = 'all';
+      tvActiveCountry = 'all';
+      tvSearchQuery = '';
+      if (tvSearchInput) tvSearchInput.value = '';
+      if (tvCategoryPills) {
+        tvCategoryPills.querySelectorAll('.filter-pill').forEach(b => {
+          if (b.dataset.tvCat === 'all') b.classList.add('active');
+          else b.classList.remove('active');
+        });
+      }
+      if (tvCountryPills) {
+        tvCountryPills.querySelectorAll('.filter-pill').forEach(b => {
+          if (b.dataset.tvCountry === 'all') b.classList.add('active');
+          else b.classList.remove('active');
+        });
+      }
+      renderLiveTvView();
+    });
+  }
+
+  // Custom Stream Modal Wiring
+  if (tvAddStreamBtn && customStreamModal) {
+    tvAddStreamBtn.addEventListener('click', () => {
+      customStreamModal.style.display = 'flex';
+      if (customStreamName) customStreamName.focus();
+    });
+  }
+
+  if (customStreamCloseBtn && customStreamModal) {
+    customStreamCloseBtn.addEventListener('click', () => {
+      customStreamModal.style.display = 'none';
+    });
+  }
+
+  if (customStreamModal) {
+    customStreamModal.addEventListener('click', (e) => {
+      if (e.target === customStreamModal) {
+        customStreamModal.style.display = 'none';
+      }
+    });
+  }
+
+  if (customStreamForm) {
+    customStreamForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = customStreamName ? customStreamName.value.trim() : '';
+      const url = customStreamUrl ? customStreamUrl.value.trim() : '';
+      const cat = customStreamCategory ? customStreamCategory.value : 'news';
+      const quality = customStreamQuality ? customStreamQuality.value : '1080p Full HD';
+
+      if (!name || !url) return;
+
+      const newCh = {
+        id: 'custom-' + Date.now(),
+        name: name,
+        url: url,
+        category: cat,
+        quality: quality,
+        country: 'CUSTOM',
+        logo: '',
+        description: 'Custom added live stream.',
+        is_custom: true
+      };
+
+      saveCustomChannel(newCh);
+      if (customStreamModal) customStreamModal.style.display = 'none';
+      customStreamForm.reset();
+      showToast(`Added custom channel "${newCh.name}"`);
+      renderLiveTvView();
+      playLiveChannel(newCh);
+    });
   }
 
   window.addEventListener('beforeunload', () => {

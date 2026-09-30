@@ -339,32 +339,7 @@ UI personalization and server arrangement. It lives in three pieces:
 
 ---
 
-## 9. Popcorn Time Network API Integration (`popcorn-official/popcorn-api`)
-
-Joywatch natively interfaces with the decentralized **Popcorn Time Network API** (`https://github.com/popcorn-official/popcorn-api` specification).
-
-### Multi-Node Resilient Architecture
-Because the legacy `tv-v2.api-fetch.website` node is periodically unreachable, `server.py` implements a resilient multi-host client (`PopcornApiClient`) with automatic round-robin failover across 4 verified active community nodes:
-1. `https://fusme.link`
-2. `https://jfper.link`
-3. `https://uxert.link`
-4. `https://yrkde.link`
-
-### Capabilities & Integration Points
-- **API Endpoints**:
-  - `GET /api/popcorn/status`: Live connection status, active node, and network catalog counts (70,000+ movies, 9,000+ series).
-  - `GET /api/popcorn/catalog`: Direct browsing and pagination of Popcorn catalog by type, genre, and keywords.
-- **Search Enrichment (`/api/search`)**:
-  - Searches automatically query Popcorn API in parallel with Cinemeta and MovieBox, surfacing torrent-backed titles with full metadata.
-- **Stream Resolution (`/api/streams`)**:
-  - Queries Popcorn API for canonical IMDb IDs to pull 4K Ultra HD (`2160p`), 1080p Full HD, and 720p HD peer streams with live seed counts.
-- **Frontend Settings & Player UX**:
-  - **Settings View**: Displays live node connectivity, verified status, catalog counts, and a "Verify Nodes" button.
-  - **Player Stream Handling**: Selecting a Popcorn Time torrent stream automatically copies the magnet link to the clipboard and triggers the system's default torrent player (`window.location.href = magnetUrl`) with user toast feedback, keeping the browser player clean.
-
----
-
-## 10. Summary Checklist for Future Agent Changes
+## 9. Summary Checklist for Future Agent Changes
 
 Before concluding any future work on Joywatch, verify:
 - [ ] No gradients introduced (`linear-gradient`, `radial-gradient`, etc.).

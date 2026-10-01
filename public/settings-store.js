@@ -130,7 +130,8 @@
   var DEFAULT_THEME_ID = 'amber';
 
   var DEFAULT_SERVER_ORDER = [
-    'vidlink', 'nexstream', 'autoembed', 'vidsrc-pm', 'vidsrc-su', 'vidjoy', '2embed'
+    'vidlink', 'nexstream', 'autoembed', 'vidsrc-pm', 'vidsrc-su', 'vidjoy', '2embed',
+    '111movies', 'vidlove', 'filmu', 'vidcore', 'apiplayer', 'cinesrc', 'embedmaster', 'vidsrc3'
   ];
 
   var SERVER_DISPLAY_NAMES = {
@@ -140,7 +141,15 @@
     'vidsrc-pm': 'VidSrc PM',
     'vidsrc-su': 'VidSrc SU',
     'vidjoy': 'VidJoy Cinema',
-    '2embed': '2Embed Multi-Server'
+    '2embed': '2Embed Multi-Server',
+    '111movies': '111Movies',
+    'vidlove': 'VidLove',
+    'filmu': 'Filmu',
+    'vidcore': 'VidCore',
+    'apiplayer': 'APIPlayer',
+    'cinesrc': 'CineSrc',
+    'embedmaster': 'EmbedMaster',
+    'vidsrc3': 'VidSrc3'
   };
 
   // ---------------------------------------------------------------------------

@@ -560,7 +560,13 @@ document.addEventListener('DOMContentLoaded', () => {
           { name: "VidSrc PM", title: `Server 4 • VidSrc Dedicated (S${s}:E${e})`, quality: "1080p HD", url: `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`, browser_url: `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
           { name: "VidSrc SU", title: `Server 5 • VidSrc High-Speed (S${s}:E${e})`, quality: "1080p HD", url: `https://vidsrc.su/embed/tv/${id}/${s}/${e}`, browser_url: `https://vidsrc.su/embed/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
           { name: "VidJoy Cinema", title: `Server 6 • VidJoy Cinema (S${s}:E${e})`, quality: "1080p HD", url: `https://vidjoy.pro/embed/tv/${id}/${s}/${e}`, browser_url: `https://vidjoy.pro/embed/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
-          { name: "2Embed Multi-Server", title: `Server 7 • 2Embed 1080p Full HD (S${s}:E${e})`, quality: "1080p Full HD", url: `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`, browser_url: `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`, direct_playable: true, is_embed: true }
+          { name: "2Embed Multi-Server", title: `Server 7 • 2Embed 1080p Full HD (S${s}:E${e})`, quality: "1080p Full HD", url: `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`, browser_url: `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`, direct_playable: true, is_embed: true },
+          { name: "111Movies", title: `Server 8 • 111Movies 1080p (S${s}:E${e})`, quality: "1080p HD", url: `https://111movies.net/tv/${id}/${s}/${e}`, browser_url: `https://111movies.net/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
+          { name: "Filmu", title: `Server 10 • Filmu Embed (S${s}:E${e})`, quality: "1080p HD", url: `https://embed.filmu.in/tv/${id}/${s}/${e}`, browser_url: `https://embed.filmu.in/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
+          { name: "VidCore", title: `Server 11 • VidCore Stream (S${s}:E${e})`, quality: "1080p HD", url: `https://vidcore.org/embed/tv/${id}/${s}/${e}`, browser_url: `https://vidcore.org/embed/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
+          { name: "APIPlayer", title: `Server 12 • APIPlayer (S${s}:E${e})`, quality: "1080p HD", url: `https://apiplayer.ru/embed/tv/${id}/${s}/${e}`, browser_url: `https://apiplayer.ru/embed/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
+          { name: "CineSrc", title: `Server 13 • CineSrc Cloud (S${s}:E${e})`, quality: "1080p HD", url: `https://cinesrc.st/embed/tv/${id}?s=${s}&e=${e}`, browser_url: `https://cinesrc.st/embed/tv/${id}?s=${s}&e=${e}`, direct_playable: true, is_embed: true },
+          { name: "VidSrc3", title: `Server 15 • VidSrc3 Cloud (S${s}:E${e})`, quality: "1080p HD", url: `https://vidsrc3.created.app/embed/tv/${id}/${s}/${e}`, browser_url: `https://vidsrc3.created.app/embed/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true }
         );
       } else {
         streams.push(
@@ -570,7 +576,13 @@ document.addEventListener('DOMContentLoaded', () => {
           { name: "VidSrc PM", title: `Server 4 • ${cleanTitle} - VidSrc Dedicated`, quality: "1080p HD", url: `https://vidsrc.pm/embed/movie/${id}`, browser_url: `https://vidsrc.pm/embed/movie/${id}`, direct_playable: true, is_embed: true },
           { name: "VidSrc SU", title: `Server 5 • ${cleanTitle} - VidSrc High-Speed`, quality: "1080p HD", url: `https://vidsrc.su/embed/movie/${id}`, browser_url: `https://vidsrc.su/embed/movie/${id}`, direct_playable: true, is_embed: true },
           { name: "VidJoy Cinema", title: `Server 6 • ${cleanTitle} - VidJoy HD`, quality: "1080p HD", url: `https://vidjoy.pro/embed/movie/${id}`, browser_url: `https://vidjoy.pro/embed/movie/${id}`, direct_playable: true, is_embed: true },
-          { name: "2Embed Multi-Server", title: `Server 7 • ${cleanTitle} - 1080p Full HD`, quality: "1080p Full HD", url: `https://www.2embed.cc/embed/${id}`, browser_url: `https://www.2embed.cc/embed/${id}`, direct_playable: true, is_embed: true }
+          { name: "2Embed Multi-Server", title: `Server 7 • ${cleanTitle} - 1080p Full HD`, quality: "1080p Full HD", url: `https://www.2embed.cc/embed/${id}`, browser_url: `https://www.2embed.cc/embed/${id}`, direct_playable: true, is_embed: true },
+          { name: "111Movies", title: `Server 8 • ${cleanTitle} - 111Movies 1080p`, quality: "1080p HD", url: `https://111movies.net/movie/${id}`, browser_url: `https://111movies.net/movie/${id}`, direct_playable: true, is_embed: true },
+          { name: "Filmu", title: `Server 10 • ${cleanTitle} - Filmu Embed`, quality: "1080p HD", url: `https://embed.filmu.in/movie/${id}`, browser_url: `https://embed.filmu.in/movie/${id}`, direct_playable: true, is_embed: true },
+          { name: "VidCore", title: `Server 11 • ${cleanTitle} - VidCore Stream`, quality: "1080p HD", url: `https://vidcore.org/embed/movie/${id}`, browser_url: `https://vidcore.org/embed/movie/${id}`, direct_playable: true, is_embed: true },
+          { name: "APIPlayer", title: `Server 12 • ${cleanTitle} - APIPlayer`, quality: "1080p HD", url: `https://apiplayer.ru/embed/movie/${id}`, browser_url: `https://apiplayer.ru/embed/movie/${id}`, direct_playable: true, is_embed: true },
+          { name: "CineSrc", title: `Server 13 • ${cleanTitle} - CineSrc Cloud`, quality: "1080p HD", url: `https://cinesrc.st/embed/movie/${id}`, browser_url: `https://cinesrc.st/embed/movie/${id}`, direct_playable: true, is_embed: true },
+          { name: "VidSrc3", title: `Server 15 • ${cleanTitle} - VidSrc3 Cloud`, quality: "1080p HD", url: `https://vidsrc3.created.app/embed/movie/${id}`, browser_url: `https://vidsrc3.created.app/embed/movie/${id}`, direct_playable: true, is_embed: true }
         );
       }
       return { streams };

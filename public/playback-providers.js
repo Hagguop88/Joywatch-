@@ -228,6 +228,110 @@
           : 'https://www.2embed.cc/embed/' + t.mediaId;
       },
       extractProgress: function () { return null; }
+    },
+    {
+      id: '111movies',
+      name: '111Movies',
+      allowedOrigins: ['https://111movies.net'],
+      resumeParam: null,
+      supportsResumeParam: false,
+      buildEmbedUrl: function (t) {
+        return t.type === 'series'
+          ? 'https://111movies.net/tv/' + t.mediaId + '/' + (t.season || 1) + '/' + (t.episode || 1)
+          : 'https://111movies.net/movie/' + t.mediaId;
+      },
+      extractProgress: function () { return null; }
+    },
+    {
+      id: 'vidlove',
+      name: 'VidLove',
+      allowedOrigins: ['https://player.vidlove.cc', 'https://vidlove.cc'],
+      resumeParam: null,
+      supportsResumeParam: false,
+      buildEmbedUrl: function (t) {
+        return t.type === 'series'
+          ? 'https://player.vidlove.cc/embed/tv/' + t.mediaId + '/' + (t.season || 1) + '/' + (t.episode || 1)
+          : 'https://player.vidlove.cc/embed/movie/' + t.mediaId;
+      },
+      extractProgress: function () { return null; }
+    },
+    {
+      id: 'filmu',
+      name: 'Filmu',
+      allowedOrigins: ['https://embed.filmu.in', 'https://filmu.in'],
+      resumeParam: null,
+      supportsResumeParam: false,
+      buildEmbedUrl: function (t) {
+        return t.type === 'series'
+          ? 'https://embed.filmu.in/tv/' + t.mediaId + '/' + (t.season || 1) + '/' + (t.episode || 1)
+          : 'https://embed.filmu.in/movie/' + t.mediaId;
+      },
+      extractProgress: function () { return null; }
+    },
+    {
+      id: 'vidcore',
+      name: 'VidCore',
+      allowedOrigins: ['https://vidcore.org'],
+      resumeParam: null,
+      supportsResumeParam: false,
+      buildEmbedUrl: function (t) {
+        return t.type === 'series'
+          ? 'https://vidcore.org/embed/tv/' + t.mediaId + '/' + (t.season || 1) + '/' + (t.episode || 1)
+          : 'https://vidcore.org/embed/movie/' + t.mediaId;
+      },
+      extractProgress: function () { return null; }
+    },
+    {
+      id: 'apiplayer',
+      name: 'APIPlayer',
+      allowedOrigins: ['https://apiplayer.ru'],
+      resumeParam: null,
+      supportsResumeParam: false,
+      buildEmbedUrl: function (t) {
+        return t.type === 'series'
+          ? 'https://apiplayer.ru/embed/tv/' + t.mediaId + '/' + (t.season || 1) + '/' + (t.episode || 1)
+          : 'https://apiplayer.ru/embed/movie/' + t.mediaId;
+      },
+      extractProgress: function () { return null; }
+    },
+    {
+      id: 'cinesrc',
+      name: 'CineSrc',
+      allowedOrigins: ['https://cinesrc.st'],
+      resumeParam: null,
+      supportsResumeParam: false,
+      buildEmbedUrl: function (t) {
+        return t.type === 'series'
+          ? 'https://cinesrc.st/embed/tv/' + t.mediaId + '?s=' + (t.season || 1) + '&e=' + (t.episode || 1)
+          : 'https://cinesrc.st/embed/movie/' + t.mediaId;
+      },
+      extractProgress: function () { return null; }
+    },
+    {
+      id: 'embedmaster',
+      name: 'EmbedMaster',
+      allowedOrigins: ['https://embedmaster.link', 'https://embedmaster.com'],
+      resumeParam: null,
+      supportsResumeParam: false,
+      buildEmbedUrl: function (t) {
+        return t.type === 'series'
+          ? 'https://embedmaster.link/tv/' + t.mediaId + '/' + (t.season || 1) + '/' + (t.episode || 1)
+          : 'https://embedmaster.link/movie/' + t.mediaId;
+      },
+      extractProgress: function () { return null; }
+    },
+    {
+      id: 'vidsrc3',
+      name: 'VidSrc3',
+      allowedOrigins: ['https://vidsrc3.created.app'],
+      resumeParam: null,
+      supportsResumeParam: false,
+      buildEmbedUrl: function (t) {
+        return t.type === 'series'
+          ? 'https://vidsrc3.created.app/embed/tv/' + t.mediaId + '/' + (t.season || 1) + '/' + (t.episode || 1)
+          : 'https://vidsrc3.created.app/embed/movie/' + t.mediaId;
+      },
+      extractProgress: function () { return null; }
     }
   ];
 
@@ -255,7 +359,18 @@
       'vidsrc.su': 'vidsrc-su',
       'vidjoy.pro': 'vidjoy',
       'www.2embed.cc': '2embed',
-      '2embed.cc': '2embed'
+      '2embed.cc': '2embed',
+      '111movies.net': '111movies',
+      'player.vidlove.cc': 'vidlove',
+      'vidlove.cc': 'vidlove',
+      'embed.filmu.in': 'filmu',
+      'filmu.in': 'filmu',
+      'vidcore.org': 'vidcore',
+      'apiplayer.ru': 'apiplayer',
+      'cinesrc.st': 'cinesrc',
+      'embedmaster.link': 'embedmaster',
+      'embedmaster.com': 'embedmaster',
+      'vidsrc3.created.app': 'vidsrc3'
     };
     return map[host] || null;
   }

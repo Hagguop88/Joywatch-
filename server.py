@@ -252,6 +252,33 @@ def resolve_tmdb_imdb_id(tmdb_id, media_type="movie"):
         pass
     return None
 
+def resolve_imdb_tmdb_id(imdb_id, media_type="movie"):
+    """Resolves TMDb ID for an IMDb ID (tt...) using TMDb find endpoint."""
+    if not imdb_id or not str(imdb_id).startswith("tt"):
+        return None
+
+    cache_key = f"imdb_tmdb:{media_type}:{imdb_id}"
+    now = time.time()
+    if cache_key in CACHE:
+        ts, val = CACHE[cache_key]
+        if now - ts < 86400:
+            return val
+
+    try:
+        url = f"{TMDB_BASE_URL}/find/{imdb_id}?api_key={TMDB_API_KEY}&external_source=imdb_id"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            results_key = "tv_results" if media_type in ("series", "tv") else "movie_results"
+            results = data.get(results_key, [])
+            if results and results[0].get("id"):
+                tid = results[0]["id"]
+                CACHE[cache_key] = (now, tid)
+                return tid
+    except Exception:
+        pass
+    return None
+
 def fetch_tmdb_ott_catalog(platform="all", media_type="all", limit=24):
     """Fetches and arranges movies and TV shows accurately as per OTT platforms using TMDb."""
     cache_key = f"tmdb_ott:{platform}:{media_type}:{limit}"
@@ -560,6 +587,14 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
             if imdb_id:
                 clean_title = title or "Feature Film"
                 NEXSTREAM_API_KEY = "nx_7247f0dac882d0590776fb442d30a667"
+                tmdb_id = None
+                if item_id and item_id.isdigit():
+                    tmdb_id = item_id
+                elif item_id and item_id.startswith("tmdb:"):
+                    tmdb_id = item_id.replace("tmdb:", "").strip()
+                elif imdb_id:
+                    tmdb_id = resolve_imdb_tmdb_id(imdb_id, media_type)
+
                 if media_type == "series":
                     streams.append({
                         "name": "VidLink Pro",
@@ -624,6 +659,80 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
                         "direct_playable": True,
                         "is_embed": True,
                     })
+                    streams.append({
+                        "name": "111Movies",
+                        "title": f"Server 8 • 111Movies 1080p (S{s_num}:E{e_num})",
+                        "quality": "1080p HD",
+                        "url": f"https://111movies.net/tv/{imdb_id}/{s_num}/{e_num}",
+                        "browser_url": f"https://111movies.net/tv/{imdb_id}/{s_num}/{e_num}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    if tmdb_id:
+                        streams.append({
+                            "name": "VidLove",
+                            "title": f"Server 9 • VidLove Cloud (S{s_num}:E{e_num})",
+                            "quality": "1080p HD",
+                            "url": f"https://player.vidlove.cc/embed/tv/{tmdb_id}/{s_num}/{e_num}",
+                            "browser_url": f"https://player.vidlove.cc/embed/tv/{tmdb_id}/{s_num}/{e_num}",
+                            "direct_playable": True,
+                            "is_embed": True,
+                        })
+                    streams.append({
+                        "name": "Filmu",
+                        "title": f"Server 10 • Filmu Embed (S{s_num}:E{e_num})",
+                        "quality": "1080p HD",
+                        "url": f"https://embed.filmu.in/tv/{imdb_id}/{s_num}/{e_num}",
+                        "browser_url": f"https://embed.filmu.in/tv/{imdb_id}/{s_num}/{e_num}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    streams.append({
+                        "name": "VidCore",
+                        "title": f"Server 11 • VidCore Stream (S{s_num}:E{e_num})",
+                        "quality": "1080p HD",
+                        "url": f"https://vidcore.org/embed/tv/{imdb_id}/{s_num}/{e_num}",
+                        "browser_url": f"https://vidcore.org/embed/tv/{imdb_id}/{s_num}/{e_num}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    streams.append({
+                        "name": "APIPlayer",
+                        "title": f"Server 12 • APIPlayer (S{s_num}:E{e_num})",
+                        "quality": "1080p HD",
+                        "url": f"https://apiplayer.ru/embed/tv/{imdb_id}/{s_num}/{e_num}",
+                        "browser_url": f"https://apiplayer.ru/embed/tv/{imdb_id}/{s_num}/{e_num}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    streams.append({
+                        "name": "CineSrc",
+                        "title": f"Server 13 • CineSrc Cloud (S{s_num}:E{e_num})",
+                        "quality": "1080p HD",
+                        "url": f"https://cinesrc.st/embed/tv/{imdb_id}?s={s_num}&e={e_num}",
+                        "browser_url": f"https://cinesrc.st/embed/tv/{imdb_id}?s={s_num}&e={e_num}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    if tmdb_id:
+                        streams.append({
+                            "name": "EmbedMaster",
+                            "title": f"Server 14 • EmbedMaster (S{s_num}:E{e_num})",
+                            "quality": "1080p HD",
+                            "url": f"https://embedmaster.link/tv/{tmdb_id}/{s_num}/{e_num}",
+                            "browser_url": f"https://embedmaster.link/tv/{tmdb_id}/{s_num}/{e_num}",
+                            "direct_playable": True,
+                            "is_embed": True,
+                        })
+                    streams.append({
+                        "name": "VidSrc3",
+                        "title": f"Server 15 • VidSrc3 Cloud (S{s_num}:E{e_num})",
+                        "quality": "1080p HD",
+                        "url": f"https://vidsrc3.created.app/embed/tv/{imdb_id}/{s_num}/{e_num}",
+                        "browser_url": f"https://vidsrc3.created.app/embed/tv/{imdb_id}/{s_num}/{e_num}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
                 else:
                     streams.append({
                         "name": "VidLink Pro",
@@ -685,6 +794,80 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
                         "quality": "1080p Full HD",
                         "url": f"https://www.2embed.cc/embed/{imdb_id}",
                         "browser_url": f"https://www.2embed.cc/embed/{imdb_id}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    streams.append({
+                        "name": "111Movies",
+                        "title": f"Server 8 • {clean_title} - 111Movies 1080p",
+                        "quality": "1080p HD",
+                        "url": f"https://111movies.net/movie/{imdb_id}",
+                        "browser_url": f"https://111movies.net/movie/{imdb_id}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    if tmdb_id:
+                        streams.append({
+                            "name": "VidLove",
+                            "title": f"Server 9 • {clean_title} - VidLove Cloud",
+                            "quality": "1080p HD",
+                            "url": f"https://player.vidlove.cc/embed/movie/{tmdb_id}",
+                            "browser_url": f"https://player.vidlove.cc/embed/movie/{tmdb_id}",
+                            "direct_playable": True,
+                            "is_embed": True,
+                        })
+                    streams.append({
+                        "name": "Filmu",
+                        "title": f"Server 10 • {clean_title} - Filmu Embed",
+                        "quality": "1080p HD",
+                        "url": f"https://embed.filmu.in/movie/{imdb_id}",
+                        "browser_url": f"https://embed.filmu.in/movie/{imdb_id}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    streams.append({
+                        "name": "VidCore",
+                        "title": f"Server 11 • {clean_title} - VidCore Stream",
+                        "quality": "1080p HD",
+                        "url": f"https://vidcore.org/embed/movie/{imdb_id}",
+                        "browser_url": f"https://vidcore.org/embed/movie/{imdb_id}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    streams.append({
+                        "name": "APIPlayer",
+                        "title": f"Server 12 • {clean_title} - APIPlayer",
+                        "quality": "1080p HD",
+                        "url": f"https://apiplayer.ru/embed/movie/{imdb_id}",
+                        "browser_url": f"https://apiplayer.ru/embed/movie/{imdb_id}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    streams.append({
+                        "name": "CineSrc",
+                        "title": f"Server 13 • {clean_title} - CineSrc Cloud",
+                        "quality": "1080p HD",
+                        "url": f"https://cinesrc.st/embed/movie/{imdb_id}",
+                        "browser_url": f"https://cinesrc.st/embed/movie/{imdb_id}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    if tmdb_id:
+                        streams.append({
+                            "name": "EmbedMaster",
+                            "title": f"Server 14 • {clean_title} - EmbedMaster",
+                            "quality": "1080p HD",
+                            "url": f"https://embedmaster.link/movie/{tmdb_id}",
+                            "browser_url": f"https://embedmaster.link/movie/{tmdb_id}",
+                            "direct_playable": True,
+                            "is_embed": True,
+                        })
+                    streams.append({
+                        "name": "VidSrc3",
+                        "title": f"Server 15 • {clean_title} - VidSrc3 Cloud",
+                        "quality": "1080p HD",
+                        "url": f"https://vidsrc3.created.app/embed/movie/{imdb_id}",
+                        "browser_url": f"https://vidsrc3.created.app/embed/movie/{imdb_id}",
                         "direct_playable": True,
                         "is_embed": True,
                     })

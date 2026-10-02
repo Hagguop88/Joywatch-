@@ -332,45 +332,6 @@
           : 'https://vidsrc3.created.app/embed/movie/' + t.mediaId;
       },
       extractProgress: function () { return null; }
-    },
-    {
-      id: 'vidsrc-dev',
-      name: 'VidSrc Dev',
-      allowedOrigins: ['https://vidsrc.dev'],
-      resumeParam: null,
-      supportsResumeParam: false,
-      buildEmbedUrl: function (t) {
-        return t.type === 'series'
-          ? 'https://vidsrc.dev/embed/tv/' + t.mediaId + '/' + (t.season || 1) + '/' + (t.episode || 1)
-          : 'https://vidsrc.dev/embed/movie/' + t.mediaId;
-      },
-      extractProgress: function () { return null; }
-    },
-    {
-      id: 'frembed-pro',
-      name: 'FrEmbed Pro',
-      allowedOrigins: ['https://frembed.pro'],
-      resumeParam: null,
-      supportsResumeParam: false,
-      buildEmbedUrl: function (t) {
-        return t.type === 'series'
-          ? 'https://frembed.pro/api/serie.php?id=' + t.mediaId + '&s=' + (t.season || 1) + '&e=' + (t.episode || 1)
-          : 'https://frembed.pro/api/film.php?id=' + t.mediaId;
-      },
-      extractProgress: function () { return null; }
-    },
-    {
-      id: 'frembed-live',
-      name: 'FrEmbed Live',
-      allowedOrigins: ['https://frembed.live'],
-      resumeParam: null,
-      supportsResumeParam: false,
-      buildEmbedUrl: function (t) {
-        return t.type === 'series'
-          ? 'https://frembed.live/api/serie.php?id=' + t.mediaId + '&s=' + (t.season || 1) + '&e=' + (t.episode || 1)
-          : 'https://frembed.live/api/film.php?id=' + t.mediaId;
-      },
-      extractProgress: function () { return null; }
     }
   ];
 
@@ -409,10 +370,7 @@
       'cinesrc.st': 'cinesrc',
       'embedmaster.link': 'embedmaster',
       'embedmaster.com': 'embedmaster',
-      'vidsrc3.created.app': 'vidsrc3',
-      'vidsrc.dev': 'vidsrc-dev',
-      'frembed.pro': 'frembed-pro',
-      'frembed.live': 'frembed-live'
+      'vidsrc3.created.app': 'vidsrc3'
     };
     return map[host] || null;
   }

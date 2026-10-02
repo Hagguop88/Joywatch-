@@ -44,51 +44,40 @@
           <span class="joy-wordmark">JOYFLIX</span>
         </a>
 
-        <!-- Desktop Navigation (Home, TV Shows, Movies, Anime, Live TV, My List, Settings) -->
+        <!-- Desktop Navigation (Netflix Text Links) -->
         <nav class="joy-nav-pills" aria-label="Main Navigation">
-          <div class="joy-nav-tablet" role="group" aria-label="Browse">
-            <button class="nav-pill active" data-filter="all">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-              <span>Home</span>
-            </button>
-            <button class="nav-pill" data-filter="series">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
-              <span>TV Shows</span>
-            </button>
-            <button class="nav-pill" data-filter="movie">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
-              <span>Movies</span>
-            </button>
-            <button class="nav-pill" data-filter="anime">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4M12 2l8 8v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V10L4 12v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V12l-2-2M12 2v8M12 12l-4 4M12 12l4-4"></path></svg>
-              <span>Anime</span>
-            </button>
-            <button class="nav-pill" data-filter="livetv">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
-              <span>Live TV</span>
-            </button>
-          </div>
-          <button class="nav-pill" data-filter="mylist">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-            <span>My List</span>
-            <span class="joylist-counter" id="joylist-counter">0</span>
-          </button>
-          <button class="nav-pill" data-filter="settings">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-            <span>Settings</span>
-          </button>
+          <button class="nav-pill active" data-filter="all">Home</button>
+          <button class="nav-pill" data-filter="series">TV Shows</button>
+          <button class="nav-pill" data-filter="movie">Movies</button>
+          <button class="nav-pill" data-filter="new">New & Popular</button>
+          <button class="nav-pill" data-filter="anime">Anime</button>
+          <button class="nav-pill" data-filter="livetv">Live TV</button>
+          <button class="nav-pill" data-filter="mylist">My List <span class="joylist-counter" id="joylist-counter">0</span></button>
+          <button class="nav-pill" data-filter="settings">Settings</button>
         </nav>
       </div>
 
       <div class="nav-right">
-        <!-- Search Trigger Button in Header (Opens separate search page) -->
+        <!-- Header Actions: Search, Notifications, Profile Avatar -->
         <div class="joy-search-wrapper" id="search-box" role="button" tabindex="0" title="Open Search">
-          <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" id="search-input" placeholder="Search movies, shows, OTT..." autocomplete="off">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="search-input" placeholder="Titles, people, genres..." autocomplete="off">
           <span class="search-shortcut-hint">/</span>
           <button class="search-clear-btn" id="clear-search-btn" title="Clear search" aria-label="Clear search">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
+        </div>
+
+        <button class="nav-icon-btn" title="Notifications" aria-label="Notifications">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        </button>
+
+        <!-- Netflix Profile Avatar Icon -->
+        <div class="nav-profile-menu" title="Profiles & Account">
+          <div class="nav-avatar-box">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#E50914"><rect width="24" height="24" rx="4" fill="#E50914"/><circle cx="9" cy="9" r="1.5" fill="#FFFFFF"/><circle cx="15" cy="9" r="1.5" fill="#FFFFFF"/><path d="M7 16 C 9 19, 15 19, 17 16" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+          </div>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" class="profile-dropdown-arrow"><polygon points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
     </div>
@@ -96,35 +85,25 @@
 
   <!-- Main Content Canvas -->
   <main class="joy-main" id="main-content">
-    <!-- Featured Hero Section (Cinematic Cropping, Strong Dark Fade into #050505) -->
+    <!-- Netflix Hero Billboard Section -->
     <section class="hero-canvas" id="billboard">
       <div class="hero-backdrop" id="billboard-bg"></div>
       <div class="hero-vignette-solid"></div>
 
       <div class="hero-content">
-        <!-- Small Category / Metadata Tag -->
-        <div class="hero-meta-strip">
-          <span class="hero-chip chip-lime-tag">FEATURED</span>
-          <span class="hero-chip chip-match" id="billboard-match">99% Match</span>
-          <span class="hero-chip chip-quality">4K Ultra HD</span>
+        <!-- Netflix Originals J Brand Tag -->
+        <div class="hero-brand-strip">
+          <span class="hero-j-badge">J</span>
+          <span class="hero-type-label">S E R I E S</span>
         </div>
 
-        <!-- Huge Bold Title -->
+        <!-- Massive Bold Title -->
         <h1 class="hero-title" id="billboard-title">Discovering Cinema...</h1>
 
-        <!-- Metadata Row: ★ Rating Year • Genre • Runtime -->
-        <div class="hero-metadata-row">
-          <span class="hero-rating-badge">
-            <svg class="star-svg" width="13" height="13" viewBox="0 0 24 24" fill="#EAB308">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-            </svg>
-            <span id="billboard-rating">8.4</span>
-          </span>
-          <span id="billboard-year">2026</span>
-          <span class="meta-dot">•</span>
-          <span id="billboard-genres">Action • Sci-Fi</span>
-          <span class="meta-dot">•</span>
-          <span id="billboard-runtime">2h 14m</span>
+        <!-- Netflix Top 10 Ranking Tag -->
+        <div class="hero-top10-strip">
+          <div class="hero-top10-icon">TOP <span>10</span></div>
+          <span class="hero-top10-text" id="billboard-match">#1 in Movies Today</span>
         </div>
 
         <!-- Short Description of the Movie -->
@@ -132,23 +111,27 @@
           Immerse yourself in breathtaking 4K Ultra HD cinematic releases, top-tier audio, and instantaneous high-speed streaming directly in your browser.
         </p>
 
-        <!-- Primary Lime Play Button & Secondary Glass Action Buttons -->
+        <!-- Netflix Action Buttons: Solid White Play & Translucent Gray More Info -->
         <div class="hero-actions">
           <button class="btn-joy-lime" id="billboard-play-btn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#000000"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
             <span>Play</span>
           </button>
 
-          <button class="btn-joy-glass" id="billboard-mylist-btn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-            <span id="billboard-mylist-text">+ My List</span>
-          </button>
-
           <button class="btn-joy-glass" id="billboard-info-btn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
             <span>More Info</span>
           </button>
+
+          <button class="btn-joy-glass btn-icon-only" id="billboard-mylist-btn" title="Add to My List">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
         </div>
+      </div>
+
+      <!-- Right Edge Maturity Badge -->
+      <div class="hero-maturity-strip">
+        <span class="maturity-tag" id="billboard-rating">16+</span>
       </div>
     </section>
 
@@ -732,12 +715,50 @@
         <span class="joylist-counter bottom-counter" id="mobile-joylist-counter">0</span>
       </div>
       <span>My List</span>
-    </button>
-    <button class="bottom-nav-pill" data-filter="settings">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-      <span>Settings</span>
-    </button>
-  </nav>
+  </main>
+
+  <!-- Authentic Netflix Web Client Footer -->
+  <footer class="netflix-footer">
+    <div class="footer-container">
+      <div class="footer-social-row">
+        <a href="#" class="footer-social-icon" title="Facebook"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+        <a href="#" class="footer-social-icon" title="Instagram"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+        <a href="#" class="footer-social-icon" title="Twitter"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg></a>
+        <a href="#" class="footer-social-icon" title="YouTube"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="#141414"/></svg></a>
+      </div>
+
+      <div class="footer-links-grid">
+        <ul class="footer-link-col">
+          <li><a href="#">Audio Description</a></li>
+          <li><a href="#">Help Center</a></li>
+          <li><a href="#">Gift Cards</a></li>
+          <li><a href="#">Media Center</a></li>
+        </ul>
+        <ul class="footer-link-col">
+          <li><a href="#">Investor Relations</a></li>
+          <li><a href="#">Jobs</a></li>
+          <li><a href="#">Terms of Use</a></li>
+          <li><a href="#">Privacy</a></li>
+        </ul>
+        <ul class="footer-link-col">
+          <li><a href="#">Legal Notices</a></li>
+          <li><a href="#">Cookie Preferences</a></li>
+          <li><a href="#">Corporate Information</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-service-btn">
+        <button class="btn-service-code">Service Code</button>
+      </div>
+
+      <div class="footer-copyright">
+        <span>© 1997-2026 Joyflix, Inc.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mobile Floating Bottom Navigation -->
 
   <script src="hls.min.js"></script>
   <script src="live-channels.js?v=1.4.1"></script>

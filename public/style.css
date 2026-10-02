@@ -209,66 +209,58 @@ body.joywatch-body {
   left: 0;
   right: 0;
   z-index: 1000;
-  padding: max(14px, var(--safe-top)) 40px 14px;
-  background-color: rgba(11, 13, 12, 0.82);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border-bottom: 1px solid var(--joy-border);
-  will-change: background-color, border-color, backdrop-filter;
-  transition: background-color var(--duration-normal) var(--ease-smooth),
-              border-color var(--duration-normal) var(--ease-smooth),
-              padding var(--duration-normal) var(--ease-smooth);
+  padding: 16px 48px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
+  border-bottom: none;
+  transition: background-color 400ms var(--ease-smooth), padding 300ms var(--ease-smooth);
 }
 
 .joy-navbar.scrolled {
-  background-color: rgba(7, 9, 8, 0.95);
-  border-bottom-color: rgba(255, 255, 255, 0.12);
-  padding-top: max(10px, var(--safe-top));
-  padding-bottom: 10px;
+  background-color: #141414;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
 .nav-container {
-  max-width: 1440px;
+  max-width: 1560px;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 24px;
   min-width: 0;
 }
 
 .nav-left {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 36px;
   min-width: 0;
   flex: 1 1 auto;
 }
 
-/* Brand Logo (Small icon & Small refined text) */
+/* Brand Logo (Netflix Red Wordmark & Ribbon J) */
 .joy-brand {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   text-decoration: none;
   cursor: pointer;
   user-select: none;
 }
 
 .joy-gem {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-round);
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
   background-color: #000000;
-  border: 1px solid var(--joy-accent-border);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   overflow: hidden;
-  box-shadow: 0 0 12px var(--joy-accent-shadow);
-  transition: transform var(--duration-fast) var(--ease-spring),
-              box-shadow var(--duration-fast) var(--ease-smooth);
+  transition: transform var(--duration-fast) var(--ease-spring);
 }
 
 .joy-gem img,
@@ -280,21 +272,16 @@ body.joywatch-body {
 }
 
 .joy-brand:hover .joy-gem {
-  transform: scale(1.08);
-  box-shadow: 0 0 16px var(--joy-accent-border);
-}
-
-.joy-brand:active .joy-gem {
-  transform: scale(0.94);
+  transform: scale(1.06);
 }
 
 .joy-wordmark {
   font-family: var(--font-display);
-  font-size: 1.05rem;
+  font-size: 1.35rem;
   font-weight: 900;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--joy-accent);
+  color: #E50914;
   transition: opacity var(--duration-fast) var(--ease-smooth);
 }
 
@@ -302,139 +289,137 @@ body.joywatch-body {
   opacity: 0.9;
 }
 
-/* Desktop Navigation Pills */
+/* Desktop Navigation (Netflix Plain Text Links) */
 .joy-nav-pills {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 20px;
   flex-wrap: nowrap;
   min-width: 0;
   flex: 1 1 auto;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.joy-nav-pills::-webkit-scrollbar {
-  display: none;
-}
-
-/* Small browse tablet grouping Home, Movies, TV Shows, Anime */
-.joy-nav-tablet {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  padding: 4px;
-  border-radius: var(--radius-round);
-  background-color: var(--joy-bg-card);
-  border: 1px solid var(--joy-border);
-  flex: 0 0 auto;
-  white-space: nowrap;
 }
 
 .nav-pill {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 6px 12px;
-  flex: 0 0 auto;
-  white-space: nowrap;
-  border-radius: var(--radius-round);
+  gap: 6px;
+  padding: 4px 0;
   background: transparent;
-  border: 1px solid transparent;
-  color: var(--joy-text-secondary);
+  border: none;
+  color: #E5E5E5;
   font-family: var(--font-body);
-  font-size: 0.78rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
+  font-size: 0.86rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
   cursor: pointer;
-  transform: translateZ(0);
-  transition: transform var(--duration-fast) var(--ease-smooth),
-              background-color var(--duration-fast) var(--ease-smooth),
-              color var(--duration-fast) var(--ease-smooth),
-              border-color var(--duration-fast) var(--ease-smooth);
-}
-
-.nav-pill svg {
-  width: 13px;
-  height: 13px;
-  opacity: 0.7;
-  transition: opacity var(--duration-fast) var(--ease-smooth),
-              transform var(--duration-fast) var(--ease-smooth);
+  white-space: nowrap;
+  transition: color 200ms var(--ease-smooth);
 }
 
 .nav-pill:hover {
-  color: var(--joy-text-primary);
-  transform: translateY(-1px);
+  color: #B3B3B3;
 }
 
-.nav-pill:hover svg {
-  opacity: 1;
-}
-
-.nav-pill:active {
-  transform: scale(0.96) translateY(0);
-}
-
-/* Active Nav Item: White text only, NO background box, NO purple */
 .nav-pill.active {
   color: #FFFFFF;
-  background-color: transparent;
-  border-color: transparent;
-  font-weight: 600;
-}
-
-.nav-pill.active svg {
-  opacity: 1;
-  stroke: var(--joy-accent);
+  font-weight: 700;
+  border-bottom: none;
 }
 
 .joylist-counter {
   font-size: 0.68rem;
-  font-weight: 700;
-  padding: 1px 7px;
-  background-color: var(--joy-accent);
-  color: var(--joy-text-inverse);
-  border-radius: var(--radius-round);
-  transition: transform var(--duration-fast) var(--ease-spring);
+  font-weight: 800;
+  padding: 1px 6px;
+  background-color: #E50914;
+  color: #FFFFFF;
+  border-radius: 9999px;
+  margin-left: 4px;
 }
 
-.nav-pill:hover .joylist-counter {
-  transform: scale(1.08);
-}
-
-/* Enlarged Modern Search Box */
+/* Header Right Actions (Search Box, Bell Icon, Profile Avatar) */
 .nav-right {
   display: flex;
   align-items: center;
+  gap: 18px;
 }
 
 .joy-search-wrapper {
   position: relative;
   display: flex;
   align-items: center;
-  height: 42px;
-  min-width: 200px;
-  max-width: 290px;
-  width: 100%;
-  flex: 0 1 290px;
-  background-color: var(--joy-bg-card);
-  border: 1px solid var(--joy-border);
-  border-radius: var(--radius-round);
-  padding: 0 16px;
-  transition: transform var(--duration-fast) var(--ease-smooth),
-              border-color var(--duration-fast) var(--ease-smooth),
-              background-color var(--duration-fast) var(--ease-smooth),
-              box-shadow var(--duration-fast) var(--ease-smooth);
+  height: 36px;
+  min-width: 220px;
+  max-width: 300px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 4px;
+  padding: 0 12px;
+  transition: border-color var(--duration-fast) var(--ease-smooth),
+              background-color var(--duration-fast) var(--ease-smooth);
 }
 
 .joy-search-wrapper:hover {
-  border-color: var(--joy-border-hover);
+  border-color: rgba(255, 255, 255, 0.6);
 }
 
 .joy-search-wrapper:focus-within {
-  border-color: var(--joy-accent-border);
-  background-color: var(--joy-bg-card-hover);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--joy-accent-border);
+  border-color: #FFFFFF;
+  background-color: rgba(0, 0, 0, 0.85);
+}
+
+.search-icon {
+  color: #FFFFFF;
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
+.nav-icon-btn {
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  opacity: 0.85;
+  transition: opacity var(--duration-fast) var(--ease-smooth);
+}
+
+.nav-icon-btn:hover {
+  opacity: 1;
+}
+
+.nav-profile-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.nav-avatar-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: #E50914;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--duration-fast) var(--ease-smooth);
+}
+
+.nav-profile-menu:hover .nav-avatar-box {
+  transform: scale(1.05);
+}
+
+.profile-dropdown-arrow {
+  color: #FFFFFF;
+  transition: transform var(--duration-fast) var(--ease-smooth);
+}
+
+.nav-profile-menu:hover .profile-dropdown-arrow {
+  transform: rotate(180deg);
 }
 
 .search-icon {
@@ -619,155 +604,236 @@ body.joywatch-body {
   padding-top: calc(72px + var(--safe-top));
 }
 
+.joy-main {
+  min-height: 100vh;
+  padding-top: 0;
+}
+
 .hero-canvas {
   position: relative;
-  min-height: 72vh;
+  min-height: 85vh;
+  height: 85vh;
   display: flex;
-  align-items: flex-end;
-  padding: 64px 48px 84px;
+  align-items: center;
+  padding: 0 54px 60px;
   overflow: hidden;
-  max-width: 1440px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .hero-backdrop {
   position: absolute;
   inset: 0;
   background-size: cover;
-  background-position: center top;
-  filter: brightness(0.65) saturate(1.08);
+  background-position: center 20%;
+  filter: brightness(0.85);
   will-change: opacity, transform;
   transform: scale(1) translateZ(0);
-  transition: opacity var(--duration-slow) var(--ease-smooth),
-              transform 12000ms var(--ease-smooth);
+  transition: opacity var(--duration-slow) var(--ease-smooth);
   z-index: 1;
 }
 
-.hero-canvas:hover .hero-backdrop {
-  transform: scale(1.03) translateZ(0);
-}
-
-/* Authentic Dark Vignette & Layered Fade into #050505 (Zero Gradients Invariant) */
+/* Netflix Vignette Fade (Dark left overlay + bottom fade to #141414) */
 .hero-vignette-solid {
   position: absolute;
   inset: 0;
   z-index: 2;
-  background-color: rgba(5, 5, 5, 0.45);
-  box-shadow:
-    inset 680px 0 200px -40px #050505,
-    inset 0 -280px 180px -40px #050505,
-    inset 0 120px 100px -30px rgba(5, 5, 5, 0.8);
+  background: 
+    linear-gradient(77deg, rgba(20,20,20,0.85) 0%, rgba(20,20,20,0.6) 35%, transparent 85%),
+    linear-gradient(180deg, rgba(20,20,20,0.3) 0%, transparent 60%, #141414 100%);
   pointer-events: none;
 }
 
-/* Hero Content (Occupies 40-45% width on left) */
+/* Hero Content */
 .hero-content {
   position: relative;
   z-index: 3;
-  max-width: 580px;
-  width: 44%;
+  max-width: 600px;
+  width: 45%;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin-top: 60px;
   animation: heroEntrance var(--duration-slow) var(--ease-smooth) both;
 }
 
-@keyframes heroEntrance {
-  0% {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.hero-meta-strip {
+.hero-brand-strip {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: 8px;
 }
 
-.hero-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 10px;
-  border-radius: var(--radius-round);
-  background-color: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.72rem;
-  font-weight: 500;
-  color: var(--joy-text-secondary);
-  letter-spacing: 0.03em;
+.hero-j-badge {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.5rem;
+  color: #E50914;
+  line-height: 1;
 }
 
-.chip-lime-tag {
-  background-color: var(--joy-accent-tint);
-  border-color: var(--joy-accent-border);
-  color: var(--joy-accent);
-  font-weight: 700;
-  letter-spacing: 0.08em;
+.hero-type-label {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.4em;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
 }
 
-.chip-match {
-  color: var(--joy-accent);
-  border-color: var(--joy-accent-border);
-  background-color: var(--joy-accent-tint);
-}
-
-.chip-quality {
-  color: var(--joy-text-primary);
-}
-
-/* Huge Bold Hero Title (56px-76px on large screens) */
+/* Netflix Huge Title Display */
 .hero-title {
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 5vw, 4rem);
-  font-weight: 800;
-  line-height: 1.1;
+  font-size: clamp(3rem, 5.5vw, 4.8rem);
+  font-weight: 900;
+  line-height: 1.05;
   letter-spacing: -0.025em;
   color: #FFFFFF;
+  text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.85);
 }
 
-/* Metadata Row: ★ Rating Year • Genre • Runtime */
-.hero-metadata-row {
+/* Netflix Top 10 Strip */
+.hero-top10-strip {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  font-size: 0.88rem;
-  color: var(--joy-text-secondary);
+  gap: 12px;
 }
 
-.hero-rating-badge {
-  display: inline-flex;
+.hero-top10-icon {
+  background-color: #E50914;
+  color: #FFFFFF;
+  font-weight: 900;
+  font-size: 0.78rem;
+  padding: 2px 6px;
+  border-radius: 2px;
+  letter-spacing: 0.05em;
+  display: flex;
   align-items: center;
-  gap: 5px;
-  color: var(--joy-accent);
-  font-weight: 600;
+  gap: 2px;
 }
 
-.meta-dot {
-  color: var(--joy-text-muted);
+.hero-top10-icon span {
+  font-size: 0.9rem;
+}
+
+.hero-top10-text {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  text-shadow: 1px 1px 6px rgba(0,0,0,0.8);
 }
 
 .hero-synopsis {
-  font-size: 0.94rem;
-  line-height: 1.65;
-  color: var(--joy-text-secondary);
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: #FFFFFF;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.9);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  max-width: 540px;
 }
 
 .hero-actions {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 6px;
+  margin-top: 10px;
+}
+
+.btn-icon-only {
+  padding: 10px 14px;
+  border-radius: 9999px !important;
+}
+
+/* Right Edge Maturity Rating Box */
+.hero-maturity-strip {
+  position: absolute;
+  right: 0;
+  bottom: 120px;
+  z-index: 3;
+  background-color: rgba(51, 51, 51, 0.6);
+  border-left: 3px solid #E5E5E5;
+  padding: 6px 18px 6px 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+/* ==========================================================================
+   AUTHENTIC NETFLIX FOOTER
+   ========================================================================== */
+.netflix-footer {
+  max-width: 1000px;
+  margin: 80px auto 0;
+  padding: 0 4% 60px;
+  color: #808080;
+  font-size: 0.85rem;
+}
+
+.footer-social-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.footer-social-icon {
+  color: #FFFFFF;
+  opacity: 0.85;
+  transition: opacity 200ms ease;
+}
+
+.footer-social-icon:hover {
+  opacity: 1;
+}
+
+.footer-links-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px 24px;
+  margin-bottom: 24px;
+}
+
+.footer-link-col {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-link-col a {
+  color: #808080;
+  text-decoration: none;
+  font-size: 0.8rem;
+  transition: color 200ms ease;
+}
+
+.footer-link-col a:hover {
+  text-decoration: underline;
+  color: #B3B3B3;
+}
+
+.footer-service-btn {
+  margin-bottom: 20px;
+}
+
+.btn-service-code {
+  background: transparent;
+  border: 1px solid #808080;
+  color: #808080;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: color 200ms ease, border-color 200ms ease;
+}
+
+.btn-service-code:hover {
+  color: #FFFFFF;
+  border-color: #FFFFFF;
+}
+
+.footer-copyright {
+  font-size: 0.75rem;
+  color: #808080;
 }
 
 /* ==========================================================================
@@ -1041,10 +1107,10 @@ body.joywatch-body {
 .shelf-cards-track {
   display: flex;
   align-items: stretch;
-  gap: 18px;
+  gap: 12px;
   overflow-x: auto;
-  overflow-y: hidden;
-  padding: 10px 4px 18px;
+  overflow-y: visible;
+  padding: 24px 4px 32px;
   scrollbar-width: none;
   -ms-overflow-style: none;
   scroll-behavior: smooth;
@@ -1085,9 +1151,10 @@ body.joywatch-body {
 }
 
 .movie-card:hover {
-  transform: translateY(-6px) scale(1.025);
-  border-color: rgba(255, 255, 255, 0.22);
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.85);
+  transform: translateY(-8px) scale(1.12);
+  z-index: 100;
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.95);
 }
 
 .card-poster-wrapper {
@@ -1251,54 +1318,104 @@ body.joywatch-body {
   height: 12px;
 }
 
-/* Subtle Dark Overlay Revealed on Hover (Play Icon, Title, Rating, Year) */
+/* Authentic Netflix Hover Overlay & Action Bar */
 .card-hover-overlay {
   position: absolute;
   inset: 0;
-  background-color: rgba(5, 5, 5, 0.65);
+  background: linear-gradient(180deg, rgba(20,20,20,0.2) 0%, rgba(20,20,20,0.92) 80%);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 14px;
+  padding: 12px;
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--duration-fast) var(--ease-smooth);
+  transition: opacity 220ms var(--ease-smooth);
 }
 
 .movie-card:hover .card-hover-overlay {
   opacity: 1;
+  pointer-events: auto;
 }
 
-.overlay-center-play {
-  align-self: center;
-  margin-top: auto;
-  margin-bottom: auto;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-round);
-  background-color: var(--joy-accent);
-  color: var(--joy-text-inverse);
+.card-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.card-action-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px var(--joy-accent-shadow);
-  transform: scale(0.85);
-  transition: transform var(--duration-fast) var(--ease-spring);
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background-color: rgba(42, 42, 42, 0.6);
+  color: #FFFFFF;
+  transition: transform 180ms var(--ease-spring),
+              border-color 180ms var(--ease-smooth),
+              background-color 180ms var(--ease-smooth);
 }
 
-.movie-card:hover .overlay-center-play {
-  transform: scale(1);
+.card-action-btn.card-play-btn {
+  background-color: #FFFFFF;
+  border: none;
+  color: #000000;
 }
 
-.overlay-center-play svg {
-  width: 16px;
-  height: 16px;
+.card-action-btn:hover {
+  transform: scale(1.1);
+  border-color: #FFFFFF;
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+.card-action-btn.card-play-btn:hover {
+  background-color: rgba(255, 255, 255, 0.82);
+  color: #000000;
 }
 
 .overlay-bottom-info {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
+}
+
+.overlay-tags-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.card-match-pct {
+  color: #46D369; /* Netflix Green Match percentage */
+  font-weight: 800;
+}
+
+.card-age-tag {
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 0 4px;
+  font-size: 0.68rem;
+  color: #FFFFFF;
+}
+
+.card-quality-tag {
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 2px;
+  padding: 0 3px;
+  font-size: 0.65rem;
+  color: #FFFFFF;
+  font-weight: 800;
 }
 
 .overlay-title {

@@ -351,10 +351,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!billboardMyListBtn) return;
     if (isSaved) {
       billboardMyListBtn.classList.add('active');
-      if (billboardMyListText) billboardMyListText.textContent = 'Saved in List';
+      billboardMyListBtn.title = 'Remove from My List';
+      billboardMyListBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
     } else {
       billboardMyListBtn.classList.remove('active');
-      if (billboardMyListText) billboardMyListText.textContent = '+ My List';
+      billboardMyListBtn.title = 'Add to My List';
+      billboardMyListBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
     }
   }
 
@@ -1508,27 +1510,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const year = item.year || '2025';
     const mediaType = item.type === 'series' ? 'TV Series' : 'Movie';
 
+    const matchPct = Math.floor(Math.random() * 4) + 96;
+
     card.innerHTML = `
       <div class="card-poster-wrapper">
         <img class="card-poster" src="${poster}" alt="${item.name}" loading="lazy" onload="this.classList.add('loaded')" onerror="if (!this.dataset.triedFallback && '${item.id}'.startsWith('tt')) { this.dataset.triedFallback = '1'; this.src = 'https://images.metahub.space/poster/medium/${item.id}/img'; } else { this.classList.add('loaded'); }">
         
-        <div class="card-top-pill">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="#EAB308">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-          </svg>
-          <span>${rating}</span>
-        </div>
-
         <div class="card-hover-overlay">
-          <button class="overlay-center-play" title="Watch Now" aria-label="Watch Now">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
-          </button>
+          <div class="card-action-bar">
+            <div class="card-action-left">
+              <button class="card-action-btn card-play-btn" title="Play Now" aria-label="Play Now">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#000000"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </button>
+              <button class="card-action-btn card-add-btn" title="Add to My List" aria-label="Add to My List">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+              <button class="card-action-btn card-like-btn" title="I like this" aria-label="I like this">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+              </button>
+            </div>
+            <button class="card-action-btn card-details-btn" title="More Info" aria-label="More Info">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+
           <div class="overlay-bottom-info">
             <span class="overlay-title">${item.name}</span>
+            <div class="overlay-tags-row">
+              <span class="card-match-pct">${matchPct}% Match</span>
+              <span class="card-age-tag">16+</span>
+              <span class="card-quality-tag">HD</span>
+            </div>
             <div class="overlay-subline">
-              <span>IMDb ${rating}</span>
-              <span>•</span>
               <span>${year}</span>
+              <span>•</span>
+              <span>${mediaType}</span>
             </div>
           </div>
         </div>
@@ -2536,12 +2552,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 180);
 
     billboardTitle.textContent = item.name;
-    billboardRating.textContent = item.imdbRating || '8.4';
-    billboardYear.textContent = item.year || '2026';
-    billboardMatch.textContent = `${Math.floor(Math.random() * 4) + 96}% Match`;
-    billboardGenres.textContent = (item.genres && item.genres.length > 0) ? item.genres.slice(0, 3).join(' • ') : 'Action • Sci-Fi';
-    billboardRuntime.textContent = item.type === 'series' ? 'TV Series' : '2h 14m';
-    billboardSynopsis.textContent = item.description || 'Watch the latest critically acclaimed cinematic releases, high-stakes thrills, and stunning visuals with instant high-speed streaming on Joywatch.';
+    const isSeries = item.type === 'series';
+    const typeLabel = billboard ? billboard.querySelector('.hero-type-label') : null;
+    if (typeLabel) typeLabel.textContent = isSeries ? 'S E R I E S' : 'F I L M';
+
+    if (billboardRating) billboardRating.textContent = '16+';
+    if (billboardMatch) billboardMatch.textContent = `#1 in ${isSeries ? 'TV Shows' : 'Movies'} Today`;
+    if (billboardSynopsis) billboardSynopsis.textContent = item.description || 'Watch the latest critically acclaimed cinematic releases, high-stakes thrills, and stunning visuals with instant high-speed streaming on Joyflix.';
 
     updateHeroMyListBtn(isInJoyList(item.id));
   }
@@ -3240,7 +3257,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { /* Masterpieces best-effort */ }
       }
 
-      // 4. Trending Now
+      // 4. Top 10 Movies Today
       let idx = 0;
       if (filter === 'all' || filter === 'movie') {
         const trendingMovies = results[idx++].items || [];
@@ -3248,46 +3265,46 @@ document.addEventListener('DOMContentLoaded', () => {
           setBillboard(trendingMovies[0]);
           featuredSet = true;
         }
-        const row = createRowElement('Trending Now', trendingMovies, 'trending');
+        const row = createRowElement('Top 10 Movies Today', trendingMovies, 'trending');
         if (row) rowsContainer.appendChild(row);
       }
 
-      // 3. Popular on Netflix (TMDb Verified Watch Provider - 164 Titles)
+      // 3. Popular on Joyflix
       if (filter === 'all' || filter === 'movie') {
         const nData = (OTT_DATA.netflix && OTT_DATA.netflix.length > 0) ? OTT_DATA.netflix : (await fetchOttCatalog('netflix', 'all', 200));
-        const netflixShelf = createRowElement('Popular on Netflix', nData, 'netflix');
+        const netflixShelf = createRowElement('Popular on Joyflix', nData, 'netflix');
         if (netflixShelf) rowsContainer.appendChild(netflixShelf);
       }
 
-      // 4. Prime Video Exclusives (TMDb Verified Watch Provider - 172 Titles)
+      // 4. Prime Video Exclusives
       if (filter === 'all' || filter === 'series') {
         const pData = (OTT_DATA.prime && OTT_DATA.prime.length > 0) ? OTT_DATA.prime : (await fetchOttCatalog('prime', 'all', 200));
         const primeShelf = createRowElement('Prime Video Exclusives', pData, 'prime');
         if (primeShelf) rowsContainer.appendChild(primeShelf);
       }
 
-      // 5. Disney+ Hotstar Cinema & Marvel (TMDb Verified Watch Provider - 212 Titles)
+      // 5. Disney+ Hotstar Cinema & Marvel
       if (filter === 'all' || filter === 'movie') {
         const dData = (OTT_DATA.disney && OTT_DATA.disney.length > 0) ? OTT_DATA.disney : (await fetchOttCatalog('disney', 'all', 200));
         const disneyShelf = createRowElement('Disney+ Hotstar Cinema & Marvel', dData, 'disney');
         if (disneyShelf) rowsContainer.appendChild(disneyShelf);
       }
 
-      // 6. Crunchyroll Anime Vault (TMDb Verified Watch Provider - 165 Titles)
+      // 6. Crunchyroll Anime Vault
       if (filter === 'all' || filter === 'anime' || filter === 'series') {
         const cData = (OTT_DATA.crunchyroll && OTT_DATA.crunchyroll.length > 0) ? OTT_DATA.crunchyroll : (await fetchOttCatalog('crunchyroll', 'all', 200));
         const crunchyShelf = createRowElement('Crunchyroll Anime Vault', cData, 'crunchyroll');
         if (crunchyShelf) rowsContainer.appendChild(crunchyShelf);
       }
 
-      // 7. Paramount+ Blockbusters (TMDb Verified Watch Provider - 160 Titles)
+      // 7. Paramount+ Blockbusters
       if (filter === 'all' || filter === 'movie') {
         const pmData = (OTT_DATA.paramount && OTT_DATA.paramount.length > 0) ? OTT_DATA.paramount : (await fetchOttCatalog('paramount', 'all', 200));
         const paramountShelf = createRowElement('Paramount+ Blockbusters', pmData, 'paramount');
         if (paramountShelf) rowsContainer.appendChild(paramountShelf);
       }
 
-      // 8. Top Rated Masterpieces (IMDb 8.5+)
+      // 8. Top Rated Masterpieces
       if (filter === 'all' || filter === 'movie') {
         const masterpieces = cachedCatalogPool.filter(c => parseFloat(c.imdbRating) >= 8.5).slice(0, 15);
         if (masterpieces.length > 0) {
@@ -3296,14 +3313,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      // 9. Popular TV Shows
+      // 9. Top 10 TV Shows Today
       if (filter === 'all' || filter === 'series') {
         const topSeries = results[idx++].items || [];
         if (filter === 'series' && topSeries.length > 0 && !featuredSet) {
           setBillboard(topSeries[0]);
           featuredSet = true;
         }
-        const row = createRowElement('Popular TV Shows', topSeries, 'series');
+        const row = createRowElement('Top 10 TV Shows Today', topSeries, 'series');
         if (row) rowsContainer.appendChild(row);
       }
 

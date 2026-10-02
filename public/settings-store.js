@@ -131,7 +131,8 @@
 
   var DEFAULT_SERVER_ORDER = [
     'vidlink', 'nexstream', 'autoembed', 'vidsrc-pm', 'vidsrc-su', 'vidjoy', '2embed',
-    '111movies', 'vidlove', 'filmu', 'vidcore', 'apiplayer', 'cinesrc', 'embedmaster', 'vidsrc3'
+    '111movies', 'vidlove', 'filmu', 'vidcore', 'apiplayer', 'cinesrc', 'embedmaster', 'vidsrc3',
+    'vidsrc-dev', 'frembed-pro', 'frembed-live'
   ];
 
   var SERVER_DISPLAY_NAMES = {
@@ -149,7 +150,10 @@
     'apiplayer': 'APIPlayer',
     'cinesrc': 'CineSrc',
     'embedmaster': 'EmbedMaster',
-    'vidsrc3': 'VidSrc3'
+    'vidsrc3': 'VidSrc3',
+    'vidsrc-dev': 'VidSrc Dev',
+    'frembed-pro': 'FrEmbed Pro',
+    'frembed-live': 'FrEmbed Live'
   };
 
   // ---------------------------------------------------------------------------

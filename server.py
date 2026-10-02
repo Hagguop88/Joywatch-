@@ -733,6 +733,33 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
                         "direct_playable": True,
                         "is_embed": True,
                     })
+                    streams.append({
+                        "name": "VidSrc Dev",
+                        "title": f"Server 16 • VidSrc Dev (S{s_num}:E{e_num})",
+                        "quality": "1080p HD",
+                        "url": f"https://vidsrc.dev/embed/tv/{imdb_id}/{s_num}/{e_num}",
+                        "browser_url": f"https://vidsrc.dev/embed/tv/{imdb_id}/{s_num}/{e_num}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    streams.append({
+                        "name": "FrEmbed Pro",
+                        "title": f"Server 17 • FrEmbed Pro (S{s_num}:E{e_num})",
+                        "quality": "1080p HD",
+                        "url": f"https://frembed.pro/api/serie.php?id={imdb_id}&s={s_num}&e={e_num}",
+                        "browser_url": f"https://frembed.pro/api/serie.php?id={imdb_id}&s={s_num}&e={e_num}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    streams.append({
+                        "name": "FrEmbed Live",
+                        "title": f"Server 18 • FrEmbed Live (S{s_num}:E{e_num})",
+                        "quality": "1080p HD",
+                        "url": f"https://frembed.live/api/serie.php?id={imdb_id}&s={s_num}&e={e_num}",
+                        "browser_url": f"https://frembed.live/api/serie.php?id={imdb_id}&s={s_num}&e={e_num}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
                 else:
                     streams.append({
                         "name": "VidLink Pro",
@@ -868,6 +895,33 @@ class JoywatchHandler(http.server.SimpleHTTPRequestHandler):
                         "quality": "1080p HD",
                         "url": f"https://vidsrc3.created.app/embed/movie/{imdb_id}",
                         "browser_url": f"https://vidsrc3.created.app/embed/movie/{imdb_id}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    streams.append({
+                        "name": "VidSrc Dev",
+                        "title": f"Server 16 • {clean_title} - VidSrc Dev",
+                        "quality": "1080p HD",
+                        "url": f"https://vidsrc.dev/embed/movie/{imdb_id}",
+                        "browser_url": f"https://vidsrc.dev/embed/movie/{imdb_id}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    streams.append({
+                        "name": "FrEmbed Pro",
+                        "title": f"Server 17 • {clean_title} - FrEmbed Pro",
+                        "quality": "1080p HD",
+                        "url": f"https://frembed.pro/api/film.php?id={imdb_id}",
+                        "browser_url": f"https://frembed.pro/api/film.php?id={imdb_id}",
+                        "direct_playable": True,
+                        "is_embed": True,
+                    })
+                    streams.append({
+                        "name": "FrEmbed Live",
+                        "title": f"Server 18 • {clean_title} - FrEmbed Live",
+                        "quality": "1080p HD",
+                        "url": f"https://frembed.live/api/film.php?id={imdb_id}",
+                        "browser_url": f"https://frembed.live/api/film.php?id={imdb_id}",
                         "direct_playable": True,
                         "is_embed": True,
                     })

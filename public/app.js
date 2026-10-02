@@ -566,7 +566,10 @@ document.addEventListener('DOMContentLoaded', () => {
           { name: "VidCore", title: `Server 11 • VidCore Stream (S${s}:E${e})`, quality: "1080p HD", url: `https://vidcore.org/embed/tv/${id}/${s}/${e}`, browser_url: `https://vidcore.org/embed/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
           { name: "APIPlayer", title: `Server 12 • APIPlayer (S${s}:E${e})`, quality: "1080p HD", url: `https://apiplayer.ru/embed/tv/${id}/${s}/${e}`, browser_url: `https://apiplayer.ru/embed/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
           { name: "CineSrc", title: `Server 13 • CineSrc Cloud (S${s}:E${e})`, quality: "1080p HD", url: `https://cinesrc.st/embed/tv/${id}?s=${s}&e=${e}`, browser_url: `https://cinesrc.st/embed/tv/${id}?s=${s}&e=${e}`, direct_playable: true, is_embed: true },
-          { name: "VidSrc3", title: `Server 15 • VidSrc3 Cloud (S${s}:E${e})`, quality: "1080p HD", url: `https://vidsrc3.created.app/embed/tv/${id}/${s}/${e}`, browser_url: `https://vidsrc3.created.app/embed/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true }
+          { name: "VidSrc3", title: `Server 15 • VidSrc3 Cloud (S${s}:E${e})`, quality: "1080p HD", url: `https://vidsrc3.created.app/embed/tv/${id}/${s}/${e}`, browser_url: `https://vidsrc3.created.app/embed/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
+          { name: "VidSrc Dev", title: `Server 16 • VidSrc Dev (S${s}:E${e})`, quality: "1080p HD", url: `https://vidsrc.dev/embed/tv/${id}/${s}/${e}`, browser_url: `https://vidsrc.dev/embed/tv/${id}/${s}/${e}`, direct_playable: true, is_embed: true },
+          { name: "FrEmbed Pro", title: `Server 17 • FrEmbed Pro (S${s}:E${e})`, quality: "1080p HD", url: `https://frembed.pro/api/serie.php?id=${id}&s=${s}&e=${e}`, browser_url: `https://frembed.pro/api/serie.php?id=${id}&s=${s}&e=${e}`, direct_playable: true, is_embed: true },
+          { name: "FrEmbed Live", title: `Server 18 • FrEmbed Live (S${s}:E${e})`, quality: "1080p HD", url: `https://frembed.live/api/serie.php?id=${id}&s=${s}&e=${e}`, browser_url: `https://frembed.live/api/serie.php?id=${id}&s=${s}&e=${e}`, direct_playable: true, is_embed: true }
         );
       } else {
         streams.push(
@@ -582,7 +585,10 @@ document.addEventListener('DOMContentLoaded', () => {
           { name: "VidCore", title: `Server 11 • ${cleanTitle} - VidCore Stream`, quality: "1080p HD", url: `https://vidcore.org/embed/movie/${id}`, browser_url: `https://vidcore.org/embed/movie/${id}`, direct_playable: true, is_embed: true },
           { name: "APIPlayer", title: `Server 12 • ${cleanTitle} - APIPlayer`, quality: "1080p HD", url: `https://apiplayer.ru/embed/movie/${id}`, browser_url: `https://apiplayer.ru/embed/movie/${id}`, direct_playable: true, is_embed: true },
           { name: "CineSrc", title: `Server 13 • ${cleanTitle} - CineSrc Cloud`, quality: "1080p HD", url: `https://cinesrc.st/embed/movie/${id}`, browser_url: `https://cinesrc.st/embed/movie/${id}`, direct_playable: true, is_embed: true },
-          { name: "VidSrc3", title: `Server 15 • ${cleanTitle} - VidSrc3 Cloud`, quality: "1080p HD", url: `https://vidsrc3.created.app/embed/movie/${id}`, browser_url: `https://vidsrc3.created.app/embed/movie/${id}`, direct_playable: true, is_embed: true }
+          { name: "VidSrc3", title: `Server 15 • ${cleanTitle} - VidSrc3 Cloud`, quality: "1080p HD", url: `https://vidsrc3.created.app/embed/movie/${id}`, browser_url: `https://vidsrc3.created.app/embed/movie/{id}`, direct_playable: true, is_embed: true },
+          { name: "VidSrc Dev", title: `Server 16 • ${cleanTitle} - VidSrc Dev`, quality: "1080p HD", url: `https://vidsrc.dev/embed/movie/${id}`, browser_url: `https://vidsrc.dev/embed/movie/${id}`, direct_playable: true, is_embed: true },
+          { name: "FrEmbed Pro", title: `Server 17 • ${cleanTitle} - FrEmbed Pro`, quality: "1080p HD", url: `https://frembed.pro/api/film.php?id=${id}`, browser_url: `https://frembed.pro/api/film.php?id=${id}`, direct_playable: true, is_embed: true },
+          { name: "FrEmbed Live", title: `Server 18 • ${cleanTitle} - FrEmbed Live`, quality: "1080p HD", url: `https://frembed.live/api/film.php?id=${id}`, browser_url: `https://frembed.live/api/film.php?id=${id}`, direct_playable: true, is_embed: true }
         );
       }
       return { streams };

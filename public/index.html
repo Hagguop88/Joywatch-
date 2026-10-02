@@ -29,7 +29,7 @@
       }
     } catch (e) { window.__joywatchEarlyTheme = 'netflix-red'; }
   </script>
-  <link rel="stylesheet" href="style.css?v=2.0.0">
+  <link rel="stylesheet" href="style.css?v=2.1.0">
 </head>
 <body class="joywatch-body">
 
@@ -746,18 +746,26 @@
   </nav>
 
   <script src="hls.min.js"></script>
-  <script src="live-channels.js?v=1.4.1"></script>
-  <script src="ott-data.js?v=1.4.1"></script>
-  <script src="playback-providers.js?v=1.4.1"></script>
-  <script src="watch-progress.js?v=1.4.1"></script>
-  <script src="settings-store.js?v=1.4.1"></script>
-  <script src="app.js?v=1.4.1"></script>
+  <script src="live-channels.js?v=2.1.0"></script>
+  <script src="ott-data.js?v=2.1.0"></script>
+  <script src="playback-providers.js?v=2.1.0"></script>
+  <script src="watch-progress.js?v=2.1.0"></script>
+  <script src="settings-store.js?v=2.1.0"></script>
+  <script src="app.js?v=2.1.0"></script>
   <script>
+    // Immediately purge any stale service worker caches
+    if ('caches' in window) {
+      caches.keys().then((keys) => {
+        keys.forEach((key) => {
+          if (key !== 'joyflix-v2.1.0') caches.delete(key);
+        });
+      });
+    }
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then((reg) => console.log('Joywatch ServiceWorker registered:', reg.scope))
-          .catch((err) => console.warn('ServiceWorker registration failed:', err));
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (let registration of registrations) {
+          registration.unregister();
+        }
       });
     }
   </script>

@@ -1,72 +1,36 @@
 /**
- * Joywatch PWA Service Worker
- * Fast offline shell caching & background sync
+ * Joyflix Service Worker - Cache Buster & Modern Shell
  */
 
-const CACHE_NAME = 'joywatch-v1.4.1';
-const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/ott-data.js',
-  '/app.js',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/icons/icon-maskable.png',
-  '/icons/icon.svg'
-];
+const CACHE_NAME = 'joyflix-v2.1.0';
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    }).then(() => self.skipWaiting())
-  );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
+        keys.map((key) => caches.delete(key))
       );
     }).then(() => self.clients.claim())
   );
 });
 
+// Network-first strategy: Always fetch fresh HTML/CSS/JS from server, fallback to cache only if offline
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Do not cache API proxy or streaming video requests
-  if (url.pathname.startsWith('/api/') || 
-      url.hostname.includes('strem.io') ||
-      url.hostname.includes('vidlink') ||
-      url.hostname.includes('2embed') ||
-      url.hostname.includes('autoembed') ||
-      url.hostname.includes('vidsrc')) {
+  if (url.pathname.startsWith('/api/')) {
     return;
   }
 
-  // Cache-first strategy for static assets
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Fetch in background to keep cache fresh
-        fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, networkResponse);
-            });
-          }
-        }).catch(() => {});
-        return cachedResponse;
-      }
-      return fetch(event.request);
-    })
+    fetch(event.request)
+      .then((networkResponse) => {
+        return networkResponse;
+      })
+      .catch(() => caches.match(event.request))
   );
 });

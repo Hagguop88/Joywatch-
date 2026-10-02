@@ -3241,15 +3241,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { /* Continue Watching is best-effort; never break home */ }
       }
 
-      // 2. Smart Taste Engine • Recommended For You
-      if (filter === 'all' || filter === 'movie') {
-        try {
-          const recShelf = createRecommendedShelf();
-          if (recShelf) rowsContainer.appendChild(recShelf);
-        } catch (e) { /* Taste engine best-effort */ }
-      }
-
-      // 3. Certified IMDb 9.5+ Masterpieces
+      // 2. Certified IMDb 9.5+ Masterpieces
       if (filter === 'all' || filter === 'movie') {
         try {
           const mpShelf = createMasterpiecesShelf();

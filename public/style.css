@@ -1129,20 +1129,20 @@ body.joywatch-body {
 }
 
 /* ==========================================================================
-   MOVIE CARDS (Large 2:3 Portrait Posters, Rounded Corners, Hover Overlay)
+   MOVIE CARDS (16:9 Landscape Widescreen Rectangles, Netflix Style)
    ========================================================================== */
 .movie-card {
-  flex: 0 0 210px;
-  width: 210px;
+  flex: 0 0 250px;
+  width: 250px;
   display: flex;
   flex-direction: column;
-  border-radius: var(--radius-card);
+  border-radius: 6px;
   background-color: var(--joy-bg-card);
   border: 1px solid var(--joy-border-subtle);
   overflow: hidden;
   cursor: pointer;
   position: relative;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
   will-change: transform, border-color, box-shadow;
   transform: translateZ(0);
   transition: transform var(--duration-normal) var(--ease-smooth),
@@ -1160,7 +1160,8 @@ body.joywatch-body {
 .card-poster-wrapper {
   position: relative;
   width: 100%;
-  height: 315px;
+  height: 140px;
+  aspect-ratio: 16 / 9;
   background-color: var(--joy-bg-secondary);
   overflow: hidden;
 }
@@ -1474,7 +1475,23 @@ body.joywatch-body {
 .search-view {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 36px 48px 84px;
+  padding: 100px 48px 84px;
+  animation: fadeIn 0.3s var(--ease-smooth) both;
+}
+
+.joy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 22px;
+}
+
+/* ==========================================================================
+   DEDICATED SECTION VIEW (See All for any shelf/collection)
+   ========================================================================== */
+.section-view {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 100px 48px 84px;
   animation: fadeIn 0.3s var(--ease-smooth) both;
 }
 
@@ -1658,7 +1675,7 @@ body.joywatch-body {
 .section-view {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 36px 48px 84px;
+  padding: 100px 48px 84px;
   animation: fadeIn 0.3s var(--ease-smooth) both;
 }
 
@@ -1756,7 +1773,7 @@ body.joywatch-body {
 .mylist-view {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 36px 48px 84px;
+  padding: 100px 48px 84px;
   animation: fadeIn 0.3s var(--ease-smooth) both;
 }
 
@@ -2878,7 +2895,7 @@ html.reduce-motion {
 .settings-view {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 36px 48px 84px;
+  padding: 100px 48px 84px;
   animation: fadeIn 0.3s var(--ease-smooth) both;
 }
 
@@ -3217,7 +3234,7 @@ html.reduce-motion {
    LIVE TV SECTION (CHANNELS & BROADCASTS)
    ========================================================================== */
 .livetv-view {
-  padding: 32px 48px 80px;
+  padding: 100px 48px 80px;
   max-width: 1720px;
   margin: 0 auto;
   min-height: 80vh;

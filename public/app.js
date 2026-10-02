@@ -697,7 +697,17 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', resetSearchOpened);
   });
   const logoLink = document.getElementById('logo-link');
-  if (logoLink) logoLink.addEventListener('click', resetSearchOpened);
+  if (logoLink) {
+    logoLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      resetSearchOpened();
+      allNavButtons.forEach(b => {
+        if (b.dataset.filter === 'all') b.classList.add('active');
+        else b.classList.remove('active');
+      });
+      handleFilterChange('all');
+    });
+  }
 
   // =========================================================================
   // SEPARATE DEDICATED SEARCH PAGE WITH PRE-SEARCH RECOMMENDATIONS
@@ -2226,6 +2236,214 @@ document.addEventListener('DOMContentLoaded', () => {
       genres: ['Drama', 'Romance', 'War'],
       description: 'A cynical expatriate American cafe owner struggles to decide whether or not to help his former lover and her fugitive husband escape the Nazis in French Morocco.',
       _isMasterpiece: true
+    },
+    {
+      id: 'tt0816692',
+      name: 'Interstellar',
+      poster: 'https://images.metahub.space/poster/medium/tt0816692/img',
+      background: 'https://images.metahub.space/background/medium/tt0816692/img',
+      year: '2014',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Adventure', 'Drama', 'Sci-Fi'],
+      description: 'When Earth becomes uninhabitable in the future, a farmer and ex-NASA pilot, Joseph Cooper, is tasked to pilot a spacecraft, along with a team of researchers, to find a new planet for humans.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt1375666',
+      name: 'Inception',
+      poster: 'https://images.metahub.space/poster/medium/tt1375666/img',
+      background: 'https://images.metahub.space/background/medium/tt1375666/img',
+      year: '2010',
+      type: 'movie',
+      imdbRating: '9.5',
+      genres: ['Action', 'Adventure', 'Sci-Fi'],
+      description: 'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.',
+      _isMasterpiece: true
+    },
+
+    // Hall of Fame TV Shows (IMDb 9.5+)
+    {
+      id: 'tt0903747',
+      name: 'Breaking Bad',
+      poster: 'https://images.metahub.space/poster/medium/tt0903747/img',
+      background: 'https://images.metahub.space/background/medium/tt0903747/img',
+      year: '2008',
+      type: 'series',
+      imdbRating: '9.5',
+      genres: ['Crime', 'Drama', 'Thriller'],
+      description: 'A chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine with a former student in order to secure his family\'s future.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt5491994',
+      name: 'Planet Earth II',
+      poster: 'https://images.metahub.space/poster/medium/tt5491994/img',
+      background: 'https://images.metahub.space/background/medium/tt5491994/img',
+      year: '2016',
+      type: 'series',
+      imdbRating: '9.5',
+      genres: ['Documentary'],
+      description: 'David Attenborough returns with a new wildlife documentary that shows life in a variety of different habitats across our extraordinary planet.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0185906',
+      name: 'Band of Brothers',
+      poster: 'https://images.metahub.space/poster/medium/tt0185906/img',
+      background: 'https://images.metahub.space/background/medium/tt0185906/img',
+      year: '2001',
+      type: 'series',
+      imdbRating: '9.5',
+      genres: ['Drama', 'History', 'War'],
+      description: 'The story of Easy Company of the U.S. Army 101st Airborne Division and their mission in World War II Europe, from Operation Overlord through V-J Day.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt8798072',
+      name: 'Chernobyl',
+      poster: 'https://images.metahub.space/poster/medium/tt8798072/img',
+      background: 'https://images.metahub.space/background/medium/tt8798072/img',
+      year: '2019',
+      type: 'series',
+      imdbRating: '9.5',
+      genres: ['Drama', 'History', 'Thriller'],
+      description: 'In April 1986, an explosion at the Chernobyl nuclear power plant in the USSR becomes one of the world\'s worst man-made catastrophes.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0306414',
+      name: 'The Wire',
+      poster: 'https://images.metahub.space/poster/medium/tt0306414/img',
+      background: 'https://images.metahub.space/background/medium/tt0306414/img',
+      year: '2002',
+      type: 'series',
+      imdbRating: '9.5',
+      genres: ['Crime', 'Drama', 'Thriller'],
+      description: 'The Baltimore drug scene, as seen through the eyes of drug dealers and law enforcement, dissecting institutions across five groundbreaking seasons.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0417299',
+      name: 'Avatar: The Last Airbender',
+      poster: 'https://images.metahub.space/poster/medium/tt0417299/img',
+      background: 'https://images.metahub.space/background/medium/tt0417299/img',
+      year: '2005',
+      type: 'series',
+      imdbRating: '9.5',
+      genres: ['Animation', 'Action', 'Adventure'],
+      description: 'In a war-torn world of elemental magic, a young boy reawakens to undertake a dangerous mystic quest to fulfill his destiny as the Avatar and bring peace.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0141842',
+      name: 'The Sopranos',
+      poster: 'https://images.metahub.space/poster/medium/tt0141842/img',
+      background: 'https://images.metahub.space/background/medium/tt0141842/img',
+      year: '1999',
+      type: 'series',
+      imdbRating: '9.5',
+      genres: ['Crime', 'Drama'],
+      description: 'New Jersey mob boss Tony Soprano deals with personal and professional issues in his home and business life that affect his mental state, leading him to seek professional psychiatric counseling.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0944947',
+      name: 'Game of Thrones',
+      poster: 'https://images.metahub.space/poster/medium/tt0944947/img',
+      background: 'https://images.metahub.space/background/medium/tt0944947/img',
+      year: '2011',
+      type: 'series',
+      imdbRating: '9.5',
+      genres: ['Action', 'Adventure', 'Drama'],
+      description: 'Nine noble families fight for control over the lands of Westeros, while an ancient enemy returns after being dormant for millennia.',
+      _isMasterpiece: true
+    },
+
+    // Hall of Fame Anime (IMDb 9.5+)
+    {
+      id: 'tt1340178',
+      name: 'Fullmetal Alchemist: Brotherhood',
+      poster: 'https://images.metahub.space/poster/medium/tt1340178/img',
+      background: 'https://images.metahub.space/background/medium/tt1340178/img',
+      year: '2009',
+      type: 'series',
+      imdbRating: '9.5',
+      genres: ['Animation', 'Action', 'Adventure', 'Anime'],
+      description: 'Two brothers search for a Philosopher\'s Stone after an attempt to revive their deceased mother goes awry and leaves them in damaged physical forms.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt2560140',
+      name: 'Attack on Titan',
+      poster: 'https://images.metahub.space/poster/medium/tt2560140/img',
+      background: 'https://images.metahub.space/background/medium/tt2560140/img',
+      year: '2013',
+      type: 'series',
+      imdbRating: '9.5',
+      genres: ['Animation', 'Action', 'Adventure', 'Anime'],
+      description: 'After his hometown is destroyed and his mother is killed, young Eren Jaeger vows to cleanse the earth of the giant humanoid Titans that have brought humanity to the brink of extinction.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt14986406',
+      name: 'Bleach: Thousand-Year Blood War',
+      poster: 'https://images.metahub.space/poster/medium/tt14986406/img',
+      background: 'https://images.metahub.space/background/medium/tt14986406/img',
+      year: '2022',
+      type: 'series',
+      imdbRating: '9.5',
+      genres: ['Animation', 'Action', 'Adventure', 'Anime'],
+      description: 'The peace is suddenly broken when warning sirens echo through the Soul Society, as the unseen Wandenreich launches an assault against the Soul Reapers.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt2098220',
+      name: 'Hunter x Hunter',
+      poster: 'https://images.metahub.space/poster/medium/tt2098220/img',
+      background: 'https://images.metahub.space/background/medium/tt2098220/img',
+      year: '2011',
+      type: 'series',
+      imdbRating: '9.5',
+      genres: ['Animation', 'Action', 'Adventure', 'Anime'],
+      description: 'Gon Freecss aspires to become a Hunter, an exceptional being capable of greatness. With his friends and his potential, he seeks out his father, who left him when he was younger.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0877057',
+      name: 'Death Note',
+      poster: 'https://images.metahub.space/poster/medium/tt0877057/img',
+      background: 'https://images.metahub.space/background/medium/tt0877057/img',
+      year: '2006',
+      type: 'series',
+      imdbRating: '9.5',
+      genres: ['Animation', 'Crime', 'Drama', 'Anime'],
+      description: 'An intelligent high school student goes on a secret crusade to eliminate criminals from the world after discovering a notebook capable of killing anyone whose name is written into it.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt1910272',
+      name: 'Steins;Gate',
+      poster: 'https://images.metahub.space/poster/medium/tt1910272/img',
+      background: 'https://images.metahub.space/background/medium/tt1910272/img',
+      year: '2011',
+      type: 'series',
+      imdbRating: '9.5',
+      genres: ['Animation', 'Comedy', 'Drama', 'Anime'],
+      description: 'After discovering time travel, a university student and his colleagues must find a way of stopping an evil organization and their evil plans.',
+      _isMasterpiece: true
+    },
+    {
+      id: 'tt0213338',
+      name: 'Cowboy Bebop',
+      poster: 'https://images.metahub.space/poster/medium/tt0213338/img',
+      background: 'https://images.metahub.space/background/medium/tt0213338/img',
+      year: '1998',
+      type: 'series',
+      imdbRating: '9.5',
+      genres: ['Animation', 'Action', 'Adventure', 'Anime'],
+      description: 'The easygoing bounty hunter Spike Spiegel and his partners aboard the spaceship Bebop attempt to outrun the ghosts of their pasts in 2071.',
+      _isMasterpiece: true
     }
   ];
 
@@ -2233,309 +2451,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return createRowElement('Masterpieces • Rated 9.5 & Above', MASTERPIECES_DATA, 'masterpiece');
   }
 
-  // =========================================================================
-  // SMART RECOMMENDATION TASTE ENGINE
-  // =========================================================================
-  const TASTE_SEEDS = {
-    dune: {
-      id: 'dune',
-      title: 'Dune: Part Two',
-      recommendations: [
-        {
-          id: 'tt1856101',
-          name: 'Blade Runner 2049',
-          poster: 'https://images.metahub.space/poster/medium/tt1856101/img',
-          background: 'https://images.metahub.space/background/medium/tt1856101/img',
-          year: '2017',
-          type: 'movie',
-          imdbRating: '8.5',
-          genres: ['Neo-Noir', 'Sci-Fi'],
-          description: 'Young Blade Runner K\'s discovery of a long-buried secret leads him to track down former Blade Runner Rick Deckard.',
-          _matchScore: '99% Match',
-          _recReason: 'Matches director Denis Villeneuve’s vast atmosphere & worldbuilding'
-        },
-        {
-          id: 'tt0816692',
-          name: 'Interstellar',
-          poster: 'https://images.metahub.space/poster/medium/tt0816692/img',
-          background: 'https://images.metahub.space/background/medium/tt0816692/img',
-          year: '2014',
-          type: 'movie',
-          imdbRating: '8.7',
-          genres: ['Sci-Fi', 'Space Drama'],
-          description: 'A team of explorers travel through a wormhole in space in an attempt to ensure humanity\'s survival.',
-          _matchScore: '97% Match',
-          _recReason: 'Shares towering Hans Zimmer symphonies & awe-inspiring cosmic scale'
-        },
-        {
-          id: 'tt2543164',
-          name: 'Arrival',
-          poster: 'https://images.metahub.space/poster/medium/tt2543164/img',
-          background: 'https://images.metahub.space/background/medium/tt2543164/img',
-          year: '2016',
-          type: 'movie',
-          imdbRating: '8.0',
-          genres: ['Sci-Fi', 'Mystery'],
-          description: 'A linguist works with the military to communicate with alien lifeforms after twelve mysterious spacecraft appear around the world.',
-          _matchScore: '96% Match',
-          _recReason: 'Profound atmospheric extraterrestrial contact and temporal narrative'
-        },
-        {
-          id: 'tt0206634',
-          name: 'Children of Men',
-          poster: 'https://images.metahub.space/poster/medium/tt0206634/img',
-          background: 'https://images.metahub.space/background/medium/tt0206634/img',
-          year: '2006',
-          type: 'movie',
-          imdbRating: '8.0',
-          genres: ['Sci-Fi', 'Thriller'],
-          description: 'In 2027, in a chaotic world in which women have become somehow infertile, a former activist agrees to help transport a miraculously pregnant woman to a sanctuary at sea.',
-          _matchScore: '93% Match',
-          _recReason: 'Visceral camera choreography and bleak, believable dystopian survival'
-        },
-        {
-          id: 'tt1392190',
-          name: 'Mad Max: Fury Road',
-          poster: 'https://images.metahub.space/poster/medium/tt1392190/img',
-          background: 'https://images.metahub.space/background/medium/tt1392190/img',
-          year: '2015',
-          type: 'movie',
-          imdbRating: '8.1',
-          genres: ['Action', 'Desert Odyssey'],
-          description: 'In a post-apocalyptic wasteland, a woman rebels against a tyrannical ruler in search for her homeland with the aid of a group of female prisoners, a psychotic worshiper, and a drifter named Max.',
-          _matchScore: '91% Match',
-          _recReason: 'Desert wasteland survival, practical kinetic effects & relentless momentum'
-        }
-      ]
-    },
-    darkknight: {
-      id: 'darkknight',
-      title: 'The Dark Knight',
-      recommendations: [
-        {
-          id: 'tt1877830',
-          name: 'The Batman',
-          poster: 'https://images.metahub.space/poster/medium/tt1877830/img',
-          background: 'https://images.metahub.space/background/medium/tt1877830/img',
-          year: '2022',
-          type: 'movie',
-          imdbRating: '8.0',
-          genres: ['Crime', 'Neo-Noir'],
-          description: 'When a sadistic serial killer begins murdering key political figures in Gotham, Batman is forced to investigate the city\'s hidden corruption.',
-          _matchScore: '98% Match',
-          _recReason: 'Gritty detective investigation, rainfall-drenched Gotham & institutional rot'
-        },
-        {
-          id: 'tt0113277',
-          name: 'Heat',
-          poster: 'https://images.metahub.space/poster/medium/tt0113277/img',
-          background: 'https://images.metahub.space/background/medium/tt0113277/img',
-          year: '1995',
-          type: 'movie',
-          imdbRating: '8.3',
-          genres: ['Crime', 'Heist'],
-          description: 'A group of high-end professional thieves start to feel the heat from the LAPD when a robbery goes awry.',
-          _matchScore: '96% Match',
-          _recReason: 'Christopher Nolan’s explicit cinematic blueprint for Gotham\'s heist duel'
-        },
-        {
-          id: 'tt0114369',
-          name: 'Se7en',
-          poster: 'https://images.metahub.space/poster/medium/tt0114369/img',
-          background: 'https://images.metahub.space/background/medium/tt0114369/img',
-          year: '1995',
-          type: 'movie',
-          imdbRating: '8.6',
-          genres: ['Crime', 'Psychological'],
-          description: 'Two detectives, a rookie and a veteran, hunt a serial killer who uses the seven deadly sins as his motives.',
-          _matchScore: '94% Match',
-          _recReason: 'Relentless grim investigation matching Joker’s philosophical nihilism'
-        },
-        {
-          id: 'tt1375666',
-          name: 'Inception',
-          poster: 'https://images.metahub.space/poster/medium/tt1375666/img',
-          background: 'https://images.metahub.space/background/medium/tt1375666/img',
-          year: '2010',
-          type: 'movie',
-          imdbRating: '8.8',
-          genres: ['Sci-Fi', 'Action'],
-          description: 'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea.',
-          _matchScore: '93% Match',
-          _recReason: 'Signature Christopher Nolan puzzle-box structure and towering tension'
-        }
-      ]
-    },
-    interstellar: {
-      id: 'interstellar',
-      title: 'Interstellar',
-      recommendations: [
-        {
-          id: 'tt0118884',
-          name: 'Contact',
-          poster: 'https://images.metahub.space/poster/medium/tt0118884/img',
-          background: 'https://images.metahub.space/background/medium/tt0118884/img',
-          year: '1997',
-          type: 'movie',
-          imdbRating: '7.5',
-          genres: ['Sci-Fi', 'Drama'],
-          description: 'Dr. Ellie Arroway, after years of searching, finds conclusive radio proof of extraterrestrial intelligence.',
-          _matchScore: '98% Match',
-          _recReason: 'Emotional core grounded in human love against the terrifying infinity of space'
-        },
-        {
-          id: 'tt3659388',
-          name: 'The Martian',
-          poster: 'https://images.metahub.space/poster/medium/tt3659388/img',
-          background: 'https://images.metahub.space/background/medium/tt3659388/img',
-          year: '2015',
-          type: 'movie',
-          imdbRating: '8.0',
-          genres: ['Sci-Fi', 'Adventure'],
-          description: 'An astronaut becomes stranded on Mars after his team assume him dead, and must rely on his ingenuity to find a way to signal to Earth.',
-          _matchScore: '95% Match',
-          _recReason: 'Scientific optimism, Martian planetary survival, and triumphant orbital physics'
-        },
-        {
-          id: 'tt0062622',
-          name: '2001: A Space Odyssey',
-          poster: 'https://images.metahub.space/poster/medium/tt0062622/img',
-          background: 'https://images.metahub.space/background/medium/tt0062622/img',
-          year: '1968',
-          type: 'movie',
-          imdbRating: '8.3',
-          genres: ['Sci-Fi', 'Mystery'],
-          description: 'After uncovering a mysterious artifact buried beneath the Lunar surface, a spacecraft is sent to Jupiter to find its origins.',
-          _matchScore: '94% Match',
-          _recReason: 'The definitive philosophical space journey and forefather to Interstellar’s tesseract'
-        }
-      ]
-    },
-    oppenheimer: {
-      id: 'oppenheimer',
-      title: 'Oppenheimer',
-      recommendations: [
-        {
-          id: 'tt2084970',
-          name: 'The Imitation Game',
-          poster: 'https://images.metahub.space/poster/medium/tt2084970/img',
-          background: 'https://images.metahub.space/background/medium/tt2084970/img',
-          year: '2014',
-          type: 'movie',
-          imdbRating: '8.0',
-          genres: ['Biography', 'War Drama'],
-          description: 'During World War II, the English mathematical genius Alan Turing tries to crack the German Enigma code with help from fellow mathematicians.',
-          _matchScore: '98% Match',
-          _recReason: 'Wartime mathematical brilliance, top-secret isolation & state betrayal'
-        },
-        {
-          id: 'tt0469494',
-          name: 'There Will Be Blood',
-          poster: 'https://images.metahub.space/poster/medium/tt0469494/img',
-          background: 'https://images.metahub.space/background/medium/tt0469494/img',
-          year: '2007',
-          type: 'movie',
-          imdbRating: '8.2',
-          genres: ['Drama', 'Historical'],
-          description: 'A story of family, religion, hatred, oil and madness, focusing on a turn-of-the-century prospector in the early days of the business.',
-          _matchScore: '94% Match',
-          _recReason: 'Relentless monomaniacal ambition and the brutal birth of a modern superpower'
-        },
-        {
-          id: 'tt0268978',
-          name: 'A Beautiful Mind',
-          poster: 'https://images.metahub.space/poster/medium/tt0268978/img',
-          background: 'https://images.metahub.space/background/medium/tt0268978/img',
-          year: '2001',
-          type: 'movie',
-          imdbRating: '8.2',
-          genres: ['Biography', 'Drama'],
-          description: 'After John Nash, a brilliant but asocial mathematician, accepts secret work in cryptography, his life takes a turn for the nightmarish.',
-          _matchScore: '92% Match',
-          _recReason: 'The burden of genius, psychological breakdown, and government cryptography'
-        }
-      ]
-    }
-  };
-
-  let activeTasteSeed = 'dune';
-
-  function createRecommendedShelf() {
-    const row = document.createElement('div');
-    row.className = 'shelf-row taste-shelf-wrapper';
-
-    const rowHeader = document.createElement('div');
-    rowHeader.className = 'shelf-header';
-    rowHeader.style.flexDirection = 'column';
-    rowHeader.style.alignItems = 'flex-start';
-    rowHeader.style.gap = '8px';
-
-    const titleGroup = document.createElement('div');
-    titleGroup.className = 'shelf-title-group';
-    titleGroup.innerHTML = `
-      <h2 class="shelf-title">Recommended For You</h2>
-      <span class="hero-chip chip-match" style="font-size: 0.72rem; padding: 2px 10px;">Smart Taste Engine</span>
-      <button class="shelf-see-all" id="rec-see-all-btn" title="View all recommendations">
-        <span>See All</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </button>
-    `;
-
-    const recSeeAll = titleGroup.querySelector('.shelf-see-all');
-    if (recSeeAll) {
-      recSeeAll.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const activeSeed = TASTE_SEEDS[activeTasteSeed] || TASTE_SEEDS.dune;
-        openSectionView(`Recommended for You • Based on ${activeSeed.title}`, activeSeed.recommendations, {
-          badge: 'Smart Taste Engine',
-          subtitle: `Curated cinematic recommendations derived from your watch affinity for ${activeSeed.title}.`
-        });
-      });
-    }
-
-    const chipsRow = document.createElement('div');
-    chipsRow.className = 'taste-chips-row';
-    chipsRow.innerHTML = '<span class="taste-label">Based on what you watched:</span>';
-
-    const seedKeys = Object.keys(TASTE_SEEDS);
-    seedKeys.forEach(k => {
-      const s = TASTE_SEEDS[k];
-      const chip = document.createElement('button');
-      chip.className = `taste-chip ${k === activeTasteSeed ? 'active' : ''}`;
-      chip.innerHTML = `
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        <span>${s.title}</span>
-      `;
-      chip.addEventListener('click', () => {
-        activeTasteSeed = k;
-        chipsRow.querySelectorAll('.taste-chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        renderTasteRecommendations(track);
-      });
-      chipsRow.appendChild(chip);
-    });
-
-    rowHeader.appendChild(titleGroup);
-    rowHeader.appendChild(chipsRow);
-
-    const track = document.createElement('div');
-    track.className = 'shelf-cards-track';
-
-    renderTasteRecommendations(track);
-    attachSmoothDragScroll(track);
-
-    row.appendChild(rowHeader);
-    row.appendChild(track);
-    return row;
-  }
-
-  function renderTasteRecommendations(track) {
-    track.innerHTML = '';
-    const active = TASTE_SEEDS[activeTasteSeed] || TASTE_SEEDS.dune;
-    active.recommendations.forEach(item => {
-      track.appendChild(createCardElement(item));
-    });
-  }
 
   // =========================================================================
   // FEATURED HERO BILLBOARD
@@ -3249,108 +3164,68 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { /* Masterpieces best-effort */ }
       }
 
-      // 4. Top 10 Movies Today
-      let idx = 0;
-      if (filter === 'all' || filter === 'movie') {
-        const trendingMovies = results[idx++].items || [];
-        if (trendingMovies.length > 0 && !featuredSet) {
-          setBillboard(trendingMovies[0]);
-          featuredSet = true;
-        }
-        const row = createRowElement('Top 10 Movies Today', trendingMovies, 'trending');
-        if (row) rowsContainer.appendChild(row);
+      // 3. Top 10 Movies Today
+      const trendingMovies = (results[0] && results[0].items) ? results[0].items : [];
+      if (trendingMovies.length > 0 && !featuredSet) {
+        setBillboard(trendingMovies[0]);
+        featuredSet = true;
       }
+      const topMoviesRow = createRowElement('Top 10 Movies Today', trendingMovies, 'trending');
+      if (topMoviesRow) rowsContainer.appendChild(topMoviesRow);
 
-      // 3. Popular on Joyflix
-      if (filter === 'all' || filter === 'movie') {
-        const nData = (OTT_DATA.netflix && OTT_DATA.netflix.length > 0) ? OTT_DATA.netflix : (await fetchOttCatalog('netflix', 'all', 200));
-        const netflixShelf = createRowElement('Popular on Joyflix', nData, 'netflix');
-        if (netflixShelf) rowsContainer.appendChild(netflixShelf);
-      }
+      // 4. Top 10 TV Shows Today
+      const topSeries = (results[1] && results[1].items) ? results[1].items : [];
+      const topSeriesRow = createRowElement('Top 10 TV Shows Today', topSeries, 'series');
+      if (topSeriesRow) rowsContainer.appendChild(topSeriesRow);
 
-      // 4. Prime Video Exclusives
-      if (filter === 'all' || filter === 'series') {
-        const pData = (OTT_DATA.prime && OTT_DATA.prime.length > 0) ? OTT_DATA.prime : (await fetchOttCatalog('prime', 'all', 200));
-        const primeShelf = createRowElement('Prime Video Exclusives', pData, 'prime');
-        if (primeShelf) rowsContainer.appendChild(primeShelf);
-      }
+      // 5. Popular Animation & Anime
+      const animeShows = (results[5] && results[5].items) ? results[5].items : [];
+      const animeRow = createRowElement('Popular Animation & Anime', animeShows, 'Animation');
+      if (animeRow) rowsContainer.appendChild(animeRow);
 
-      // 5. Disney+ Hotstar Cinema & Marvel
-      if (filter === 'all' || filter === 'movie') {
-        const dData = (OTT_DATA.disney && OTT_DATA.disney.length > 0) ? OTT_DATA.disney : (await fetchOttCatalog('disney', 'all', 200));
-        const disneyShelf = createRowElement('Disney+ Hotstar Cinema & Marvel', dData, 'disney');
-        if (disneyShelf) rowsContainer.appendChild(disneyShelf);
-      }
+      // 6. Popular on Joyflix
+      const nData = (OTT_DATA.netflix && OTT_DATA.netflix.length > 0) ? OTT_DATA.netflix : (await fetchOttCatalog('netflix', 'all', 200));
+      const netflixShelf = createRowElement('Popular on Joyflix', nData, 'netflix');
+      if (netflixShelf) rowsContainer.appendChild(netflixShelf);
 
-      // 6. Crunchyroll Anime Vault
-      if (filter === 'all' || filter === 'anime' || filter === 'series') {
-        const cData = (OTT_DATA.crunchyroll && OTT_DATA.crunchyroll.length > 0) ? OTT_DATA.crunchyroll : (await fetchOttCatalog('crunchyroll', 'all', 200));
-        const crunchyShelf = createRowElement('Crunchyroll Anime Vault', cData, 'crunchyroll');
-        if (crunchyShelf) rowsContainer.appendChild(crunchyShelf);
-      }
+      // 7. Prime Video Exclusives
+      const pData = (OTT_DATA.prime && OTT_DATA.prime.length > 0) ? OTT_DATA.prime : (await fetchOttCatalog('prime', 'all', 200));
+      const primeShelf = createRowElement('Prime Video Exclusives', pData, 'prime');
+      if (primeShelf) rowsContainer.appendChild(primeShelf);
 
-      // 7. Paramount+ Blockbusters
-      if (filter === 'all' || filter === 'movie') {
-        const pmData = (OTT_DATA.paramount && OTT_DATA.paramount.length > 0) ? OTT_DATA.paramount : (await fetchOttCatalog('paramount', 'all', 200));
-        const paramountShelf = createRowElement('Paramount+ Blockbusters', pmData, 'paramount');
-        if (paramountShelf) rowsContainer.appendChild(paramountShelf);
-      }
+      // 8. Blockbuster Action Movies
+      const actionMovies = (results[2] && results[2].items) ? results[2].items : [];
+      const actionRow = createRowElement('Blockbuster Action Movies', actionMovies, 'Action');
+      if (actionRow) rowsContainer.appendChild(actionRow);
 
-      // 8. Top Rated Masterpieces
-      if (filter === 'all' || filter === 'movie') {
-        const masterpieces = cachedCatalogPool.filter(c => parseFloat(c.imdbRating) >= 8.5).slice(0, 15);
-        if (masterpieces.length > 0) {
-          const row = createRowElement('Top Rated Masterpieces (IMDb 8.5+)', masterpieces, 'top_rated');
-          if (row) rowsContainer.appendChild(row);
-        }
-      }
+      // 9. Disney+ Hotstar Cinema & Marvel
+      const dData = (OTT_DATA.disney && OTT_DATA.disney.length > 0) ? OTT_DATA.disney : (await fetchOttCatalog('disney', 'all', 200));
+      const disneyShelf = createRowElement('Disney+ Hotstar Cinema & Marvel', dData, 'disney');
+      if (disneyShelf) rowsContainer.appendChild(disneyShelf);
 
-      // 9. Top 10 TV Shows Today
-      if (filter === 'all' || filter === 'series') {
-        const topSeries = results[idx++].items || [];
-        if (filter === 'series' && topSeries.length > 0 && !featuredSet) {
-          setBillboard(topSeries[0]);
-          featuredSet = true;
-        }
-        const row = createRowElement('Top 10 TV Shows Today', topSeries, 'series');
-        if (row) rowsContainer.appendChild(row);
-      }
+      // 10. Crunchyroll Anime Vault
+      const cData = (OTT_DATA.crunchyroll && OTT_DATA.crunchyroll.length > 0) ? OTT_DATA.crunchyroll : (await fetchOttCatalog('crunchyroll', 'all', 200));
+      const crunchyShelf = createRowElement('Crunchyroll Anime Vault', cData, 'crunchyroll');
+      if (crunchyShelf) rowsContainer.appendChild(crunchyShelf);
 
-      // 10. Action & High Adrenaline
-      if (filter === 'all' || filter === 'movie') {
-        const actionMovies = results[idx++].items || [];
-        const row = createRowElement('Action & High Adrenaline', actionMovies, 'Action');
-        if (row) rowsContainer.appendChild(row);
-      }
+      // 11. Paramount+ Blockbusters
+      const pmData = (OTT_DATA.paramount && OTT_DATA.paramount.length > 0) ? OTT_DATA.paramount : (await fetchOttCatalog('paramount', 'all', 200));
+      const paramountShelf = createRowElement('Paramount+ Blockbusters', pmData, 'paramount');
+      if (paramountShelf) rowsContainer.appendChild(paramountShelf);
 
-      // 11. Sci-Fi & Cyberpunk
-      if (filter === 'all' || filter === 'movie') {
-        const sciFiMovies = results[idx++].items || [];
-        const row = createRowElement('Sci-Fi & Cyberpunk', sciFiMovies, 'Sci-Fi');
-        if (row) rowsContainer.appendChild(row);
-      }
+      // 12. Sci-Fi & Cyberpunk
+      const sciFiMovies = (results[3] && results[3].items) ? results[3].items : [];
+      const sciFiRow = createRowElement('Sci-Fi & Cyberpunk', sciFiMovies, 'Sci-Fi');
+      if (sciFiRow) rowsContainer.appendChild(sciFiRow);
 
-      // 12. Psychological Thrillers & Mystery
-      if (filter === 'all' || filter === 'movie') {
-        const thrillerMovies = results[idx++].items || [];
-        const row = createRowElement('Psychological Thrillers & Mystery', thrillerMovies, 'Thriller');
-        if (row) rowsContainer.appendChild(row);
-      }
-
-      // 13. Popular Animation & Anime
-      if (filter === 'all' || filter === 'series' || filter === 'anime') {
-        const animeShows = results[idx++].items || [];
-        if (filter === 'anime' && animeShows.length > 0 && !featuredSet) {
-          setBillboard(animeShows[0]);
-          featuredSet = true;
-        }
-        const row = createRowElement('Popular Animation & Anime', animeShows, 'Animation');
-        if (row) rowsContainer.appendChild(row);
-      }
+      // 13. Psychological Thrillers & Mystery
+      const thrillerMovies = (results[4] && results[4].items) ? results[4].items : [];
+      const thrillerRow = createRowElement('Psychological Thrillers & Mystery', thrillerMovies, 'Thriller');
+      if (thrillerRow) rowsContainer.appendChild(thrillerRow);
 
       // 14. From Your Watchlist (if user has saved items)
       const mylistItems = getJoyList();
-      if (mylistItems.length > 0 && filter === 'all') {
+      if (mylistItems.length > 0) {
         const row = createRowElement('From Your Watchlist', mylistItems, 'watchlist');
         if (row) rowsContainer.appendChild(row);
       }

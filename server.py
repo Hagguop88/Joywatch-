@@ -1117,13 +1117,13 @@ def run():
         sys.exit(1)
 
     print("=" * 65)
-    print("   Joywatch • Ambient Cinema Streaming & Discovery")
+    print("   Joyflix • Cinema Streaming & Discovery")
     print("=" * 65)
     print(f"[*] URL                  : http://localhost:{active_port}")
     print(f"[*] Stream Proxy         : Active (HTTP 206 Range Enabled)")
     print(f"[*] Multi-Server Engine  : Active (VidLink, 2Embed, AutoEmbed, VidSrc)")
     print("=" * 65)
-    print(f"[+] Joywatch running at http://localhost:{active_port}")
+    print(f"[+] Joyflix running at http://localhost:{active_port}")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

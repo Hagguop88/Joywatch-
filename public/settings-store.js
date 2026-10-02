@@ -22,6 +22,28 @@
   // "slate" is a lighter base (overrides --joy-bg* and --joy-text*).
   var THEMES = [
     {
+      id: 'netflix-red',
+      name: 'Netflix Red',
+      base: true,
+      accentOnly: false,
+      vars: {
+        '--joy-bg': '#141414',
+        '--joy-bg-secondary': '#181818',
+        '--joy-bg-card': '#1F1F1F',
+        '--joy-bg-card-hover': '#2F2F2F',
+        '--joy-bg-elevated': '#262626',
+        '--joy-glass': 'rgba(20, 20, 20, 0.85)',
+        '--joy-glass-elevated': 'rgba(30, 30, 30, 0.92)',
+        '--joy-accent': '#E50914',
+        '--joy-accent-hover': '#F40612',
+        '--joy-accent-dark': '#B81D24',
+        '--joy-accent-tint': 'rgba(229, 9, 20, 0.15)',
+        '--joy-accent-border': 'rgba(229, 9, 20, 0.4)',
+        '--joy-accent-shadow': 'rgba(229, 9, 20, 0.3)',
+        '--joy-star-gold': '#E50914'
+      }
+    },
+    {
       id: 'obsidian',
       name: 'Obsidian',
       base: true,
@@ -127,7 +149,7 @@
     }
   ];
 
-  var DEFAULT_THEME_ID = 'amber';
+  var DEFAULT_THEME_ID = 'netflix-red';
 
   var DEFAULT_SERVER_ORDER = [
     'vidlink', 'nexstream', 'autoembed', 'vidsrc-pm', 'vidsrc-su', 'vidjoy', '2embed',

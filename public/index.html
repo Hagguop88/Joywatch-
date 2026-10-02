@@ -3,61 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-  <meta name="theme-color" content="#0C0A06">
+  <meta name="theme-color" content="#141414">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Joywatch • Ambient Cinema Streaming & Discovery</title>
+  <title>Joyflix - Watch Movies & TV Shows Online</title>
   <link rel="manifest" href="/manifest.json">
-  <link rel="icon" type="image/jpeg" href="/logo.jpg">
-  <link rel="apple-touch-icon" href="/logo.jpg">
+  <link rel="icon" type="image/svg+xml" href="/logo.svg">
+  <link rel="apple-touch-icon" href="/logo.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script>
     // Apply saved theme before first paint (prevents flash of default theme).
     try {
       var __raw = localStorage.getItem('joywatch_settings_v1');
-      var __theme = 'obsidian';
+      var __theme = 'netflix-red';
       if (__raw) {
         var __parsed = JSON.parse(__raw);
         if (__parsed && typeof __parsed.theme === 'string') __theme = __parsed.theme;
       }
       window.__joywatchEarlyTheme = __theme;
-      if (__theme && __theme !== 'obsidian') {
+      if (__theme && __theme !== 'netflix-red' && __theme !== 'obsidian') {
         document.documentElement.setAttribute('data-theme', __theme);
       }
-    } catch (e) { window.__joywatchEarlyTheme = 'obsidian'; }
+    } catch (e) { window.__joywatchEarlyTheme = 'netflix-red'; }
   </script>
-  <link rel="stylesheet" href="style.css?v=1.4.1">
+  <link rel="stylesheet" href="style.css?v=2.0.0">
 </head>
 <body class="joywatch-body">
 
-  <!-- Sticky Cinematic Navigation Bar (Subtle Glassmorphism, Zero Purple) -->
+  <!-- Sticky Cinematic Navigation Bar (Netflix Dark #141414 Header) -->
   <header class="joy-navbar" id="navbar">
     <div class="nav-container">
       <div class="nav-left">
-        <!-- Joywatch Logo (Refined wordmark, glowing circular amber ribbon play icon) -->
-        <a href="#" class="joy-brand" id="logo-link" title="Joywatch Home">
+        <!-- Joyflix Ribbon J Logo -->
+        <a href="#" class="joy-brand" id="logo-link" title="Joyflix Home">
           <div class="joy-gem">
-            <img src="/logo.jpg" alt="Joywatch Logo" class="joy-brand-img">
+            <img src="/logo.svg" alt="Joyflix Logo" class="joy-brand-img">
           </div>
-          <span class="joy-wordmark">JOYWATCH</span>
+          <span class="joy-wordmark">JOYFLIX</span>
         </a>
 
-        <!-- Desktop Navigation (browse tablet: Home, Movies, TV Shows, Anime + My List, Settings) -->
+        <!-- Desktop Navigation (Home, TV Shows, Movies, Anime, Live TV, My List, Settings) -->
         <nav class="joy-nav-pills" aria-label="Main Navigation">
           <div class="joy-nav-tablet" role="group" aria-label="Browse">
             <button class="nav-pill active" data-filter="all">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
               <span>Home</span>
             </button>
-            <button class="nav-pill" data-filter="movie">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
-              <span>Movies</span>
-            </button>
             <button class="nav-pill" data-filter="series">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
               <span>TV Shows</span>
+            </button>
+            <button class="nav-pill" data-filter="movie">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
+              <span>Movies</span>
             </button>
             <button class="nav-pill" data-filter="anime">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4M12 2l8 8v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V10L4 12v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V12l-2-2M12 2v8M12 12l-4 4M12 12l4-4"></path></svg>

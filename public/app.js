@@ -754,7 +754,7 @@ document.addEventListener('DOMContentLoaded', () => {
       searchSubheading.textContent = 'Real-time results matching your query across all streaming platforms';
     }
     searchCountBadge.textContent = 'Searching...';
-    searchGrid.innerHTML = '<div class="shelf-loader"><div class="joy-spinner"></div><span>Searching Joywatch universe...</span></div>';
+    searchGrid.innerHTML = '<div class="shelf-loader"><div class="joy-spinner"></div><span>Searching Joyflix catalog...</span></div>';
 
     try {
       const data = await fetchSearch(query);
@@ -1545,6 +1545,12 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
 
     const posterWrapper = card.querySelector('.card-poster-wrapper');
+    if (item._rank) {
+      const rNum = document.createElement('div');
+      rNum.className = 'top10-rank-num';
+      rNum.textContent = item._rank;
+      if (posterWrapper) posterWrapper.appendChild(rNum);
+    }
     if (item._isMasterpiece) {
       card.classList.add('masterpiece-card');
       const mb = document.createElement('span');
@@ -1823,8 +1829,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const track = document.createElement('div');
     track.className = 'shelf-cards-track';
 
-    items.forEach(item => {
-      track.appendChild(createCardElement(item));
+    const isRankedShelf = title.toLowerCase().includes('top 10') || title.toLowerCase().includes('top trending');
+    items.forEach((item, idx) => {
+      const itemWithRank = (isRankedShelf && idx < 10) ? { ...item, _rank: idx + 1 } : item;
+      track.appendChild(createCardElement(itemWithRank));
     });
 
     attachSmoothDragScroll(track);

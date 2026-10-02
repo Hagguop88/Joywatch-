@@ -12,37 +12,37 @@
    ========================================================================== */
 
 :root {
-  /* Color System - Warm Cinema Amber & Midnight Obsidian */
-  --joy-bg: #0C0A06;
-  --joy-bg-secondary: #13100B;
-  --joy-bg-card: #17140B;
-  --joy-bg-card-hover: #221D10;
-  --joy-bg-elevated: #282213;
-  --joy-glass: rgba(23, 20, 11, 0.78);
-  --joy-glass-elevated: rgba(34, 29, 16, 0.88);
+  /* Netflix Dark Color System */
+  --joy-bg: #141414;
+  --joy-bg-secondary: #181818;
+  --joy-bg-card: #1F1F1F;
+  --joy-bg-card-hover: #2F2F2F;
+  --joy-bg-elevated: #262626;
+  --joy-glass: rgba(20, 20, 20, 0.85);
+  --joy-glass-elevated: rgba(30, 30, 30, 0.92);
 
-  /* Primary Accent - Warm Cinema Amber (#EAB308) */
-  --joy-accent: #EAB308;
-  --joy-accent-hover: #FACC15;
-  --joy-accent-dark: #B48A06;
-  --joy-accent-tint: rgba(234, 179, 8, 0.12);
-  --joy-accent-border: rgba(234, 179, 8, 0.35);
-  --joy-accent-shadow: rgba(234, 179, 8, 0.25);
+  /* Primary Accent - Netflix Red (#E50914) */
+  --joy-accent: #E50914;
+  --joy-accent-hover: #F40612;
+  --joy-accent-dark: #B81D24;
+  --joy-accent-tint: rgba(229, 9, 20, 0.15);
+  --joy-accent-border: rgba(229, 9, 20, 0.4);
+  --joy-accent-shadow: rgba(229, 9, 20, 0.3);
 
-  /* Star Rating */
-  --joy-star-gold: #EAB308;
-  --joy-star-amber: #EAB308;
+  /* Star Rating & Match Affinity */
+  --joy-star-gold: #E50914;
+  --joy-star-amber: #E50914;
 
   /* Typography Colors */
-  --joy-text-primary: #F5F5F5;
-  --joy-text-secondary: #A7AAA8;
-  --joy-text-muted: #727773;
-  --joy-text-inverse: #050505;
+  --joy-text-primary: #FFFFFF;
+  --joy-text-secondary: #E5E5E5;
+  --joy-text-muted: #808080;
+  --joy-text-inverse: #141414;
 
   /* Borders */
-  --joy-border: rgba(255, 255, 255, 0.08);
-  --joy-border-hover: rgba(255, 255, 255, 0.18);
-  --joy-border-subtle: rgba(255, 255, 255, 0.05);
+  --joy-border: rgba(255, 255, 255, 0.1);
+  --joy-border-hover: rgba(255, 255, 255, 0.25);
+  --joy-border-subtle: rgba(255, 255, 255, 0.06);
 
   /* Fonts */
   --font-display: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -290,16 +290,16 @@ body.joywatch-body {
 
 .joy-wordmark {
   font-family: var(--font-display);
-  font-size: 0.88rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--joy-text-primary);
+  color: var(--joy-accent);
   transition: opacity var(--duration-fast) var(--ease-smooth);
 }
 
 .joy-brand:hover .joy-wordmark {
-  opacity: 0.92;
+  opacity: 0.9;
 }
 
 /* Desktop Navigation Pills */
@@ -518,33 +518,36 @@ body.joywatch-body {
               color var(--duration-fast) var(--ease-smooth);
 }
 
-/* Primary Lime Button */
+/* Primary Netflix White Play Button */
 .btn-joy-lime {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   padding: 10px 24px;
-  background-color: var(--joy-accent);
-  color: var(--joy-text-inverse);
+  background-color: #FFFFFF;
+  color: #000000;
   border: none;
+  border-radius: 4px;
   font-family: var(--font-body);
-  font-size: 0.84rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   cursor: pointer;
-  box-shadow: 0 4px 14px var(--joy-accent-shadow);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
 }
 
 .btn-joy-lime svg {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
+  fill: #000000;
   transition: transform var(--duration-fast) var(--ease-spring);
 }
 
 .btn-joy-lime:hover {
-  background-color: var(--joy-accent-hover);
+  background-color: rgba(255, 255, 255, 0.85);
+  color: #000000;
   transform: scale(1.02) translateY(-1px);
-  box-shadow: 0 8px 24px var(--joy-accent-shadow);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
 }
 
 .btn-joy-lime:hover svg {
@@ -556,32 +559,33 @@ body.joywatch-body {
   transition-duration: 80ms;
 }
 
-/* Secondary Glass Button */
+/* Secondary Netflix Gray More Info Button */
 .btn-joy-glass {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   padding: 10px 22px;
-  background-color: var(--joy-glass);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  color: var(--joy-text-primary);
-  border: 1px solid var(--joy-border);
+  background-color: rgba(109, 109, 110, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 4px;
   font-family: var(--font-body);
-  font-size: 0.84rem;
-  font-weight: 500;
+  font-size: 0.92rem;
+  font-weight: 600;
   cursor: pointer;
 }
 
 .btn-joy-glass svg {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   transition: transform var(--duration-fast) var(--ease-spring);
 }
 
 .btn-joy-glass:hover {
-  background-color: var(--joy-glass-elevated);
-  border-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(109, 109, 110, 0.4);
+  color: #FFFFFF;
   transform: scale(1.02) translateY(-1px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
 }
@@ -1214,6 +1218,28 @@ body.joywatch-body {
   color: #FFFFFF;
   border-color: var(--joy-accent-border);
   background-color: #11131A;
+}
+
+/* Top 10 Rank Card Styling (Netflix Style 3D Stroke Outline Number) */
+.top10-rank-num {
+  font-family: var(--font-display);
+  font-size: 7.5rem;
+  font-weight: 900;
+  line-height: 0.8;
+  color: #141414;
+  -webkit-text-stroke: 4px #595959;
+  position: absolute;
+  left: -28px;
+  bottom: 0px;
+  z-index: 5;
+  user-select: none;
+  pointer-events: none;
+  transition: transform var(--duration-fast) var(--ease-spring);
+}
+
+.movie-card:hover .top10-rank-num {
+  transform: scale(1.05) translateX(-4px);
+  -webkit-text-stroke-color: var(--joy-accent);
 }
 
 .card-dismiss-btn:active {

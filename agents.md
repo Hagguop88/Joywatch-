@@ -1,46 +1,39 @@
-# Joywatch • Agent & Architecture Field Guide (AGENTS.md)
+# Joyflix • Agent & Architecture Field Guide (AGENTS.md)
 
 > **FOR FUTURE AI AGENTS & DEVELOPERS:**  
-> This file is the single source of truth for the **Joywatch** codebase. Read this document before making any modifications to the backend, frontend, streaming resolvers, or styling.
+> This file is the single source of truth for the **Joyflix** codebase. Read this document before making any modifications to the backend, frontend, streaming resolvers, or styling.
 
 ---
 
 ## 1. Project Overview & Identity
 
-- **Project Name:** Joywatch (formerly MovieBox TUI / MovieBox Web)
-- **Tagline:** Ambient Cinema Streaming & Discovery
+- **Project Name:** Joyflix (formerly Joywatch / MovieBox Web)
+- **Tagline:** Authentic Netflix-style Cinema Streaming & Discovery Platform
 - **Platform:** Lightweight, high-performance web application backed by a native Python threaded server.
-- **Core Philosophy:**
+- **Brand & Visual Identity:**
+  - **Netflix Dark Theme:** Midnight Obsidian Dark (`#141414`) background, Netflix Red (`#E50914`) primary accent.
+  - **3D Ribbon 'J' Logo:** Custom 3D Netflix-style folded ribbon logo featuring a bold red 'J' (`public/logo.svg`).
+  - **Netflix Hero & Buttons:** Full-width hero billboard with solid white (`#FFFFFF`) Play button and translucent gray (`rgba(109,109,110,0.7)`) More Info button.
+  - **Top 10 Rank Badges:** Netflix-style 3D stroke outline rank numbers (1 to 10) on top trending shelves.
   - **Zero External Dependencies:** No npm packages, no heavy node_modules, no pip installations. Pure Python standard library on the backend, vanilla modern ES6+ and CSS3 on the frontend.
-  - **Fluid Direct In-Browser Playback:** High-speed in-browser full-screen video player with automatic multi-server failover mirrors (VidLink, 2Embed, AutoEmbed, VidSrc).
-  - **Aesthetic Dark Minimalism:** High-contrast, uncrowded, distraction-free cinematic interface inspired by luxury Swiss typography and modern motion-driven interfaces.
+  - **Fluid Direct In-Browser Playback:** High-speed in-browser full-screen video player with automatic multi-server failover mirrors (VidLink, NexStream, 2Embed, AutoEmbed, VidSrc).
 
 ---
 
 ## 2. Strict UI/UX Commandments (Non-Negotiable Invariants)
 
-Any agent working on Joywatch **MUST STRICTLY ADHERE** to these rules. Under no circumstances should these constraints be bypassed or compromised:
+Any agent working on Joyflix **MUST STRICTLY ADHERE** to these rules. Under no circumstances should these constraints be bypassed or compromised:
 
 | Rule | Invariant Specification |
 | :--- | :--- |
-| **NO GRADIENTS** | **Strictly 0 gradients.** Never use `linear-gradient`, `radial-gradient`, `conic-gradient`, or SVG `<linearGradient>`. All colors must be solid `#hex` or clean solid `rgba(r, g, b, a)` alpha tints. |
-| **NO PURPLE & AMBER PALETTE** | **Strictly 0 purple or indigo hues.** Never use purple, violet, magenta, indigo, lavender, `#6366F1`, `#8B5CF6`, `#A855F7`, or `#EC4899`. Permanent palette is Midnight Obsidian (`#0C0A06`), Charcoal Glass (`#17140B`, `#221D10`), and Crisp White with Pure Warm Cinema Amber (`#EAB308`) as the permanent accent and rating hue. |
+| **NO PURPLE HUES** | **Strictly 0 purple or indigo hues.** Never use purple, violet, magenta, indigo, lavender, `#6366F1`, `#8B5CF6`, `#A855F7`, or `#EC4899`. Palette is Netflix Dark (`#141414`), Card Dark (`#1F1F1F`), White text (`#FFFFFF`), and Netflix Red (`#E50914`) accent. |
 | **NO EMOJIS** | **Strictly 0 emojis.** Never use emojis (`★`, `⭐`, `⚡`, `🎬`, `✨`, `🔥`, `📺`, `❤️`, `🎌`, `🕒`, etc.) in HTML, CSS, JavaScript, toasts, card metadata, or headers. Use delicate, small inline SVGs or clean text only. |
 | **NO VLC OPTION** | **Strictly no VLC buttons, toggles, or options in the UI.** All playback is direct in-browser streaming. Never present desktop VLC launcher buttons or detach options to the user. |
-| **ROUND CORNER BUTTONS** | All interactive buttons, nav pills, search inputs, genre tags, episode buttons, stream cards, and toast notifications must have round pill corners (`border-radius: 9999px`). |
-| **MINIMAL & UNCLUTTERED** | Do not crowd the screen. Keep generous margins (`44px` gap between rows). No cluttered bento boxes, promotional widgets, or unnecessary badges. |
+| **ROUND & 4PX BUTTONS** | Primary Play buttons use 4px rounded Netflix styling (`#FFFFFF` background, `#000000` text). Nav pills and search inputs use rounded pill corners. |
+| **MINIMAL & UNCLUTTERED** | Keep generous margins between rows (`44px` gap). No cluttered bento boxes, promotional widgets, or unnecessary badges. |
 | **ICON & COVER SIZING** | **Keep icons small** (`12px` - `14px` delicate SVGs with `1.75px`–`2px` strokes). **Keep movie covers large and prominent** (`210px` × `315px`, 2:3 aspect ratio). |
-| **JOYWATCH LOGO & SIZING** | Keep the Joywatch wordmark small and refined (`font-size: 0.88rem`, `letter-spacing: 0.12em`, uppercase). The official brand logo is the glowing circular amber ribbon orb (`/logo.jpg`), rendered in a 28px circular capsule with subtle amber border and glow. |
-| **SMART TASTE RECOMMENDATION ENGINE** | Dynamic recommendation discovery engine on Home analyzing previous watch progress (`joywatch_progress_v1`) to compute match affinities, match score badges (e.g. `98% Match`), and AI rationale. Allows switching watched reference seeds with live smooth transitions. |
-| **MASTERPIECES (IMDb 9.5+)** | Dedicated Hall of Fame shelf celebrating cinematic triumphs with verified scores of 9.5 and above with gold masterpiece pill badges and ambient amber border accents. |
-| **SEE ALL SECTION ROUTING** | Clicking "See All >" on any media shelf must open its corresponding dedicated collection view (`#section-view`) or destination tab (e.g. Masterpieces opens the 9.5+ Hall of Fame grid, Continue Watching opens Watch History, Watchlist opens My List, OTT hubs open their catalog grid). "See All" must **NEVER** route or redirect users to the generic Search view. |
-| **CANONICAL MOVIE COVERS ONLY** | **Strictly 0 stock/placeholder photos.** Never use generic stock photos or Unsplash images for movie cards or shelves. All cards and shelves must display authentic theatrical release movie posters (`https://images.metahub.space/poster/medium/{imdb_id}/img` or verified TMDb CDN) so that the homepage card poster matches the cinema detail modal poster identically. |
-| **NAVIGATION TYPOGRAPHY** | Discover, Movies, Series, Anime, Live TV, JoyList text must be small (`font-size: 0.78rem` / `12.5px`, `font-weight: 500`). The Settings nav pill/tab follows the same sizing. |
-| **NAVIGATION COUNT** | Desktop `.joy-nav-pills` (with `.joy-nav-tablet` grouping Home, Movies, TV Shows, Anime, Live TV plus My List, Settings) and mobile `.joy-bottom-nav` carry **7 browse destinations**: Home, Movies, TV Shows, Live TV, Anime, My List, Settings (`data-filter="settings"`). Search is accessible directly via the enlarged `#search-box` input in the header. Keep `handleFilterChange()`, `hideAllViews()`/`showHomeViews()`, and both nav blocks in sync. |
-| **LIVE TV CHANNELS SECTION** | Dedicated `#livetv-view` featuring 180+ verified 24/7 global live TV channels across News, Sports, Cinema, Entertainment, Music, Documentaries, Animation, and Science. In-browser playback is powered by native HLS / `hls.min.js` on `#html-video` with automatic fallback to `/api/stream-proxy?url=...` for CORS bypass. Supports custom `.m3u8` stream insertion, channel search, category/country filtering, and in-player channel quick zapping. |
-| **ENLARGED SEARCH BAR** | The search input container must remain comfortable and spacious (`height: 42px`, `min-width: 290px` to `360px`, `padding: 0 16px`, pill radius, `/` keyboard shortcut). |
-| **NO ENGINE READY BUTTON** | The previous "Engine Ready" badge button in the navbar has been permanently excised. Do not re-add it. |
-| **CLEAN MODAL & RIGHT-SIDE SERVERS OPTION** | Do not crowd the detail modal with "Streaming Sources & Audio" lists. The modal button is named **"Play"** and defaults to the topmost server. The bottom bar has been excised to prevent overlapping with embed video player controls. A small "Servers ▾" option on the right side opens all streaming server options on click. Fullscreen is handled natively by the embedded player. |
+| **JOYFLIX LOGO & SIZING** | Bold uppercase Netflix Red wordmark `JOYFLIX`. Official brand logo is the 3D ribbon **'J'** logo (`/logo.svg`). |
+| **CANONICAL MOVIE COVERS ONLY** | **Strictly 0 stock/placeholder photos.** Never use generic stock photos or Unsplash images for movie cards or shelves. All cards and shelves must display authentic theatrical release movie posters (`https://images.metahub.space/poster/medium/{imdb_id}/img` or verified TMDb CDN). |
 | **NEVER REINTRODUCE MOV_BBB.MP4** | The 10-second Big Buck Bunny cartoon fallback (`mov_bbb.mp4`) was an old bug that played cartoon clips instead of movies. It must never be re-introduced. |
 
 ---
@@ -156,11 +149,24 @@ flowchart TD
     S1 & S2 & S3 & S4 --> WebPlayer[Direct In-Browser Player]
 ```
 
-### Web Player Resolution Targets
-1. **VidLink Fast Cloud**: `https://vidlink.pro/movie/{imdb_id}` (or `/tv/{imdb_id}/{s}/{e}`)
-2. **2Embed Multi-Server**: `https://www.2embed.cc/embed/{imdb_id}` (or `/embedtv/{imdb_id}&s={s}&e={e}`)
+### Web Player Resolution Targets (15 Active Verified Embed Servers)
+1. **VidLink Pro**: `https://vidlink.pro/movie/{imdb_id}` (or `/tv/{imdb_id}/{s}/{e}`)
+2. **NexStream VIP**: `https://api.codespecters.com/embed/movie/{imdb_id}` (or `/embed/tv/{imdb_id}/{s}/{e}`)
 3. **AutoEmbed Cloud**: `https://autoembed.co/movie/imdb/{imdb_id}` (or `/tv/imdb/{imdb_id}/{s}/{e}`)
-4. **VidSrc Mirror**: HD embed mirror fallback.
+4. **VidSrc PM**: `https://vidsrc.pm/embed/movie/{imdb_id}` (or `/embed/tv/{imdb_id}/{s}/{e}`)
+5. **VidSrc SU**: `https://vidsrc.su/embed/movie/{imdb_id}` (or `/embed/tv/{imdb_id}/{s}/{e}`)
+6. **VidJoy Cinema**: `https://vidjoy.pro/embed/movie/{imdb_id}` (or `/embed/tv/{imdb_id}/{s}/{e}`)
+7. **2Embed Multi-Server**: `https://www.2embed.cc/embed/{imdb_id}` (or `/embedtv/{imdb_id}&s={s}&e={e}`)
+8. **111Movies**: `https://111movies.net/movie/{imdb_id}` (or `/tv/{imdb_id}/{s}/{e}`)
+9. **VidLove**: `https://player.vidlove.cc/embed/movie/{tmdb_id}` (or `/embed/tv/{tmdb_id}/{s}/{e}`) *(Auto-resolves IMDb -> TMDb)*
+10. **Filmu**: `https://embed.filmu.in/movie/{imdb_id}` (or `/tv/{imdb_id}/{s}/{e}`)
+11. **VidCore**: `https://vidcore.org/embed/movie/{imdb_id}` (or `/embed/tv/{imdb_id}/{s}/{e}`)
+12. **APIPlayer**: `https://apiplayer.ru/embed/movie/{imdb_id}` (or `/embed/tv/{imdb_id}/{s}/{e}`)
+13. **CineSrc**: `https://cinesrc.st/embed/movie/{imdb_id}` (or `/embed/tv/{imdb_id}?s={s}&e={e}`)
+14. **EmbedMaster**: `https://embedmaster.link/movie/{tmdb_id}` (or `/tv/{tmdb_id}/{s}/{e}`) *(Auto-resolves IMDb -> TMDb)*
+15. **VidSrc3**: `https://vidsrc3.created.app/embed/movie/{imdb_id}` (or `/embed/tv/{imdb_id}/{s}/{e}`)
+
+> **Excluded Candidate Servers (Dead / Broken / 404):** `videasy.to` (DNS dead), `superembed.stream` (404/403 API dead), `autoembed.app` (404/timeout).
 
 ---
 

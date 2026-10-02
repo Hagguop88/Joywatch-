@@ -21,6 +21,8 @@ output/
 test_*.json
 *.log
 *.png
+!public/*.png
+!public/icons/*.png
 
 # Vercel Cache
 .vercel/

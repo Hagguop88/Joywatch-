@@ -1,19 +1,19 @@
 {
-  "name": "Joywatch - Ambient Cinema",
-  "short_name": "Joywatch",
-  "description": "Minimalist high-speed cinema streaming and discovery.",
+  "name": "Joyflix - Cinema Streaming",
+  "short_name": "Joyflix",
+  "description": "Authentic Netflix-style cinema streaming & discovery.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#0C0A06",
-  "theme_color": "#0C0A06",
+  "background_color": "#141414",
+  "theme_color": "#141414",
   "categories": ["entertainment", "movies", "video"],
   "icons": [
     {
-      "src": "/logo.jpg",
+      "src": "/logo.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
